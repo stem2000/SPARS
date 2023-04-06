@@ -22,8 +22,7 @@ public class CameraRotation : MonoBehaviour
     private Vector3 _positionStepDifference;
     private int _framesSinceLastFixedUpdate = 0;
     private Quaternion _playerRotation;
-
-
+    private Quaternion _cameraRotation;
 
     private Vector3 InterpolateRigidbodyPosition()
     {
@@ -56,6 +55,7 @@ public class CameraRotation : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         _inputManager = InputManager.Instance;
         MainCamera.position = transform.position;
+        StartCoroutine(PostSimulationUpdate());
     }
 
  
@@ -68,23 +68,37 @@ public class CameraRotation : MonoBehaviour
         yRotation = Mathf.Clamp(yRotation, -XRotationUpperLimit, -XRotationLowerLimit);
 
         _playerRotation = Quaternion.Euler(0f, xRotation, 0f);
-        var cameraRotation = Quaternion.Euler(yRotation, 0f, 0f);
+        _cameraRotation = Quaternion.Euler(yRotation, 0f, 0f);
 
         //MainCamera.position = transform.position;
         Debug.Log($"Current camera position: {transform.position} Frame number: {Time.frameCount}");
         Debug.Log($"Current player position: {transform.position} Frame number: {Time.frameCount}");
-
-        MainCamera.localRotation = cameraRotation;
-
     }
 
 
     protected void FixedUpdate()
     {
-        _playerRB.MoveRotation(_playerRotation);
         _framesSinceLastFixedUpdate = 0;
         _nextPosition = transform.position + _playerRB.velocity * Time.fixedDeltaTime;
         _interpolatedPosition = _cameraHolderLastPosition = transform.position;
         _positionStepDifference = _nextPosition - _interpolatedPosition;
     }
+
+
+    IEnumerator PostSimulationUpdate()
+    {
+        YieldInstruction waitForFixedUpdate = new WaitForFixedUpdate();
+        while (true)
+        {
+            yield return waitForFixedUpdate;
+
+            Player.GetComponent<Rigidbody>().MoveRotation(Quaternion.AngleAxis(xRotation, Vector3.up));
+            MainCamera.localRotation = _cameraRotation;
+
+        }
+    }
+
+
 }
+
+

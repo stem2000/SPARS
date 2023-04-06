@@ -50,6 +50,11 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
+    public bool PlayerIsGrounded()
+    {
+        return _grounded;
+    }
+
 
     protected void Start()
     {
