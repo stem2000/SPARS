@@ -61,6 +61,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (_grounded && _shouldJump)
             _rigidbody.velocity = new Vector3(_rigidbody.velocity.x, _jumpForce, _rigidbody.velocity.z);
+        //Debug.Log($"Current player position: {transform.position} Frame number: {Time.frameCount}");
     }
 
 
