@@ -11,16 +11,32 @@ namespace RhythmShooter.Controllers
     {
         private InputManager _inputManager;
         private PlayerMovement _playerMovement;
-        private bool _isRunning;
-        private bool _isJumping;
-        private int _isRunningHashAnim;
-        private int _isJumpingHashAnim;
         private Vector2 _playerInput;
         private Animator _animator;
+
+        #region VARIABLES_FOR_ANIMATION_CONTROL
+        private bool _isRunning;
+        private bool _isJumping;
+        private bool _isGrounded;
+        private int _isRunningHash;
+        private int _isJumpingHash;
+        private int _isGroundedHash;
+        private float _xBlendVelocity;
+        private float _yBlendVelocity;
+        private int _xBlendVelocityHash;
+        private int _yBlendVelocityHash;
+        [SerializeField]
+        private float SmoothAnimationSpeed = 8.9f;
+        #endregion
+
         #region METHODS
         protected void Animate()
         {
-            _animator.SetBool(_isRunningHashAnim, _isRunning);
+            _animator.SetBool(_isRunningHash, _isRunning);
+            _animator.SetBool(_isJumpingHash, _playerMovement.ShouldJump);
+            _animator.SetBool(_isGroundedHash, _playerMovement.PlayerIsGrounded());
+            _animator.SetFloat(_xBlendVelocityHash, _xBlendVelocity);
+            _animator.SetFloat(_yBlendVelocityHash, _yBlendVelocity);
         }
 
         protected void HandleInput()
@@ -36,8 +52,8 @@ namespace RhythmShooter.Controllers
 
         protected void SetUpAnimationTransitions()
         {
-            _isRunning = _playerInput.magnitude > 0 && _playerMovement.PlayerIsGrounded() ? true : false;
-            _isJumping = !_isRunning;
+            _isRunning = _playerInput.magnitude > 0 ? true : false;
+            InterpolateBlendTreeVelocity();
         }
         #endregion
 
@@ -45,9 +61,42 @@ namespace RhythmShooter.Controllers
         protected void Start()
         {
             _playerMovement = GetComponent<PlayerMovement>();
-            _isRunningHashAnim = Animator.StringToHash("isRunning");
             _animator = GetComponent<Animator>();
+            GetAnimatorVariablesHashes();
         }
+
+
+        protected void GetAnimatorVariablesHashes()
+        {
+            _isRunningHash = Animator.StringToHash("isRunning");
+            _isJumpingHash = Animator.StringToHash("isJumping");
+            _isGroundedHash = Animator.StringToHash("isGrounded");
+            _xBlendVelocityHash = Animator.StringToHash("xVelocity");
+            _yBlendVelocityHash = Animator.StringToHash("yVelocity");
+        }
+
+
+        protected void InterpolateBlendTreeVelocity()
+        {
+            if (!_isRunning)
+            {
+                if(_xBlendVelocity > 0 || _yBlendVelocity > 0)
+                    _xBlendVelocity = _yBlendVelocity = 0;
+                return;
+            }
+
+            if(_xBlendVelocity == 0 && _yBlendVelocity == 0)
+            {
+                _xBlendVelocity = _playerMovement.MoveDirection.x;
+                _yBlendVelocity = _playerMovement.MoveDirection.y;
+            }
+            else
+            {
+                _xBlendVelocity = Mathf.Lerp(_xBlendVelocity, _playerMovement.MoveDirection.x, SmoothAnimationSpeed * Time.deltaTime);
+                _yBlendVelocity = Mathf.Lerp(_yBlendVelocity, _playerMovement.MoveDirection.z, SmoothAnimationSpeed * Time.deltaTime);
+            }
+        }
+
 
         protected void Awake()
         {

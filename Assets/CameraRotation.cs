@@ -24,25 +24,6 @@ public class CameraRotation : MonoBehaviour
     private Quaternion _playerRotation;
     private Quaternion _cameraRotation;
 
-    private Vector3 InterpolateRigidbodyPosition()
-    {
-        _interpolatedPosition += _positionStepDifference / (Time.fixedDeltaTime / Time.deltaTime);
-        //Debug.Log($"Camera position - {MainCamera.position}, NextPosition - {_nextPosition} InterpolatedPosition - {_interpolatedPosition}, " +
-        //            $"Velocity - {_playerRB.velocity}, Position Difference{_interpolatedPosition - MainCamera.position}," +
-        //            $"CurrentFrameSinceFixedUpdate - {_framesSinceLastFixedUpdate}");
-        return _interpolatedPosition;
-    }
-
-
-    private Vector3 Vector3Clamp(Vector3 value, Vector3 min, Vector3 max)
-    {
-        var x = Mathf.Clamp(value.x, min.x, max.x);
-        var y = Mathf.Clamp(value.y, min.y, max.y);
-        var z = Mathf.Clamp(value.z, min.z, max.z);
-        var clampedVector = new Vector3(x, y, z);
-        return clampedVector;
-    }
-
 
     protected void Start()
     {
@@ -63,12 +44,12 @@ public class CameraRotation : MonoBehaviour
     {
         _framesSinceLastFixedUpdate++;
         Vector2 mouseDelta = _inputManager.GetMouseDelta();
-        xRotation += mouseDelta.x * Sensitivity;
-        yRotation -= mouseDelta.y * Sensitivity;
-        yRotation = Mathf.Clamp(yRotation, -XRotationUpperLimit, -XRotationLowerLimit);
+        yRotation += mouseDelta.x * Sensitivity;
+        xRotation -= mouseDelta.y * Sensitivity;
+        xRotation = Mathf.Clamp(xRotation, -XRotationUpperLimit, -XRotationLowerLimit);
 
-        _playerRotation = Quaternion.Euler(0f, xRotation, 0f);
-        _cameraRotation = Quaternion.Euler(yRotation, 0f, 0f);
+        _playerRotation = Quaternion.Euler(0f, yRotation, 0f);
+        _cameraRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
         //MainCamera.position = transform.position;
         Debug.Log($"Current camera position: {transform.position} Frame number: {Time.frameCount}");
@@ -79,9 +60,6 @@ public class CameraRotation : MonoBehaviour
     protected void FixedUpdate()
     {
         _framesSinceLastFixedUpdate = 0;
-        _nextPosition = transform.position + _playerRB.velocity * Time.fixedDeltaTime;
-        _interpolatedPosition = _cameraHolderLastPosition = transform.position;
-        _positionStepDifference = _nextPosition - _interpolatedPosition;
     }
 
 
@@ -92,8 +70,8 @@ public class CameraRotation : MonoBehaviour
         {
             yield return waitForFixedUpdate;
 
-            Player.GetComponent<Rigidbody>().MoveRotation(Quaternion.AngleAxis(xRotation, Vector3.up));
-            MainCamera.localRotation = _cameraRotation;
+            Player.GetComponent<Rigidbody>().MoveRotation(_playerRotation.normalized);
+            MainCamera.localRotation = _cameraRotation.normalized;
 
         }
     }
