@@ -19,9 +19,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private float MinDot = 0.6f;
     private RaycastHit _slopeHit;
-    private Collider _playerCollider;
+    [SerializeField]
+    private CapsuleCollider _playerCollider;
+    [SerializeField]
+    private SphereCollider _groundCheckCollider;
+    private Vector3 xzProjection;
 
-    
+
 
     public Vector3 MoveDirection 
     { 
@@ -72,26 +76,9 @@ public class PlayerMovement : MonoBehaviour
             _finalVelocity = GetSlopeMoveDirection();
             _finalVelocity *= _speed;
             _rigidbody.velocity = _finalVelocity;
-            Debug.Log($"OnSlope - {_finalVelocity}");
         }
         else
             _rigidbody.velocity = CalculateRelativeVelocity();
-    }
-
-
-    public void ControlContactPoints(Collision collision)
-    {
-        
-        for (int i = 0; i < collision.contactCount; i++)
-        {
-            Vector3 normal = collision.GetContact(i).normal;
-            float dot = Vector3.Dot(normal, Vector3.up);
-            if (dot > MinDot)
-            {
-                _grounded = true;
-            }
-                
-        }
     }
 
 
@@ -109,20 +96,15 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 GetSlopeMoveDirection()
     {
-        return transform.TransformVector(Vector3.ProjectOnPlane(_moveDirection, _slopeHit.normal).normalized);
+        return Vector3.ProjectOnPlane(transform.TransformVector(_moveDirection), _slopeHit.normal).normalized;
     }
 
 
-    public bool PlayerIsGrounded()
+    public void PlayerIsGrounded(Collision collision)
     {
-        Physics.Raycast(transform.position, Vector3.down, out _slopeHit, 0.5f);
-        if(_slopeHit.distance > 0)
+        if(collision.collider == _groundCheckCollider)
         {
-            return false;
-        }
-        else
-        {
-            return true;
+            _grounded = true;
         }
     }
 
@@ -130,7 +112,6 @@ public class PlayerMovement : MonoBehaviour
     protected void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        _playerCollider = GetComponentInChildren<Collider>();
     }
 
 
@@ -140,19 +121,18 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        ControlContactPoints(collision);
+        _grounded = true;
     }
 
 
-    private void OnCollisionStay(Collision collision)
+    private void OnTriggerStay(Collider other)
     {
-        ControlContactPoints(collision);
+        _grounded = true;
     }
 
-
-    private void OnCollisionExit(Collision collision)
+    private void OnTriggerExit(Collider other)
     {
         _grounded = false;
     }
