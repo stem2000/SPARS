@@ -14,15 +14,8 @@ public class CameraRotation : MonoBehaviour
 
     private InputManager _inputManager;
     private float xRotation = 0f;
-    private float yRotation = 0f; 
-
-    private Vector3 _nextPosition;
-    private Vector3 _cameraHolderLastPosition;
-    private Vector3 _interpolatedPosition;
-    private Vector3 _positionStepDifference;
-    private int _framesSinceLastFixedUpdate = 0;
-    private Quaternion _playerRotation;
-    private Quaternion _cameraRotation;
+    private float yRotation = 0f;
+    [SerializeField] float _lerpSpeed = 50f;
 
 
     protected void Start()
@@ -39,27 +32,17 @@ public class CameraRotation : MonoBehaviour
         StartCoroutine(PostSimulationUpdate());
     }
 
- 
+
     protected void LateUpdate()
     {
-        _framesSinceLastFixedUpdate++;
+        MainCamera.transform.position = transform.position;
         Vector2 mouseDelta = _inputManager.GetMouseDelta();
-        yRotation += mouseDelta.x * Sensitivity;
-        xRotation -= mouseDelta.y * Sensitivity;
-        xRotation = Mathf.Clamp(xRotation, -XRotationUpperLimit, -XRotationLowerLimit);
+        xRotation += mouseDelta.x * Sensitivity;
+        yRotation -= mouseDelta.y * Sensitivity;
+        yRotation = Mathf.Clamp(yRotation, -XRotationUpperLimit, -XRotationLowerLimit);
 
-        _playerRotation = Quaternion.Euler(0f, yRotation, 0f);
-        _cameraRotation = Quaternion.Euler(xRotation, 0f, 0f);
-
-        //MainCamera.position = transform.position;
-        Debug.Log($"Current camera position: {transform.position} Frame number: {Time.frameCount}");
-        Debug.Log($"Current player position: {transform.position} Frame number: {Time.frameCount}");
-    }
-
-
-    protected void FixedUpdate()
-    {
-        _framesSinceLastFixedUpdate = 0;
+        var cameraRotation = Quaternion.Euler(yRotation, xRotation, 0f);
+        MainCamera.rotation = Quaternion.Lerp(MainCamera.rotation, cameraRotation, _lerpSpeed * Time.deltaTime);
     }
 
 
@@ -69,10 +52,7 @@ public class CameraRotation : MonoBehaviour
         while (true)
         {
             yield return waitForFixedUpdate;
-
-            Player.GetComponent<Rigidbody>().MoveRotation(_playerRotation.normalized);
-            MainCamera.localRotation = _cameraRotation.normalized;
-
+            _playerRB.MoveRotation(Quaternion.AngleAxis(xRotation, Vector3.up));
         }
     }
 

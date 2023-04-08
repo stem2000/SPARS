@@ -26,7 +26,7 @@ namespace RhythmShooter.Controllers
         private int _xBlendVelocityHash;
         private int _yBlendVelocityHash;
         [SerializeField]
-        private float SmoothAnimationSpeed = 8.9f;
+        private float SmoothAnimationSpeed = 50f;
         #endregion
 
         #region METHODS
@@ -34,7 +34,7 @@ namespace RhythmShooter.Controllers
         {
             _animator.SetBool(_isRunningHash, _isRunning);
             _animator.SetBool(_isJumpingHash, _playerMovement.ShouldJump);
-            _animator.SetBool(_isGroundedHash, _playerMovement.PlayerIsGrounded());
+            _animator.SetBool(_isGroundedHash, _playerMovement.Grounded);
             _animator.SetFloat(_xBlendVelocityHash, _xBlendVelocity);
             _animator.SetFloat(_yBlendVelocityHash, _yBlendVelocity);
         }
@@ -43,7 +43,6 @@ namespace RhythmShooter.Controllers
         {
             _playerInput = _inputManager.GetPlayerMovement();
             var jumpInput = _inputManager.GetJumpInput();
-
 
             _playerMovement.MoveDirection = new Vector3(_playerInput.x, 0, _playerInput.y );
             _playerMovement.ShouldJump = jumpInput != 0 ? true : false;
