@@ -11,19 +11,14 @@ public class PlayerMovement : MonoBehaviour
     private bool _shouldJump;
     private Rigidbody _rigidbody;
     [SerializeField]
-    private float JumpForwardLenght = 0.8f;
-    [SerializeField]
     private float _speed = 10;
     [SerializeField]
     private float JumpForce = 10;
-    [SerializeField]
-    private float MinDot = 0.6f;
     private RaycastHit _slopeHit;
     [SerializeField]
     private CapsuleCollider _playerCollider;
     [SerializeField]
     private SphereCollider _groundCheckCollider;
-    private Vector3 xzProjection;
 
 
 
