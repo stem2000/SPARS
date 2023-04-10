@@ -4,9 +4,9 @@ using UnityEngine.SocialPlatforms;
 
 public class CameraRotation : MonoBehaviour
 {
-    public Transform Player;
+    public Rigidbody Player;
+    public Transform CameraHolder;
     public Transform MainCamera;
-    private Rigidbody _playerRB;
     public float MovementSmoothSpeed = 15f;
     public float Sensitivity = 10f;
     public float XRotationUpperLimit = 90f;
@@ -16,12 +16,6 @@ public class CameraRotation : MonoBehaviour
     private float xRotation = 0f;
     private float yRotation = 0f;
     [SerializeField] float _lerpSpeed = 50f;
-
-
-    protected void Start()
-    {
-        _playerRB = Player.GetComponent<Rigidbody>();
-    }
 
 
     protected void Awake()
@@ -35,7 +29,7 @@ public class CameraRotation : MonoBehaviour
 
     protected void LateUpdate()
     {
-        MainCamera.transform.position = transform.position;
+
         Vector2 mouseDelta = _inputManager.GetMouseDelta();
         xRotation += mouseDelta.x * Sensitivity;
         yRotation -= mouseDelta.y * Sensitivity;
@@ -43,6 +37,7 @@ public class CameraRotation : MonoBehaviour
 
         var cameraRotation = Quaternion.Euler(yRotation, xRotation, 0f);
         MainCamera.rotation = Quaternion.Lerp(MainCamera.rotation, cameraRotation, _lerpSpeed * Time.deltaTime);
+        MainCamera.position = CameraHolder.position;
     }
 
 
@@ -52,7 +47,7 @@ public class CameraRotation : MonoBehaviour
         while (true)
         {
             yield return waitForFixedUpdate;
-            _playerRB.MoveRotation(Quaternion.AngleAxis(xRotation, Vector3.up));
+            Player.MoveRotation(Quaternion.AngleAxis(xRotation, Vector3.up));
         }
     }
 

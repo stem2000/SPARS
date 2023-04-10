@@ -19,7 +19,8 @@ public class PlayerMovement : MonoBehaviour
     private CapsuleCollider _playerCollider;
     [SerializeField]
     private SphereCollider _groundCheckCollider;
-
+    [SerializeField] private float CoyoteTime = 0.2f;
+    private float _coyoteTimeCounter;
 
 
     public Vector3 MoveDirection 
@@ -54,23 +55,26 @@ public class PlayerMovement : MonoBehaviour
 
     protected void ApplyVelocity()
     {
-        Vector3 _finalVelocity = Vector3.zero;
-
-        if (_shouldJump && _grounded)
+        if (_shouldJump && _coyoteTimeCounter > 0)
         {
-            var velocityDirection = transform.forward;
+            Vector3 velocityDirection;
+            velocityDirection = _moveDirection.normalized;
             velocityDirection.y = 1f;
-            _rigidbody.velocity = velocityDirection * JumpForce;
+            _rigidbody.velocity = transform.TransformVector(velocityDirection.normalized) * JumpForce;
+            _coyoteTimeCounter = 0f;
         }
         else if (!_grounded)
         {
-            return;
+            var newVelocityDirection = Vector3.Project(_rigidbody.velocity, transform.forward);
+            newVelocityDirection.y = _rigidbody.velocity.y;
+            _rigidbody.velocity = newVelocityDirection;
         }
         else if (IsOnSlope() && _grounded)
         {
-            _finalVelocity = GetSlopeMoveDirection();
-            _finalVelocity *= _speed;
-            _rigidbody.velocity = _finalVelocity;
+            Vector3 finalVelocity = Vector3.zero;
+            finalVelocity = GetSlopeMoveDirection();
+            finalVelocity *= _speed;
+            _rigidbody.velocity = finalVelocity;
         }
         else
             _rigidbody.velocity = CalculateRelativeVelocity();
@@ -95,24 +99,23 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
-    public void PlayerIsGrounded(Collision collision)
-    {
-        if(collision.collider == _groundCheckCollider)
-        {
-            _grounded = true;
-        }
-    }
-
-
     protected void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        _coyoteTimeCounter = CoyoteTime;
     }
 
 
     protected void FixedUpdate()
     {
         ApplyVelocity();
+    }
+
+
+    protected void Update()
+    {
+        if(!_grounded)
+            _coyoteTimeCounter -= Time.deltaTime;
     }
 
 
@@ -125,6 +128,7 @@ public class PlayerMovement : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
         _grounded = true;
+        _coyoteTimeCounter = CoyoteTime;
     }
 
     private void OnTriggerExit(Collider other)
