@@ -147,6 +147,7 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector3 velocityDirection;
         velocityDirection = _moveDirection.normalized;
+        Debug.Log($"VelDir - {velocityDirection}");
         if(_grounded)
             _rigidbody.velocity = transform.TransformVector(velocityDirection) * DashForce;
         else 

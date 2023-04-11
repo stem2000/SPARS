@@ -43,10 +43,6 @@ public class InputManager : MonoBehaviour
 
     public bool GetDashInput()
     {
-        if (_playerControls.Player.Dash.triggered)
-        {
-            Debug.Log($"Triggered dash");
-        }
         return _playerControls.Player.Dash.triggered;
     }
     #endregion
