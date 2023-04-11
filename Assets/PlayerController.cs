@@ -30,11 +30,13 @@ namespace RhythmShooter.Controllers
         {
             _playerInput = _inputManager.GetPlayerMovement();
             var jumpInput = _inputManager.GetJumpInput();
+            var dashInput = _inputManager.GetDashInput();
 
             _playerInputV3.x = _playerInput.x;
             _playerInputV3.z = _playerInput.y;
             _playerMovement.MoveDirection = _playerInputV3;
             _playerMovement.ShouldJump = jumpInput != 0 ? true : false;
+            _playerMovement.ShouldDash = dashInput;
         }
         #endregion
 
@@ -44,7 +46,6 @@ namespace RhythmShooter.Controllers
             _playerMovement = GetComponent<PlayerMovement>();
             _animator = GetComponent<PlayerAnimator>();
         }
-
 
 
         protected void Awake()

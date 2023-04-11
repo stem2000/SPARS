@@ -9,18 +9,25 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 _moveDirection;
     private bool _grounded;
     private bool _shouldJump;
+    private bool _shouldDash;
     private Rigidbody _rigidbody;
     [SerializeField]
     private float _speed = 10;
     [SerializeField]
     private float JumpForce = 10;
+    [SerializeField]
+    private float DashForce = 10;
     private RaycastHit _slopeHit;
     [SerializeField]
     private CapsuleCollider _playerCollider;
     [SerializeField]
     private SphereCollider _groundCheckCollider;
     [SerializeField] private float CoyoteTime = 0.2f;
+    [SerializeField] private float DashLockTime = 0.5f;
+    [SerializeField] private float DashDuration = 0.25f;
+    [SerializeField] private float AirDashSpeedFactor = 0.5f;
     private float _coyoteTimeCounter;
+    private float _dashPauseCounter;
 
 
     public Vector3 MoveDirection 
@@ -34,6 +41,19 @@ public class PlayerMovement : MonoBehaviour
     {
         get { return _shouldJump; }
         set { _shouldJump = value; }
+    }
+
+
+    public bool ShouldDash
+    {
+        get { return _shouldDash; }
+        set 
+        { 
+            if(_shouldDash != true)
+            {
+                _shouldDash = _dashPauseCounter <= 0 ? value : false;
+            }            
+        }
     }
 
 
@@ -57,27 +77,25 @@ public class PlayerMovement : MonoBehaviour
     {
         if (_shouldJump && _coyoteTimeCounter > 0)
         {
-            Vector3 velocityDirection;
-            velocityDirection = _moveDirection.normalized;
-            velocityDirection.y = 1f;
-            _rigidbody.velocity = transform.TransformVector(velocityDirection.normalized) * JumpForce;
-            _coyoteTimeCounter = 0f;
+            Jump();
         }
-        else if (!_grounded)
+        else if (!_grounded && !_shouldDash)
         {
-            var newVelocityDirection = Vector3.Project(_rigidbody.velocity, transform.forward);
-            newVelocityDirection.y = _rigidbody.velocity.y;
-            _rigidbody.velocity = newVelocityDirection;
+            FreeFlight();
+        }
+        else if (_shouldDash)
+        {
+            Dash();
         }
         else if (IsOnSlope() && _grounded)
         {
-            Vector3 finalVelocity = Vector3.zero;
-            finalVelocity = GetSlopeMoveDirection();
-            finalVelocity *= _speed;
-            _rigidbody.velocity = finalVelocity;
+            Slope();
         }
         else
+        {
             _rigidbody.velocity = CalculateRelativeVelocity();
+        }
+            
     }
 
 
@@ -99,6 +117,51 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
+    private void Jump()
+    {
+        Vector3 velocityDirection;
+        velocityDirection = _moveDirection.normalized;
+        velocityDirection.y = 1f;
+        _rigidbody.velocity = transform.TransformVector(velocityDirection.normalized) * JumpForce;
+    }
+
+
+    private void FreeFlight()
+    {
+        var newVelocityDirection = Vector3.Project(_rigidbody.velocity, transform.forward);
+        newVelocityDirection.y = _rigidbody.velocity.y;
+        _rigidbody.velocity = newVelocityDirection;
+    }
+
+
+    private void Slope()
+    {
+        Vector3 finalVelocity = Vector3.zero;
+        finalVelocity = GetSlopeMoveDirection();
+        finalVelocity *= _speed;
+        _rigidbody.velocity = finalVelocity;
+    }
+
+
+    private void Dash()
+    {
+        Vector3 velocityDirection;
+        velocityDirection = _moveDirection.normalized;
+        if(_grounded)
+            _rigidbody.velocity = transform.TransformVector(velocityDirection) * DashForce;
+        else 
+            _rigidbody.velocity = transform.TransformVector(velocityDirection) * DashForce * AirDashSpeedFactor;
+
+        _dashPauseCounter = DashLockTime;
+        Invoke(nameof(ResetDash), DashDuration);
+    }
+    
+
+    private void ResetDash() 
+    { 
+        _shouldDash = false;
+    }
+
     protected void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -116,6 +179,10 @@ public class PlayerMovement : MonoBehaviour
     {
         if(!_grounded)
             _coyoteTimeCounter -= Time.deltaTime;
+        if(_dashPauseCounter > 0)
+        {
+            _dashPauseCounter -= Time.deltaTime;
+        }
     }
 
 

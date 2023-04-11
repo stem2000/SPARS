@@ -39,6 +39,16 @@ public class InputManager : MonoBehaviour
     {
         return _playerControls.Player.Jump.ReadValue<float>();
     }
+
+
+    public bool GetDashInput()
+    {
+        if (_playerControls.Player.Dash.triggered)
+        {
+            Debug.Log($"Triggered dash");
+        }
+        return _playerControls.Player.Dash.triggered;
+    }
     #endregion
 
     #region MONOBEHAVIOUR_METHODS
