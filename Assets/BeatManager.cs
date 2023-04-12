@@ -56,9 +56,8 @@ public class BeatManager : MonoBehaviour
 public class Intervals
 {
     [SerializeField] public float Steps;
-    [SerializeField] private float _intervalPart = 0.5f;
-    [SerializeField] private BeatEvent _beatEvent;
-    [SerializeField] private CurrentBeatStateEvent _currentBeatStateEvent;
+    [SerializeField] private UnityEvent _setBeat;
+    [SerializeField] private UpdateBeatStateEvent _updateBeat;
     private float _intervalLenght;
 
     [HideInInspector] public int LastInterval;
@@ -72,14 +71,13 @@ public class Intervals
 
     public void CheckForNewInterval(float sampledTime)
     {
-        //Debug.Log($"SampledTime - {sampledTime} LastInterval - {LastInterval}");
         if (Mathf.FloorToInt(sampledTime) != LastInterval)
         {
-            LastInterval = Mathf.FloorToInt(sampledTime);           
-            _beatEvent.Invoke(_intervalLenght, _intervalPart);
+            LastInterval = Mathf.FloorToInt(sampledTime);
+            _setBeat.Invoke();
         }
-        var beatProgressPoint = sampledTime - LastInterval;
-        _currentBeatStateEvent.Invoke(beatProgressPoint);
+        float sampleShift = sampledTime - LastInterval;
+        _updateBeat.Invoke(sampleShift);
     }
 }
 
@@ -94,7 +92,4 @@ public class IntervalState
 
 
 [System.Serializable]
-public class BeatEvent: UnityEvent<float, float> { }
-
-[System.Serializable]
-public class CurrentBeatStateEvent : UnityEvent<float> { }
+public class UpdateBeatStateEvent : UnityEvent<float> { }

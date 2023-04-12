@@ -13,6 +13,7 @@ namespace RhythmShooter.Controllers
         private InputManager _inputManager;
         private PlayerMovement _playerMovement;
         private PlayerAnimator _animator;
+        private PlayerGunHandler _gunHandler;
         private Vector2 _playerInput = Vector3.zero;
         private Vector3 _playerInputV3 = Vector3.zero;
 
@@ -34,10 +35,25 @@ namespace RhythmShooter.Controllers
 
             _playerInputV3.x = _playerInput.x;
             _playerInputV3.z = _playerInput.y;
+
             _playerMovement.MoveDirection = _playerInputV3;
+
             _playerMovement.ShouldJump = jumpInput != 0 ? true : false;
+
             _playerMovement.ShouldDash = dashInput;
+
+            ReferToGunHandler(_inputManager.GetShootInput());
         }
+
+
+        protected void ReferToGunHandler(bool canShoot)
+        {
+            if (canShoot)
+            {
+                _gunHandler.TryShoot();
+            }
+        }
+
         #endregion
 
         #region MONOBEHAVIOURMETHODS
@@ -45,6 +61,7 @@ namespace RhythmShooter.Controllers
         {
             _playerMovement = GetComponent<PlayerMovement>();
             _animator = GetComponent<PlayerAnimator>();
+            _gunHandler = GetComponent<PlayerGunHandler>();
         }
 
 
@@ -59,7 +76,6 @@ namespace RhythmShooter.Controllers
             HandleInput();
             Animate();
         }
-
         #endregion
     }
 }

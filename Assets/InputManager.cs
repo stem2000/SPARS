@@ -45,6 +45,12 @@ public class InputManager : MonoBehaviour
     {
         return _playerControls.Player.Dash.triggered;
     }
+
+
+    public bool GetShootInput()
+    {
+        return _playerControls.Player.Shoot.triggered;
+    }
     #endregion
 
     #region MONOBEHAVIOUR_METHODS

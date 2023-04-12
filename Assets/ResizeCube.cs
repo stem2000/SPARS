@@ -18,7 +18,7 @@ public class ResizeCube : MonoBehaviour
     }
 
 
-    public void Pulse(float x, float y)
+    public void Pulse()
     {
         transform.localScale = new Vector3(_startSize.x * _pulseSize, _startSize.y ,_startSize.z * _pulseSize);
     }
