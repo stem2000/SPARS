@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -27,7 +28,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float DashDuration = 0.25f;
     [SerializeField] private float AirDashSpeedFactor = 0.5f;
     private float _coyoteTimeCounter;
-    private float _dashPauseCounter;
+    private float _dashPauseCounter = 0;
+    private Vector3 _DashDirection = Vector3.zero;
+    private Vector3 _startFlyForwardDirection;
+    private bool _inFly = false;
+    private Vector3 _flyForwardDirection;
 
 
     public Vector3 MoveDirection 
@@ -51,7 +56,7 @@ public class PlayerMovement : MonoBehaviour
         { 
             if(_shouldDash != true)
             {
-                _shouldDash = _dashPauseCounter <= 0 ? value : false;
+                _shouldDash = value;
             }            
         }
     }
@@ -122,15 +127,21 @@ public class PlayerMovement : MonoBehaviour
         Vector3 velocityDirection;
         velocityDirection = _moveDirection.normalized;
         velocityDirection.y = 1f;
-        _rigidbody.velocity = transform.TransformVector(velocityDirection.normalized) * JumpForce;
+        _rigidbody.velocity = transform.TransformVector(velocityDirection.normalized) * JumpForce; 
     }
 
 
     private void FreeFlight()
     {
-        var newVelocityDirection = Vector3.Project(_rigidbody.velocity, transform.forward);
-        newVelocityDirection.y = _rigidbody.velocity.y;
-        _rigidbody.velocity = newVelocityDirection;
+        if (!_inFly)
+        {
+            _inFly = true;
+            _flyForwardDirection = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+        }
+        Vector3 forwardXZ = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+        var angle = Vector3.SignedAngle(_flyForwardDirection, transform.forward, Vector3.up);
+        _rigidbody.velocity = Quaternion.Euler(0f, angle, 0f) * _rigidbody.velocity;
+        _flyForwardDirection = forwardXZ;
     }
 
 
@@ -145,13 +156,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void Dash()
     {
-        Vector3 velocityDirection;
-        velocityDirection = _moveDirection.normalized;
-        Debug.Log($"VelDir - {velocityDirection}");
+        if(_DashDirection == Vector3.zero)
+            _DashDirection = _moveDirection.normalized;
+
         if(_grounded)
-            _rigidbody.velocity = transform.TransformVector(velocityDirection) * DashForce;
+            _rigidbody.velocity = transform.TransformVector(_DashDirection) * DashForce;
         else 
-            _rigidbody.velocity = transform.TransformVector(velocityDirection) * DashForce * AirDashSpeedFactor;
+            _rigidbody.velocity = transform.TransformVector(_DashDirection) * DashForce * AirDashSpeedFactor;
 
         _dashPauseCounter = DashLockTime;
         Invoke(nameof(ResetDash), DashDuration);
@@ -161,6 +172,7 @@ public class PlayerMovement : MonoBehaviour
     private void ResetDash() 
     { 
         _shouldDash = false;
+        _DashDirection = Vector3.zero;
     }
 
     protected void Start()
@@ -196,6 +208,7 @@ public class PlayerMovement : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
         _grounded = true;
+        _inFly = false;
         _coyoteTimeCounter = CoyoteTime;
     }
 
