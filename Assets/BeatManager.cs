@@ -10,6 +10,7 @@ public class BeatManager : MonoBehaviour
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private Intervals[] _intervals;
     [SerializeField] private List<IntervalState> _intervalStates;
+    public BeatManager Instance;
 
 
     private void Update()
@@ -35,6 +36,19 @@ public class BeatManager : MonoBehaviour
             _intervals[intervalIndex].Steps = interval.NewSteps;
         }
     }
+
+
+    protected void Awake()
+    {
+        if(Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
 }
 
 
@@ -42,25 +56,30 @@ public class BeatManager : MonoBehaviour
 public class Intervals
 {
     [SerializeField] public float Steps;
-    [SerializeField] private UnityEvent _trigger;
-
+    [SerializeField] private float _intervalPart = 0.5f;
+    [SerializeField] private BeatEvent _beatEvent;
+    [SerializeField] private CurrentBeatStateEvent _currentBeatStateEvent;
+    private float _intervalLenght;
 
     [HideInInspector] public int LastInterval;
 
     public float GetIntervalLenght(float bpm)
     {
-        return 60f / (bpm * Steps);
+        _intervalLenght = 60f / (bpm * Steps);
+        return _intervalLenght;
     }
 
 
-    public void CheckForNewInterval(float interval)
+    public void CheckForNewInterval(float sampledTime)
     {
-        if(Mathf.FloorToInt(interval) != LastInterval)
+        //Debug.Log($"SampledTime - {sampledTime} LastInterval - {LastInterval}");
+        if (Mathf.FloorToInt(sampledTime) != LastInterval)
         {
-            LastInterval = Mathf.FloorToInt(interval);
-            //Debug.Log(LastInterval);
-            _trigger.Invoke();
+            LastInterval = Mathf.FloorToInt(sampledTime);           
+            _beatEvent.Invoke(_intervalLenght, _intervalPart);
         }
+        var beatProgressPoint = sampledTime - LastInterval;
+        _currentBeatStateEvent.Invoke(beatProgressPoint);
     }
 }
 
@@ -72,3 +91,10 @@ public class IntervalState
     public int SampleNumber;
     public float NewSteps;
 }
+
+
+[System.Serializable]
+public class BeatEvent: UnityEvent<float, float> { }
+
+[System.Serializable]
+public class CurrentBeatStateEvent : UnityEvent<float> { }
