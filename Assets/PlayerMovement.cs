@@ -27,10 +27,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float DashLockTime = 0.5f;
     [SerializeField] private float DashDuration = 0.25f;
     [SerializeField] private float AirDashSpeedFactor = 0.5f;
+    [SerializeField] private float FlySpeedLimit = 9;
     private float _coyoteTimeCounter;
     private float _dashPauseCounter = 0;
     private Vector3 _DashDirection = Vector3.zero;
-    private Vector3 _startFlyForwardDirection;
     private bool _inFly = false;
     private Vector3 _flyForwardDirection;
 
@@ -140,7 +140,10 @@ public class PlayerMovement : MonoBehaviour
         }
         Vector3 forwardXZ = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
         var angle = Vector3.SignedAngle(_flyForwardDirection, transform.forward, Vector3.up);
-        _rigidbody.velocity = Quaternion.Euler(0f, angle, 0f) * _rigidbody.velocity;
+
+        var newVelocity = Quaternion.Euler(0f, angle, 0f) * _rigidbody.velocity;
+        newVelocity = newVelocity.magnitude > FlySpeedLimit ? newVelocity.normalized * FlySpeedLimit : newVelocity;
+        _rigidbody.velocity = newVelocity;
         _flyForwardDirection = forwardXZ;
     }
 

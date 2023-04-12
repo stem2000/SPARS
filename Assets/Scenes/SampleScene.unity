@@ -1306,6 +1306,7 @@ MonoBehaviour:
   DashLockTime: 0.5
   DashDuration: 0.25
   AirDashSpeedFactor: 0.8
+  FlySpeedLimit: 9
 --- !u!54 &1258530968
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1765,7 +1766,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 909c6e59e07791b40bda5d6c36f8a950, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0
+  m_Volume: 1
   m_Pitch: 1
   Loop: 1
   Mute: 0
