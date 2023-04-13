@@ -7,34 +7,34 @@ using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
-    private Vector3 _moveDirection;
-    private bool _grounded;
-    private bool _shouldJump;
-    private bool _shouldDash;
-    private Rigidbody _rigidbody;
-    [SerializeField]
-    private float _speed = 10;
-    [SerializeField]
-    private float JumpForce = 10;
-    [SerializeField]
-    private float DashForce = 10;
-    private RaycastHit _slopeHit;
-    [SerializeField]
-    private CapsuleCollider _playerCollider;
-    [SerializeField]
-    private SphereCollider _groundCheckCollider;
+    [SerializeField] private CapsuleCollider _playerCollider;
+    [SerializeField] private SphereCollider _groundCheckCollider;
+    [SerializeField] private float _speed = 10;
+    [SerializeField] private float JumpForce = 10;
     [SerializeField] private float CoyoteTime = 0.2f;
+    [SerializeField] private float DashForce = 10;
     [SerializeField] private float DashLockTime = 0.5f;
     [SerializeField] private float DashDuration = 0.25f;
     [SerializeField] private float AirDashSpeedFactor = 0.5f;
     [SerializeField] private float FlySpeedLimit = 9;
-    private float _coyoteTimeCounter;
-    private float _dashPauseCounter = 0;
+
+    private Vector3 _moveDirection;
     private Vector3 _DashDirection = Vector3.zero;
-    private bool _inFly = false;
     private Vector3 _flyForwardDirection;
 
+    private bool _grounded;
+    private bool _shouldJump;
+    private bool _shouldDash;
+    private bool _inFly = false;
 
+    private float _coyoteTimeCounter;
+    private float _dashPauseCounter = 0;
+
+    private Rigidbody _rigidbody;
+
+    private RaycastHit _slopeHit;
+
+    #region PROPERTIES
     public Vector3 MoveDirection 
     { 
         get { return _moveDirection;} 
@@ -67,12 +67,14 @@ public class PlayerMovement : MonoBehaviour
         get { return _grounded; }
     }
 
+
     public float Speed
     {
         get { return _speed; }
     }
+    #endregion
 
-
+    #region PLAYERMOVEMENT_METHODS
     protected Vector3 CalculateRelativeVelocity()
     {
         return  transform.TransformVector(_moveDirection) * _speed;
@@ -177,7 +179,9 @@ public class PlayerMovement : MonoBehaviour
         _shouldDash = false;
         _DashDirection = Vector3.zero;
     }
+    #endregion
 
+    #region MONOVEHAVIOUR_METHODS
     protected void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -219,4 +223,5 @@ public class PlayerMovement : MonoBehaviour
     {
         _grounded = false;
     }
+    #endregion
 }

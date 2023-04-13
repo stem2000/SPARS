@@ -2,20 +2,23 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
-public class CameraRotation : MonoBehaviour
+public class PlayerRotation : MonoBehaviour
 {
+    [SerializeField] private float _lerpSpeed = 50f;
+
     public Rigidbody Player;
     public Transform CameraHolder;
     public Transform MainCamera;
+
+    private InputManager _inputManager;
+
     public float MovementSmoothSpeed = 15f;
     public float Sensitivity = 10f;
     public float XRotationUpperLimit = 90f;
     public float XRotationLowerLimit = -15f;
 
-    private InputManager _inputManager;
     private float xRotation = 0f;
     private float yRotation = 0f;
-    [SerializeField] float _lerpSpeed = 50f;
 
 
     protected void Awake()

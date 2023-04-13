@@ -17,42 +17,19 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     [SerializeField] private Color _spawnColor;
     [SerializeField] private Color _hitInBeatColor;
 
-    [SerializeField] private float _newScale = 0.7f;
+    [SerializeField] private float _rescaleSize = 0.7f;
     private Vector3 _originalScale;
 
     private Image[] _leftScopes;
     private Image[] _rightScopes;
 
-    private const int _scopesCount = 4;    
+    private const int _scopesCount = 3;    
     private int _currentScopes = 0;
     private bool _hitInBeatFixed = false;
 
     private Vector3 _extremePointDistance;
 
-    protected void Start()
-    {
-        _spawnColor = _rightScopePrefab.color;
-        _spawnColor.a = 0f;
-
-        _leftScopes = new Image[_scopesCount];
-        _rightScopes = new Image[_scopesCount];
-
-        _extremePointDistance = _leftEndPosition.position - _leftSpawnPosition.position;
-        _originalScale = _leftScopePrefab.transform.localScale;
-
-        for (int i = 0; i < _scopesCount; i++)
-        {
-            _leftScopes[i] = (Instantiate(_leftScopePrefab, transform));
-            _rightScopes[i] = (Instantiate(_rightScopePrefab, transform));
-
-            _rightScopes[i].color = _leftScopes[i].color = _spawnColor;
-
-            _rightScopes[i].rectTransform.position = _rightSpawnPosition.position;
-            _leftScopes[i].rectTransform.position = _leftSpawnPosition.position;
-        }
-    }
-
-
+    #region CROSSHAIR_CONTROLLER_METHODS
     public void SetNewBeatState()
     {
         UpdateBeatState(0);
@@ -67,6 +44,7 @@ public class CrosshairController : MonoBehaviour, BeatReactor
         ShiftPosition(sampleShift);
         ColorShift(sampleShift);
     }
+
 
     private void ScopesReset(int scopesNumber)
     {
@@ -106,7 +84,7 @@ public class CrosshairController : MonoBehaviour, BeatReactor
 
     public void HitInBeat()
     {
-        var scaleUpdate = new Vector3(_newScale, _newScale, 1);
+        var scaleUpdate = new Vector3(_rescaleSize, _rescaleSize, 1);
 
         _leftScopes[_currentScopes].transform.localScale = _rightScopes[_currentScopes].transform.localScale = scaleUpdate;
         _leftScopes[_currentScopes].color = _hitInBeatColor;
@@ -114,4 +92,36 @@ public class CrosshairController : MonoBehaviour, BeatReactor
 
         _hitInBeatFixed = true;
     }
+
+
+    private void InitializeComponents()
+    {
+        _spawnColor = _rightScopePrefab.color;
+        _spawnColor.a = 0f;
+
+        _leftScopes = new Image[_scopesCount];
+        _rightScopes = new Image[_scopesCount];
+
+        _extremePointDistance = _leftEndPosition.position - _leftSpawnPosition.position;
+        _originalScale = _leftScopePrefab.transform.localScale;
+
+        for (int i = 0; i < _scopesCount; i++)
+        {
+            _leftScopes[i] = (Instantiate(_leftScopePrefab, transform));
+            _rightScopes[i] = (Instantiate(_rightScopePrefab, transform));
+
+            _rightScopes[i].color = _leftScopes[i].color = _spawnColor;
+
+            _rightScopes[i].rectTransform.position = _rightSpawnPosition.position;
+            _leftScopes[i].rectTransform.position = _leftSpawnPosition.position;
+        }
+    }
+    #endregion
+
+    #region MONOBEHAVIOUR_METHODS
+    protected void Start()
+    {
+        InitializeComponents();
+    }
+    #endregion
 }

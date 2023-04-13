@@ -6,28 +6,24 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerMovement))]
 public class PlayerAnimator : MonoBehaviour
 {
+    [SerializeField] private float SmoothAnimationSpeed = 50f;
+
     private bool _isRunning;
     private bool _shouldJump;
     private bool _isGrounded;
+
     private int _isRunningHash;
     private int _isJumpingHash;
     private int _isGroundedHash;
-    private float _xBlendVelocity;
-    private float _yBlendVelocity;
     private int _xBlendVelocityHash;
     private int _yBlendVelocityHash;
+
+    private float _xBlendVelocity;
+    private float _yBlendVelocity;
+
     private Animator _animator;
-    [SerializeField]
-    private float SmoothAnimationSpeed = 50f;
 
-
-    protected void Start()
-    {
-        _animator = GetComponent<Animator>();
-        GetAnimatorVariablesHashes();
-    }
-
-
+    #region PLAYERANIMATOR_METHODS
     protected void InterpolateBlendTreeVelocity(Vector3 moveDirection)
     {
         if (!_isRunning)
@@ -78,4 +74,13 @@ public class PlayerAnimator : MonoBehaviour
         InterpolateBlendTreeVelocity(moveDirection);
         ChangeAnimationState();    
     }
+    #endregion
+
+    #region MONOBEHAVIOUR_METHODS
+    protected void Start()
+    {
+        _animator = GetComponent<Animator>();
+        GetAnimatorVariablesHashes();
+    }
+    #endregion
 }

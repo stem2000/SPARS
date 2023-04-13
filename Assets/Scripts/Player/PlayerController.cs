@@ -8,12 +8,16 @@ namespace RhythmShooter.Controllers
 {
     [RequireComponent(typeof(PlayerMovement))]
     [RequireComponent(typeof(PlayerAnimator))]
+    [RequireComponent(typeof(PlayerRotation))]
+    [RequireComponent(typeof(PlayerGunHandler))]
+
     public class PlayerController : MonoBehaviour 
     {
         private InputManager _inputManager;
         private PlayerMovement _playerMovement;
         private PlayerAnimator _animator;
         private PlayerGunHandler _gunHandler;
+
         private Vector2 _playerInput = Vector3.zero;
         private Vector3 _playerInputV3 = Vector3.zero;
 
