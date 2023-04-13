@@ -162,12 +162,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84386868970408b4fbc67db1e6818ec2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 8
-  JumpForce: 11
-  DashForce: 30
   _playerCollider: {fileID: 8024026656943915917}
   _groundCheckCollider: {fileID: 8024026656501357979}
+  _speed: 8
+  JumpForce: 11
+  _jumpDuration: 0.15
   CoyoteTime: 0.15
+  DashForce: 30
   DashLockTime: 0.5
   DashDuration: 0.25
   AirDashSpeedFactor: 0.8
@@ -184,6 +185,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eacf1a07714683642a49adf6a8b36a4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _shootHitSegment: 0.3
+  _dashHitSegment: 0.3
+  _jumpHitSegment: 0.3
+  _actEndTime: 1
+  ActInBeat:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: CrosshairController, Assembly-CSharp
+        m_MethodName: HitInBeat
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &8024026657654211007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -209,23 +229,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b981496fdb73f98468387f8aac1e2e7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hitSegment: 0.3
-  _shootEndTime: 1
-  Shoot:
+  ShootEvent:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: CrosshairController, Assembly-CSharp
-        m_MethodName: HitInBeat
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
+  ShouldShoot: 0
 --- !u!114 &8024026657654211005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -238,10 +245,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 397cb0c6a0190fa4ea770d7cea5cc09b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _lerpSpeed: 50
   Player: {fileID: 8024026657654211002}
   CameraHolder: {fileID: 8024026657863152055}
   MainCamera: {fileID: 0}
-  _lerpSpeed: 50
   MovementSmoothSpeed: 15
   Sensitivity: 0.07
   XRotationUpperLimit: 90
@@ -291,7 +298,7 @@ GameObject:
   m_Layer: 0
   m_Name: CameraHolder
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 3443629218296621865, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -303,7 +310,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8024026657863152054}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.382, z: 0.32}
+  m_LocalPosition: {x: 0, y: 1.469, z: 0.273}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
