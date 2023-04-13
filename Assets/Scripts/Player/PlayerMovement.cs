@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private SphereCollider _groundCheckCollider;
     [SerializeField] private float _speed = 10;
     [SerializeField] private float JumpForce = 10;
+    [SerializeField] private float _jumpDuration = 0.15f;
     [SerializeField] private float CoyoteTime = 0.2f;
     [SerializeField] private float DashForce = 10;
     [SerializeField] private float DashLockTime = 0.5f;
@@ -20,12 +21,13 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 _moveDirection;
     private Vector3 _DashDirection = Vector3.zero;
+    private Vector3 _jumpDirection = Vector3.zero;
     private Vector3 _flyForwardDirection;
 
     private bool _grounded;
-    private bool _shouldJump;
-    private bool _shouldDash;
     private bool _inFly = false;
+    private bool _inDash = false;
+    private bool _applyJumpSpeed = false;
 
     private float _coyoteTimeCounter;
     private float _dashPauseCounter = 0;
@@ -44,19 +46,25 @@ public class PlayerMovement : MonoBehaviour
 
     public bool ShouldJump
     {
-        get { return _shouldJump; }
-        set { _shouldJump = value; }
+        get { return _applyJumpSpeed; }
+        set 
+        { 
+            if(_applyJumpSpeed != true)
+            {
+                _applyJumpSpeed = value;
+            }
+        }
     }
 
 
     public bool ShouldDash
     {
-        get { return _shouldDash; }
+        get { return _inDash; }
         set 
         { 
-            if(_shouldDash != true)
+            if(_inDash != true)
             {
-                _shouldDash = value;
+                _inDash = value;
             }            
         }
     }
@@ -82,15 +90,15 @@ public class PlayerMovement : MonoBehaviour
 
     protected void ApplyVelocity()
     {
-        if (_shouldJump && _coyoteTimeCounter > 0)
+        if (_applyJumpSpeed && _coyoteTimeCounter > 0 && !_inDash)
         {
             Jump();
         }
-        else if (!_grounded && !_shouldDash)
+        else if (!_grounded && !_inDash)
         {
             FreeFlight();
         }
-        else if (_shouldDash)
+        else if (_inDash)
         {
             Dash();
         }
@@ -129,9 +137,16 @@ public class PlayerMovement : MonoBehaviour
         Vector3 velocityDirection;
         velocityDirection = _moveDirection.normalized;
         velocityDirection.y = 1f;
-        _rigidbody.velocity = transform.TransformVector(velocityDirection.normalized) * JumpForce; 
+        _rigidbody.velocity = transform.TransformVector(velocityDirection.normalized) * JumpForce;
+        Invoke(nameof(ResetJump), _jumpDuration);
     }
 
+
+    private void ResetJump()
+    {
+        _applyJumpSpeed = false;
+        _jumpDirection = Vector3.zero;
+    }
 
     private void FreeFlight()
     {
@@ -176,7 +191,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void ResetDash() 
     { 
-        _shouldDash = false;
+        _inDash = false;
         _DashDirection = Vector3.zero;
     }
     #endregion

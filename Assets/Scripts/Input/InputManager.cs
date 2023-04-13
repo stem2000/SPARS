@@ -35,9 +35,9 @@ public class InputManager : MonoBehaviour
     }
 
 
-    public float GetJumpInput()
+    public bool GetJumpInput()
     {
-        return _playerControls.Player.Jump.ReadValue<float>();
+        return _playerControls.Player.Jump.triggered;
     }
 
 

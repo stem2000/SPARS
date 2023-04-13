@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
 namespace RhythmShooter.Controllers
 {
@@ -11,8 +12,15 @@ namespace RhythmShooter.Controllers
     [RequireComponent(typeof(PlayerRotation))]
     [RequireComponent(typeof(PlayerGunHandler))]
 
-    public class PlayerController : MonoBehaviour 
+    public class PlayerController : MonoBehaviour, BeatReactor
     {
+        [SerializeField] private float _shootHitSegment = 0.2f;
+        [SerializeField] private float _dashHitSegment = 0.2f;
+        [SerializeField] private float _jumpHitSegment = 0.2f;
+        [SerializeField] private float _actEndTime = 1f;
+
+        [SerializeField] private UnityEvent ActInBeat;
+
         private InputManager _inputManager;
         private PlayerMovement _playerMovement;
         private PlayerAnimator _animator;
@@ -21,6 +29,9 @@ namespace RhythmShooter.Controllers
         private Vector2 _playerInput = Vector3.zero;
         private Vector3 _playerInputV3 = Vector3.zero;
 
+        private bool _canActThisBeat = true;
+
+        private float _lastSampleShift;
 
         #region METHODS
         protected void Animate()
@@ -36,28 +47,51 @@ namespace RhythmShooter.Controllers
             _playerInput = _inputManager.GetPlayerMovement();
             var jumpInput = _inputManager.GetJumpInput();
             var dashInput = _inputManager.GetDashInput();
+            var shootInnput = _inputManager.GetShootInput();
 
             _playerInputV3.x = _playerInput.x;
             _playerInputV3.z = _playerInput.y;
 
             _playerMovement.MoveDirection = _playerInputV3;
 
-            _playerMovement.ShouldJump = jumpInput != 0 ? true : false;
+            _playerMovement.ShouldJump = IsTimeForAct(jumpInput, _jumpHitSegment);
 
-            _playerMovement.ShouldDash = dashInput;
+            _playerMovement.ShouldDash = IsTimeForAct(dashInput, _dashHitSegment);
 
-            ReferToGunHandler(_inputManager.GetShootInput());
+            _gunHandler.ShouldShoot = IsTimeForAct(shootInnput, _shootHitSegment);
         }
 
 
-        protected void ReferToGunHandler(bool canShoot)
+
+        public void SetNewBeatState()
         {
-            if (canShoot)
-            {
-                _gunHandler.TryShoot();
-            }
+            _canActThisBeat = true;
         }
 
+
+        public void UpdateBeatState(float sampleShift)
+        {
+            _lastSampleShift = sampleShift;
+        }
+
+
+        private bool IsTimeForAct(bool inputTrigger, float _hitSegment)
+        {
+            if (!inputTrigger)
+            {
+                return inputTrigger;
+            }
+            else
+            {
+                if(_actEndTime - _hitSegment < _lastSampleShift && _canActThisBeat)
+                {
+                    ActInBeat.Invoke();
+                    return true;
+                }
+                _canActThisBeat = false;
+                return false;
+            }  
+        }
         #endregion
 
         #region MONOBEHAVIOURMETHODS
