@@ -127,11 +127,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rightScopePrefab: {fileID: 7497585552978493935, guid: b282e847492aa054daf0cd52cc410c14, type: 3}
   _leftScopePrefab: {fileID: 8797667364130785021, guid: da844bfc1fd96514596e7f03d1722004, type: 3}
+  _staticLeftScope: {fileID: 340977985500212566}
+  _staticRightScope: {fileID: 340977984189205070}
   _leftSpawnPosition: {fileID: 340977984972272131}
   _rightSpawnPosition: {fileID: 340977984301558757}
-  _leftEndPosition: {fileID: 340977985500212567}
-  _rightEndPosition: {fileID: 340977984189205071}
-  _endColor: {r: 0.44313726, g: 0.105882354, b: 0.5764706, a: 1}
+  _afterHitColorS: {r: 0.5754717, g: 0.14386792, b: 0.17533752, a: 0.8627451}
+  _defaultColorS: {r: 0.44313726, g: 0.105882354, b: 0.5764706, a: 0.7058824}
+  _startPosColorD: {r: 0.07450981, g: 0.03529412, b: 0.6901961, a: 0.3529412}
+  _endPosColorD: {r: 0.44313726, g: 0.105882354, b: 0.5764706, a: 0.7058824}
+  _rescaleSize: 0.7
 --- !u!1001 &7833910386569104289
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -141,7 +145,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7497585552978493841, guid: b282e847492aa054daf0cd52cc410c14, type: 3}
       propertyPath: m_Name
-      value: RightScopeEnd
+      value: StaticRightScope
       objectReference: {fileID: 0}
     - target: {fileID: 7497585552978493934, guid: b282e847492aa054daf0cd52cc410c14, type: 3}
       propertyPath: m_Pivot.x
@@ -228,6 +232,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7497585552978493935, guid: b282e847492aa054daf0cd52cc410c14, type: 3}
+      propertyPath: m_Color.a
+      value: 0.54901963
+      objectReference: {fileID: 0}
+    - target: {fileID: 7497585552978493935, guid: b282e847492aa054daf0cd52cc410c14, type: 3}
       propertyPath: m_Color.b
       value: 0.5764706
       objectReference: {fileID: 0}
@@ -241,6 +249,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b282e847492aa054daf0cd52cc410c14, type: 3}
+--- !u!114 &340977984189205070 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7497585552978493935, guid: b282e847492aa054daf0cd52cc410c14, type: 3}
+  m_PrefabInstance: {fileID: 7833910386569104289}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &340977984189205071 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7497585552978493934, guid: b282e847492aa054daf0cd52cc410c14, type: 3}
@@ -255,7 +274,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8797667364130785011, guid: da844bfc1fd96514596e7f03d1722004, type: 3}
       propertyPath: m_Name
-      value: LeftScopeEnd
+      value: StaticLeftScope
       objectReference: {fileID: 0}
     - target: {fileID: 8797667364130785020, guid: da844bfc1fd96514596e7f03d1722004, type: 3}
       propertyPath: m_Pivot.x
@@ -342,6 +361,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8797667364130785021, guid: da844bfc1fd96514596e7f03d1722004, type: 3}
+      propertyPath: m_Color.a
+      value: 0.54901963
+      objectReference: {fileID: 0}
+    - target: {fileID: 8797667364130785021, guid: da844bfc1fd96514596e7f03d1722004, type: 3}
       propertyPath: m_Color.b
       value: 0.5754717
       objectReference: {fileID: 0}
@@ -355,6 +378,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: da844bfc1fd96514596e7f03d1722004, type: 3}
+--- !u!114 &340977985500212566 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8797667364130785021, guid: da844bfc1fd96514596e7f03d1722004, type: 3}
+  m_PrefabInstance: {fileID: 9127937111363152811}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &340977985500212567 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8797667364130785020, guid: da844bfc1fd96514596e7f03d1722004, type: 3}

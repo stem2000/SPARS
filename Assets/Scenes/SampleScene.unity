@@ -1985,50 +1985,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2127375063}
     m_Modifications:
-    - target: {fileID: 340977984189205070, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
-      propertyPath: m_Color.a
-      value: 0.54901963
-      objectReference: {fileID: 0}
-    - target: {fileID: 340977985353654012, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
-      propertyPath: _newScale
-      value: 0.7
-      objectReference: {fileID: 0}
-    - target: {fileID: 340977985353654012, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
-      propertyPath: rescaleSize
-      value: 0.7
-      objectReference: {fileID: 0}
-    - target: {fileID: 340977985353654012, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
-      propertyPath: _spawnColor.a
-      value: 0.3529412
-      objectReference: {fileID: 0}
-    - target: {fileID: 340977985353654012, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
-      propertyPath: _spawnColor.b
-      value: 0.6901961
-      objectReference: {fileID: 0}
-    - target: {fileID: 340977985353654012, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
-      propertyPath: _spawnColor.g
-      value: 0.03529412
-      objectReference: {fileID: 0}
-    - target: {fileID: 340977985353654012, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
-      propertyPath: _spawnColor.r
-      value: 0.07450981
-      objectReference: {fileID: 0}
-    - target: {fileID: 340977985353654012, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
-      propertyPath: _hitInBeatColor.a
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 340977985353654012, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
-      propertyPath: _hitInBeatColor.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 340977985353654012, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
-      propertyPath: _hitInBeatColor.g
-      value: 0.050865788
-      objectReference: {fileID: 0}
-    - target: {fileID: 340977985353654012, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
-      propertyPath: _hitInBeatColor.r
-      value: 0.8666667
-      objectReference: {fileID: 0}
     - target: {fileID: 340977985353654013, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2116,10 +2072,6 @@ PrefabInstance:
     - target: {fileID: 340977985353654014, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
       propertyPath: m_Name
       value: Crosshair
-      objectReference: {fileID: 0}
-    - target: {fileID: 340977985500212566, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
-      propertyPath: m_Color.a
-      value: 0.54901963
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 239faa687ce4b2b4682974afb205bb3c, type: 3}
