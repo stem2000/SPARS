@@ -37,7 +37,7 @@ namespace RhythmShooter.Controllers
         protected void Animate()
         {
             _animator.Animate(_playerInput.magnitude > 0 ? true : false, 
-                              _playerMovement.ShouldJump, 
+                              _playerMovement.JumpState, 
                               _playerMovement.Grounded, 
                               _playerMovement.MoveDirection);
         }
@@ -54,11 +54,11 @@ namespace RhythmShooter.Controllers
 
             _playerMovement.MoveDirection = _playerInputV3;
 
-            _playerMovement.ShouldJump = IsTimeForAct(jumpInput, _jumpHitSegment);
+            TryPerformAct(_playerMovement.ReceiveAct(ActType.Jump, IsTimeForAct(jumpInput, _jumpHitSegment)));
 
-            _playerMovement.ShouldDash = IsTimeForAct(dashInput, _dashHitSegment);
+            TryPerformAct(_playerMovement.ReceiveAct(ActType.Dash, IsTimeForAct(dashInput, _dashHitSegment)));
 
-            _gunHandler.ShouldShoot = IsTimeForAct(shootInnput, _shootHitSegment);
+            TryPerformAct(_gunHandler.ReceiveAct(ActType.Shoot, IsTimeForAct(shootInnput, _shootHitSegment)));
         }
 
 
@@ -85,12 +85,20 @@ namespace RhythmShooter.Controllers
             {
                 if(_actEndTime - _hitSegment < _lastSampleShift && _canActThisBeat)
                 {
-                    ActInBeat.Invoke();
                     return true;
                 }
                 _canActThisBeat = false;
                 return false;
             }  
+        }
+
+        
+        private void TryPerformAct(bool canPerformAct)
+        {
+            if(canPerformAct)
+            {
+                ActInBeat.Invoke();
+            }
         }
         #endregion
 

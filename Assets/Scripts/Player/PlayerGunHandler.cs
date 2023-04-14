@@ -3,19 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class PlayerGunHandler : MonoBehaviour
+public class PlayerGunHandler : MonoBehaviour, ActReceiver
 {
     [SerializeField] private UnityEvent ShootEvent;
 
-    [HideInInspector] public bool ShouldShoot = false;
+    [HideInInspector] private bool _canShoot = false;
 
+
+    public bool ReceiveAct(ActType act, bool shouldAct)
+    {
+        switch(act)
+        {
+            case ActType.Shoot:
+                return HadleShootInput(shouldAct);
+            default:
+                return false;
+        }
+    }
+
+
+    private bool HadleShootInput(bool shouldAct)
+    {
+        _canShoot = shouldAct;
+        return _canShoot;
+    }
 
     public void TryShoot()
     {
-        if (ShouldShoot)
+        if (_canShoot)
         {
             ShootEvent.Invoke();
-            ShouldShoot = false;
+            _canShoot = false;
         }
     }
 

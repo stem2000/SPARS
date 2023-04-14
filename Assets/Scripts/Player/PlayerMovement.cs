@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, ActReceiver
 {
     [SerializeField] private CapsuleCollider _playerCollider;
     [SerializeField] private SphereCollider _groundCheckCollider;
@@ -44,29 +44,15 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
-    public bool ShouldJump
+    public bool JumpState
     {
         get { return _applyJumpSpeed; }
-        set 
-        { 
-            if(_applyJumpSpeed != true)
-            {
-                _applyJumpSpeed = value;
-            }
-        }
     }
 
 
-    public bool ShouldDash
+    public bool DashState
     {
         get { return _inDash; }
-        set 
-        { 
-            if(_inDash != true)
-            {
-                _inDash = value;
-            }            
-        }
     }
 
 
@@ -83,6 +69,44 @@ public class PlayerMovement : MonoBehaviour
     #endregion
 
     #region PLAYERMOVEMENT_METHODS
+
+    public bool ReceiveAct(ActType act, bool shouldAct) 
+    {
+        switch (act)
+        {
+            case ActType.Jump:
+                return HandleJumpInput(shouldAct);
+            case ActType.Dash:
+                return HandleDashInput(shouldAct);
+            default:
+                return false;
+        }
+    }
+
+
+    public bool HandleDashInput(bool value)
+    {
+            if (_inDash != true)
+            {
+                _inDash = value;
+                return value;
+            }
+
+            return false;
+    }
+
+    public bool HandleJumpInput(bool value)
+    {
+        if (_applyJumpSpeed != true && !_inDash && _grounded)
+        {
+            _applyJumpSpeed = value;
+            return value;
+        }
+
+        return false;
+    }
+
+
     protected Vector3 CalculateRelativeVelocity()
     {
         return  transform.TransformVector(_moveDirection) * _speed;
@@ -90,7 +114,7 @@ public class PlayerMovement : MonoBehaviour
 
     protected void ApplyVelocity()
     {
-        if (_applyJumpSpeed && _coyoteTimeCounter > 0 && !_inDash)
+        if (_applyJumpSpeed && _coyoteTimeCounter > 0)
         {
             Jump();
         }

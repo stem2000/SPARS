@@ -1430,7 +1430,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 909c6e59e07791b40bda5d6c36f8a950, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 14291839e92c43d4c892fb85d4412210, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -1543,10 +1543,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 523a6a78b7d50af40888054c814bbdc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bpm: 130
+  _bpm: 150
   _audioSource: {fileID: 1779459561}
   _intervals:
-  - Steps: 0.5
+  - Steps: 1
     _setBeat:
       m_PersistentCalls:
         m_Calls:
@@ -1626,10 +1626,7 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 2
     LastInterval: 0
-  _intervalStates:
-  - IntervalToChange: 0
-    SampleNumber: 16
-    NewSteps: 1
+  _intervalStates: []
   Instance: {fileID: 0}
 --- !u!1001 &1913380167
 PrefabInstance:
@@ -2082,6 +2079,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 584421384713280174, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2596346371908121270, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3594043874280113484, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5143699091019770894, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6603493426743579051, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8024026657654210999, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
       propertyPath: m_Name
       value: Player
@@ -2142,5 +2159,13 @@ PrefabInstance:
       propertyPath: MainCamera
       value: 
       objectReference: {fileID: 963194228}
+    - target: {fileID: 8024026657863152055, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.561
+      objectReference: {fileID: 0}
+    - target: {fileID: 8024026657863152055, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.227
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}

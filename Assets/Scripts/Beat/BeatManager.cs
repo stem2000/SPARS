@@ -10,7 +10,8 @@ public class BeatManager : MonoBehaviour
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private Intervals[] _intervals;
     [SerializeField] private List<IntervalState> _intervalStates;
-    public BeatManager Instance;
+
+    [HideInInspector] public BeatManager Instance;
 
 
     private void Update()
