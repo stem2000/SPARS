@@ -54,13 +54,12 @@ namespace RhythmShooter.Controllers
 
             _playerMovement.MoveDirection = _playerInputV3;
 
-            TryPerformAct(_playerMovement.ReceiveAct(ActType.Jump, IsTimeForAct(jumpInput, _jumpHitSegment)));
+            NeedPerformAct(_playerMovement.ReceiveAct(ActType.Jump, IsTimeForAct(jumpInput, _jumpHitSegment)));
 
-            TryPerformAct(_playerMovement.ReceiveAct(ActType.Dash, IsTimeForAct(dashInput, _dashHitSegment)));
+            NeedPerformAct(_playerMovement.ReceiveAct(ActType.Dash, IsTimeForAct(dashInput, _dashHitSegment)));
 
-            TryPerformAct(_gunHandler.ReceiveAct(ActType.Shoot, IsTimeForAct(shootInnput, _shootHitSegment)));
+            NeedPerformAct(_gunHandler.ReceiveAct(ActType.Shoot, IsTimeForAct(shootInnput, _shootHitSegment)));
         }
-
 
 
         public void SetNewBeatState()
@@ -93,9 +92,9 @@ namespace RhythmShooter.Controllers
         }
 
         
-        private void TryPerformAct(bool canPerformAct)
+        private void NeedPerformAct(bool needPerformAct)
         {
-            if(canPerformAct)
+            if(needPerformAct)
             {
                 ActInBeat.Invoke();
             }

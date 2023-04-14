@@ -872,7 +872,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -2079,33 +2079,9 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 584421384713280174, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
-      propertyPath: m_Layer
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2596346371908121270, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
-      propertyPath: m_Layer
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 3594043874280113484, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
-      propertyPath: m_Layer
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 5143699091019770894, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
-      propertyPath: m_Layer
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6603493426743579051, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
-      propertyPath: m_Layer
-      value: 6
-      objectReference: {fileID: 0}
     - target: {fileID: 8024026657654210999, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 8024026657654211001, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
-      propertyPath: _jumpHitSegment
-      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8024026657654211001, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
       propertyPath: ActInBeat.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -2159,13 +2135,5 @@ PrefabInstance:
       propertyPath: MainCamera
       value: 
       objectReference: {fileID: 963194228}
-    - target: {fileID: 8024026657863152055, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.561
-      objectReference: {fileID: 0}
-    - target: {fileID: 8024026657863152055, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.227
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}

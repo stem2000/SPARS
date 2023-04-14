@@ -26,7 +26,8 @@ public class PlayerRotation : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         _inputManager = InputManager.Instance;
         MainCamera.position = transform.position;
-        StartCoroutine(PostSimulationUpdate());
+
+        StartCoroutine(RotateRigidbody());
     }
 
 
@@ -44,7 +45,7 @@ public class PlayerRotation : MonoBehaviour
     }
 
 
-    IEnumerator PostSimulationUpdate()
+    IEnumerator RotateRigidbody()
     {
         YieldInstruction waitForFixedUpdate = new WaitForFixedUpdate();
         while (true)
@@ -53,7 +54,6 @@ public class PlayerRotation : MonoBehaviour
             Player.MoveRotation(Quaternion.AngleAxis(xRotation, Vector3.up));
         }
     }
-
 
 }
 

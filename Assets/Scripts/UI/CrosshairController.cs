@@ -120,7 +120,7 @@ public class CrosshairController : MonoBehaviour, BeatReactor
         _leftScopes = new Image[_scopesCount];
         _rightScopes = new Image[_scopesCount];
 
-        InitializeEndPositions();
+        InitializeEndPosition();
 
         _extremePointDistance = _endPosition.position - _leftSpawnPosition.position;
         _defaultScale = _leftScopePrefab.transform.localScale;
@@ -129,7 +129,7 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     }
 
 
-    private void InitializeEndPositions()
+    private void InitializeEndPosition()
     {
         _endPosition = _staticLeftScope.rectTransform;
     }
