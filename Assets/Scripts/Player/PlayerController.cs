@@ -84,6 +84,7 @@ namespace RhythmShooter.Controllers
             {
                 if(_actEndTime - _hitSegment < _lastSampleShift && _canActThisBeat)
                 {
+                    _canActThisBeat = false;
                     return true;
                 }
                 _canActThisBeat = false;

@@ -86,7 +86,7 @@ public class PlayerMovement : MonoBehaviour, ActReceiver
 
     public bool HandleDashInput(bool value)
     {
-            if (_inDash != true)
+            if (_inDash != true && _dashPauseCounter <= 0)
             {
                 _inDash = value;
                 return value;

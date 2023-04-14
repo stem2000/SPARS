@@ -42,6 +42,8 @@ public class PlayerRotation : MonoBehaviour
         var cameraRotation = Quaternion.Euler(yRotation, xRotation, 0f);
         MainCamera.rotation = Quaternion.Lerp(MainCamera.rotation, cameraRotation, _lerpSpeed * Time.deltaTime);
         MainCamera.position = CameraHolder.position;
+
+        //Debug.Log($"Main Camera Rotation - {MainCamera.rotation}, RigidBody rotation - {Player.rotation}");
     }
 
 
