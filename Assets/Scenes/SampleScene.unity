@@ -1997,7 +1997,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3107375511885261522, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
       propertyPath: headWidth
-      value: 0.2
+      value: 0.225
       objectReference: {fileID: 0}
     - target: {fileID: 3107375511885261522, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
       propertyPath: headHeight
@@ -2006,6 +2006,10 @@ PrefabInstance:
     - target: {fileID: 3107375511885261522, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
       propertyPath: XRotationLowerLimit
       value: -70
+      objectReference: {fileID: 0}
+    - target: {fileID: 3107375511885261522, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
+      propertyPath: XRotationUpperLimit
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 3107375512005982877, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
       propertyPath: m_Name
@@ -2059,5 +2063,9 @@ PrefabInstance:
       propertyPath: ActInBeat.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 975784435}
+    - target: {fileID: 3107375513540075319, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}
+      propertyPath: m_CullingMask.m_Bits
+      value: 4294967295
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 358276c4b40b17a4ca28ee84ee665980, type: 3}

@@ -87,7 +87,7 @@ public class PlayerRotation : MonoBehaviour
 
     private Vector3 GetScaledOffset()
     {
-        var cameraForward = transform.forward.normalized;
+        var cameraForward = new Vector3(transform.forward.x, 0f, transform.forward.z).normalized;
         Vector3 offset = new Vector3(cameraForward.x * headWidth, Mathf.Lerp(0f, PlayerCollider.height, headHeight), cameraForward.z * headWidth);
         return offset;
     }
