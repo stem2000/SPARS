@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(PlayerMovement))]
+
 public class PlayerAnimator : MonoBehaviour
 {
     [SerializeField] private float SmoothAnimationSpeed = 50f;

@@ -3,19 +3,22 @@ using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 public class PlayerRotation : MonoBehaviour
-{
-    [SerializeField] private float _lerpSpeed = 50f;
+{ 
+    public Transform Player;
+    public Transform PlayerMesh;
 
-    public Rigidbody Player;
-    public Transform CameraHolder;
-    public Transform MainCamera;
+    public CapsuleCollider PlayerCollider;
+
+    [Range(0, 1)]
+    public float headHeight;
+    [Range(0, 1)]
+    public float headWidth;
 
     private InputManager _inputManager;
 
-    public float MovementSmoothSpeed = 15f;
     public float Sensitivity = 10f;
     public float XRotationUpperLimit = 90f;
-    public float XRotationLowerLimit = -15f;
+    public float XRotationLowerLimit = -90f;
 
     private float xRotation = 0f;
     private float yRotation = 0f;
@@ -25,36 +28,68 @@ public class PlayerRotation : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         _inputManager = InputManager.Instance;
-        MainCamera.position = transform.position;
-
-        StartCoroutine(RotateRigidbody());
     }
 
 
     protected void LateUpdate()
     {
+        HandlePlayerInput();
+        UpdateMeshRotation();
+        UpdateMeshPosition();
+        UpdateCameraRotation();
+        UpdateCameraPosition();
+    }
 
+    protected void FixedUpdate()
+    {
+        UpdatePlayerRotation();
+    }
+
+
+    private void HandlePlayerInput()
+    {
         Vector2 mouseDelta = _inputManager.GetMouseDelta();
         xRotation += mouseDelta.x * Sensitivity;
         yRotation -= mouseDelta.y * Sensitivity;
         yRotation = Mathf.Clamp(yRotation, -XRotationUpperLimit, -XRotationLowerLimit);
-
-        var cameraRotation = Quaternion.Euler(yRotation, xRotation, 0f);
-        MainCamera.rotation = Quaternion.Lerp(MainCamera.rotation, cameraRotation, _lerpSpeed * Time.deltaTime);
-        MainCamera.position = CameraHolder.position;
-
-        //Debug.Log($"Main Camera Rotation - {MainCamera.rotation}, RigidBody rotation - {Player.rotation}");
     }
 
 
-    IEnumerator RotateRigidbody()
+    private void UpdateCameraRotation()
     {
-        YieldInstruction waitForFixedUpdate = new WaitForFixedUpdate();
-        while (true)
-        {
-            yield return waitForFixedUpdate;
-            Player.MoveRotation(Quaternion.AngleAxis(xRotation, Vector3.up));
-        }
+        transform.localRotation = Quaternion.Euler(yRotation, xRotation, 0f);
+    }
+
+
+    private void UpdatePlayerRotation()
+    {
+        Player.localRotation = Quaternion.Euler(0.0f, xRotation, 0.0f);
+    }
+
+    private void UpdateCameraPosition()
+    {
+        Vector3 newPos = Player.position + GetScaledOffset();
+        transform.position = newPos;
+    }
+
+
+    private void UpdateMeshPosition()
+    {
+        PlayerMesh.position = Player.position;
+    }
+
+
+    private void UpdateMeshRotation()
+    {
+        PlayerMesh.localRotation = Quaternion.Euler(0.0f, xRotation, 0.0f);
+    }
+
+
+    private Vector3 GetScaledOffset()
+    {
+        var cameraForward = transform.forward.normalized;
+        Vector3 offset = new Vector3(cameraForward.x * headWidth, Mathf.Lerp(0f, PlayerCollider.height, headHeight), cameraForward.z * headWidth);
+        return offset;
     }
 
 }
