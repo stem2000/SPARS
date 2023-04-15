@@ -8,12 +8,11 @@ using UnityEngine.Events;
 namespace RhythmShooter.Controllers
 {
     [RequireComponent(typeof(PlayerMovement))]
-    [RequireComponent(typeof(PlayerAnimator))]
-    [RequireComponent(typeof(PlayerRotation))]
     [RequireComponent(typeof(PlayerGunHandler))]
 
     public class PlayerController : MonoBehaviour, BeatReactor
     {
+        [SerializeField] private PlayerAnimator _animator;
         [SerializeField] private float _shootHitSegment = 0.2f;
         [SerializeField] private float _dashHitSegment = 0.2f;
         [SerializeField] private float _jumpHitSegment = 0.2f;
@@ -23,7 +22,6 @@ namespace RhythmShooter.Controllers
 
         private InputManager _inputManager;
         private PlayerMovement _playerMovement;
-        private PlayerAnimator _animator;
         private PlayerGunHandler _gunHandler;
 
         private Vector2 _playerInput = Vector3.zero;
@@ -106,7 +104,6 @@ namespace RhythmShooter.Controllers
         protected void Start()
         {
             _playerMovement = GetComponent<PlayerMovement>();
-            _animator = GetComponent<PlayerAnimator>();
             _gunHandler = GetComponent<PlayerGunHandler>();
         }
 
