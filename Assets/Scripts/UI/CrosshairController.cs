@@ -35,9 +35,9 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     private Vector3 _extremePointDistance;
 
     #region CROSSHAIR_CONTROLLER_METHODS
-    public void SetNewBeatState()
+    public void MoveToNextSample()
     {
-        UpdateBeatState(0);
+        UpdateCurrentSampleState(0);
 
         if(!_hitInBeatFixed)
             ResetDynamicScopes(_currentScopes);
@@ -48,7 +48,7 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     }
 
 
-    public void UpdateBeatState(float sampleShift)
+    public void UpdateCurrentSampleState(float sampleShift)
     {
         if (!_hitInBeatFixed)
         {

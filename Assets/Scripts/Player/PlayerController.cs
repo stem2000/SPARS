@@ -60,13 +60,13 @@ namespace RhythmShooter.Controllers
         }
 
 
-        public void SetNewBeatState()
+        public void MoveToNextSample()
         {
             _canActThisBeat = true;
         }
 
 
-        public void UpdateBeatState(float sampleShift)
+        public void UpdateCurrentSampleState(float sampleShift)
         {
             _lastSampleShift = sampleShift;
         }

@@ -7,8 +7,6 @@ using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour, ActReceiver
 {
-    [SerializeField] private CapsuleCollider _playerCollider;
-    [SerializeField] private SphereCollider _groundCheckCollider;
     [SerializeField] private float _speed = 10;
     [SerializeField] private float JumpForce = 10;
     [SerializeField] private float _jumpDuration = 0.15f;

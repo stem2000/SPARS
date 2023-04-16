@@ -4,6 +4,6 @@ using UnityEngine;
 
 public interface BeatReactor 
 {
-    public void SetNewBeatState();
-    public void UpdateBeatState(float sampleShift);
+    public void MoveToNextSample();
+    public void UpdateCurrentSampleState(float sampleState);
 }
