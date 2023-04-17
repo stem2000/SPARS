@@ -5,13 +5,14 @@ using UnityEngine;
 namespace AvatarModel
 {
     [RequireComponent(typeof(AvatarMovement))]
+    [RequireComponent(typeof(AvatarWorldListener))]
     public class AvatarController : MonoBehaviour, BeatReactor
     {
         private InputManager _playerInput;
-        [SerializeField] private AvatarStats StatsOnStart;
         [SerializeField] private LocalBeatController BeatController;
         private AvatarState _avatarState;
         private AvatarMovement _avatarMovement;
+        private AvatarWorldListener _avatarWorldListener;
 
 
         #region BEATREACTOR_METHODS
@@ -30,6 +31,7 @@ namespace AvatarModel
         private void HandleInput()
         {
             HandlePlayerInput();
+            HandleWorldInput();
         }
 
 
@@ -61,6 +63,12 @@ namespace AvatarModel
         }
 
 
+        private void HandleWorldInput()
+        {
+            _avatarState.Grounded = _avatarWorldListener.IsAvatarGrounded();
+            _avatarState.OnSlope = _avatarWorldListener.IsAvatarOnSlope();
+        }
+
         private void ProcessPlayerInput()
         {
             TestGeneralPlayerAccuracy();
@@ -69,20 +77,18 @@ namespace AvatarModel
 
         private void PerformMovementActions()
         {
-            _avatarState.MoveStateMachine.CalculateCurrentState();
-            _avatarMovement.ReceiveMovementData(_avatarState.MoveStateMachine.CurrentMoveType, _avatarState.TransferMovementData());
-            Debug.Log($"{_avatarState.MoveStateMachine.CurrentMoveType}");
+            
         }
 
 
         private void TestGeneralPlayerAccuracy()
         {
             if(_avatarState.ShouldMove.ShouldDash)
-                _avatarState.ShouldMove.ShouldDash = CheckPlayerHitAccuracy(_avatarState.AvatarStats.DashHitInterval);
+                _avatarState.ShouldMove.ShouldDash = CheckPlayerHitAccuracy(_avatarState.DynamicAvatarStats.DashHitInterval);
             if (_avatarState.ShouldMove.ShouldJump)
-                _avatarState.ShouldMove.ShouldJump = CheckPlayerHitAccuracy(_avatarState.AvatarStats.JumpHitInterval);
+                _avatarState.ShouldMove.ShouldJump = CheckPlayerHitAccuracy(_avatarState.DynamicAvatarStats.JumpHitInterval);
             if (_avatarState.ShouldAttack.ShouldShoot)
-                _avatarState.ShouldAttack.ShouldShoot = CheckPlayerHitAccuracy(_avatarState.AvatarStats.ShootHitInterval);
+                _avatarState.ShouldAttack.ShouldShoot = CheckPlayerHitAccuracy(_avatarState.DynamicAvatarStats.ShootHitInterval);
         }
 
 
@@ -100,8 +106,9 @@ namespace AvatarModel
 
         private void InitializeComponents()
         {
-            _avatarState = new AvatarState(this.gameObject, StatsOnStart);
+            _avatarState = GetComponent<AvatarState>();
             _avatarMovement = GetComponent<AvatarMovement>();
+            _avatarWorldListener = new AvatarWorldListener();
             BeatController = new LocalBeatController();
         }
 
@@ -124,23 +131,6 @@ namespace AvatarModel
             ProcessInput();
             ChangeState();
             PerformActions();
-        }
-
-
-        private void OnTriggerEnter(Collider other)
-        {
-            _avatarState.SetInteractionData(true);
-        }
-
-
-        private void OnTriggerStay(Collider other)
-        {
-            _avatarState.SetInteractionData(true);
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            _avatarState.SetInteractionData(false);
         }
     }
 }

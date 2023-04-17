@@ -23,9 +23,6 @@ namespace AvatarModel
         [Space]
         [Tooltip("The strength with which the avatar make dash")]
         [SerializeField] public float DashForce = 10;
-        [Tooltip("Time during which dash is not available after the last using")]
-        [SerializeField] public float DashLockTime = 0.5f;
-        [SerializeField] public float DashDuration = 0.25f;
         [SerializeField] public float AirDashSpeedFactor = 0.5f;
         [Space]
         [SerializeField] public float FlySpeedLimit = 9;
