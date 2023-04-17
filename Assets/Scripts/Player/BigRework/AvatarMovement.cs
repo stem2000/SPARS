@@ -14,16 +14,15 @@ namespace AvatarModel
 
 
         protected void Start()
-        {
-            _rigidbody = GetComponent<Rigidbody>();   
+        {  
             InitializeComponents();
         }
 
 
         private void InitializeComponents()
         {
+            _rigidbody = GetComponent<Rigidbody>();
             FillMoveSet();
-
         }
 
 
@@ -31,6 +30,8 @@ namespace AvatarModel
         {
             _moveSet = new Dictionary<MovementType, PerformMove>();
             _moveSet.Add(MovementType.Run, Run);
+            _moveSet.Add(MovementType.Fly, Fly);
+            _moveSet.Add(MovementType.RunOnSlope, RunOnSlope);
         }
 
 
@@ -61,9 +62,27 @@ namespace AvatarModel
         {
             _rigidbody.velocity = ((RunData)data).velocity;
         }
-    }
 
-    delegate void PerformMove(MovementData data);
+
+        private void Fly(MovementData data)
+        {
+            var direction = ((FlyData)data).Direction;
+            var speedLimit = ((FlyData)data).SpeedLimit;
+            var angle = Vector3.SignedAngle(direction, transform.forward, Vector3.up);
+
+            var newVelocity = Quaternion.Euler(0f, angle, 0f) * _rigidbody.velocity;
+            newVelocity = newVelocity.magnitude > speedLimit ? newVelocity.normalized * speedLimit : newVelocity;
+            _rigidbody.velocity = newVelocity;
+        }
+
+
+        private void RunOnSlope(MovementData data)
+        {
+            _rigidbody.velocity = ((RunOnSlopeData)data).velocity;
+        }
+
+        delegate void PerformMove(MovementData data);
+    }
 }
 
 

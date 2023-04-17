@@ -41,7 +41,7 @@ namespace AvatarModel
 
         private void PerformActions()
         {
-            UpdateMovementAction();
+            PerformMovementActions();
         }
 
 
@@ -67,9 +67,11 @@ namespace AvatarModel
         }
 
 
-        private void UpdateMovementAction()
+        private void PerformMovementActions()
         {
-            _avatarMovement.ReceiveMovementData(_avatarState.MovementState.CurrentMoveType, _avatarState.TransferMovementData());
+            _avatarState.MoveStateMachine.CalculateCurrentState();
+            _avatarMovement.ReceiveMovementData(_avatarState.MoveStateMachine.CurrentMoveType, _avatarState.TransferMovementData());
+            Debug.Log($"{_avatarState.MoveStateMachine.CurrentMoveType}");
         }
 
 
@@ -100,6 +102,7 @@ namespace AvatarModel
         {
             _avatarState = new AvatarState(this.gameObject, StatsOnStart);
             _avatarMovement = GetComponent<AvatarMovement>();
+            BeatController = new LocalBeatController();
         }
 
 
@@ -126,18 +129,18 @@ namespace AvatarModel
 
         private void OnTriggerEnter(Collider other)
         {
-            _avatarState.MovementState.Grounded = true;
+            _avatarState.SetInteractionData(true);
         }
 
 
         private void OnTriggerStay(Collider other)
         {
-            _avatarState.MovementState.Grounded = true;
+            _avatarState.SetInteractionData(true);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            _avatarState.MovementState.Grounded = false;
+            _avatarState.SetInteractionData(false);
         }
     }
 }
