@@ -11,6 +11,7 @@ public class AvatarWorldListener : MonoBehaviour
     protected void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        _slopeHit = new RaycastHit();
     }
 
 
@@ -22,13 +23,19 @@ public class AvatarWorldListener : MonoBehaviour
 
     public bool IsAvatarOnSlope()
     {
-        if (Physics.Raycast(_rigidbody.transform.position, Vector3.down, out _slopeHit, _rigidbody.transform.lossyScale.y * 0.5f))
+        if (Physics.Raycast(transform.position, Vector3.down, out _slopeHit, transform.lossyScale.y * 0.5f))
         {
             var dot = Vector3.Dot(Vector3.up, _slopeHit.normal);
             if (dot != 1)
                 return true;
         }
         return false;
+    }
+
+
+    public Vector3 GetNormal()
+    {
+        return _slopeHit.normal;
     }
 
 

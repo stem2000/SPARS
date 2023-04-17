@@ -28,10 +28,13 @@ namespace AvatarModel
 
         private void FillMoveSet()
         {
-            _moveSet = new Dictionary<MovementType, PerformMove>();
-            _moveSet.Add(MovementType.Run, Run);
-            _moveSet.Add(MovementType.Fly, Fly);
-            _moveSet.Add(MovementType.RunOnSlope, RunOnSlope);
+            _moveSet = new Dictionary<MovementType, PerformMove>
+            {
+                { MovementType.Run, Run },
+                { MovementType.Fly, Fly },
+                { MovementType.RunOnSlope, RunOnSlope },
+                { MovementType.Jump, Jump}
+            };
         }
 
 
@@ -68,9 +71,10 @@ namespace AvatarModel
         {
             var direction = ((FlyData)data).Direction;
             var speedLimit = ((FlyData)data).SpeedLimit;
-            var angle = Vector3.SignedAngle(direction, transform.forward, Vector3.up);
 
+            var angle = Vector3.SignedAngle(direction, transform.forward, Vector3.up);
             var newVelocity = Quaternion.Euler(0f, angle, 0f) * _rigidbody.velocity;
+
             newVelocity = newVelocity.magnitude > speedLimit ? newVelocity.normalized * speedLimit : newVelocity;
             _rigidbody.velocity = newVelocity;
         }
@@ -78,8 +82,26 @@ namespace AvatarModel
 
         private void RunOnSlope(MovementData data)
         {
-            _rigidbody.velocity = ((RunOnSlopeData)data).velocity;
+            var speed = ((RunOnSlopeData)data).speed;
+            var direction = ((RunOnSlopeData)data).direction;
+            var normal = ((RunOnSlopeData)data).normal;
+
+            var velocity = Vector3.ProjectOnPlane(direction, normal).normalized * speed;
+            _rigidbody.velocity = velocity;
         }
+
+
+        private void Jump(MovementData data)
+        {
+            var direction = ((JumpData)data).direction;
+            var force = ((JumpData)data).force;
+
+            direction.y = 1f;
+            direction = direction.normalized;
+
+            _rigidbody.velocity = direction * force;
+        }
+
 
         delegate void PerformMove(MovementData data);
     }

@@ -6,6 +6,7 @@ namespace AvatarModel
 {
     [RequireComponent(typeof(AvatarMovement))]
     [RequireComponent(typeof(AvatarWorldListener))]
+    [RequireComponent(typeof(AvatarState))]
     public class AvatarController : MonoBehaviour, BeatReactor
     {
         private InputManager _playerInput;
@@ -67,6 +68,8 @@ namespace AvatarModel
         {
             _avatarState.Grounded = _avatarWorldListener.IsAvatarGrounded();
             _avatarState.OnSlope = _avatarWorldListener.IsAvatarOnSlope();
+            if(_avatarState.OnSlope)
+                _avatarState.Normal = _avatarWorldListener.GetNormal();
         }
 
         private void ProcessPlayerInput()
@@ -77,18 +80,18 @@ namespace AvatarModel
 
         private void PerformMovementActions()
         {
-            
+            _avatarMovement.ReceiveMovementData(_avatarState.GetMoveStateType(), _avatarState.GetMovementData());
         }
 
 
         private void TestGeneralPlayerAccuracy()
         {
             if(_avatarState.ShouldMove.ShouldDash)
-                _avatarState.ShouldMove.ShouldDash = CheckPlayerHitAccuracy(_avatarState.DynamicAvatarStats.DashHitInterval);
+                _avatarState.ShouldMove.ShouldDash = CheckPlayerHitAccuracy(_avatarState.MutableStats.DashHitInterval);
             if (_avatarState.ShouldMove.ShouldJump)
-                _avatarState.ShouldMove.ShouldJump = CheckPlayerHitAccuracy(_avatarState.DynamicAvatarStats.JumpHitInterval);
+                _avatarState.ShouldMove.ShouldJump = CheckPlayerHitAccuracy(_avatarState.MutableStats.JumpHitInterval);
             if (_avatarState.ShouldAttack.ShouldShoot)
-                _avatarState.ShouldAttack.ShouldShoot = CheckPlayerHitAccuracy(_avatarState.DynamicAvatarStats.ShootHitInterval);
+                _avatarState.ShouldAttack.ShouldShoot = CheckPlayerHitAccuracy(_avatarState.MutableStats.ShootHitInterval);
         }
 
 
