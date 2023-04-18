@@ -3,39 +3,41 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
+using static UnityEditor.VersionControl.Asset;
 
 namespace AvatarModel
 {
     public class AvatarState : MonoBehaviour
     {
         [SerializeField] protected AvatarStats ImmutableStats;
-        public AvatarStats MutableStats;
+
+        protected AvatarStats MutableStats;
 
         [HideInInspector] public Vector2 Rotation;
-        [HideInInspector] public Vector3 Normal = Vector3.zero;
 
-
-        public ShouldMove ShouldMove;
-        public ShouldAttack ShouldAttack;
 
         private Rigidbody Rigidbody;
-        private readonly StateMachine _stateMachine = new StateMachine();
+        private StateMachine _stateMachine;
+        private ConstantForce ConstantForce_;
 
         private Vector3 _lockedDirection = Vector3.zero;
         private Vector3 _flyDirection = Vector3.zero;
-        private Vector3 _touchSurfaceNormal = Vector3.zero;
+        private Vector3 _normal = Vector3.zero;
         private Vector3 _moveDirection = Vector3.zero;
 
-        [HideInInspector] public bool Grounded;
-        [HideInInspector] public bool OnSlope;
-        protected bool DashLocked;
-        protected bool InDash;
+        protected bool Grounded;
+        protected bool OnSlope;
+        protected bool ShouldDash;
+        protected bool ShouldJump;
+        protected bool ShouldShoot;
+
         protected bool InJump;
 
-        public Vector2 MoveDirection { set { _moveDirection = ConvertDirectionInput(value); } }
+        protected int UsedJumpCharges = 0;
 
 
         private Vector3 ConvertDirectionInput(Vector2 moveDirection)
@@ -48,8 +50,8 @@ namespace AvatarModel
         {
             MutableStats = ImmutableStats.Clone();
             Rigidbody = GetComponent<Rigidbody>();
-            ShouldAttack = new ShouldAttack();
-            ShouldMove = new ShouldMove();
+            _stateMachine = new StateMachine(this);
+            ConstantForce_ = GetComponent<ConstantForce>();
         }
 
 
@@ -63,6 +65,19 @@ namespace AvatarModel
                 case MovementType.Jump: return GetJumpData();
                 default: return GetRunData();
             }
+        }
+
+
+        public void ChangeState(in StateÑhangesFlagsPackage package)
+        {
+            _moveDirection = ConvertDirectionInput(package.MoveDirection);
+            _normal = package.Normal;
+            Grounded = package.Grounded;
+            OnSlope = package.OnSlope;
+            ShouldDash = package.ShouldDash;
+            ShouldJump = package.ShouldJump;
+            ShouldShoot = package.ShouldShoot;
+            _stateMachine.ChangeState();
         }
 
 
@@ -87,7 +102,7 @@ namespace AvatarModel
 
         private RunOnSlopeData GetRunOnSlopeData()
         {
-            return new RunOnSlopeData(transform.TransformVector(_moveDirection), MutableStats.RunSpeed, Normal);
+            return new RunOnSlopeData(transform.TransformVector(_moveDirection), MutableStats.RunSpeed, _normal);
         }
 
 
@@ -103,9 +118,15 @@ namespace AvatarModel
         }
 
 
-        protected void DonOnStartRun()
+        protected void DonOnEnterRun()
         {
-            Rigidbody.useGravity = true;
+            EnableYForces();
+        }
+
+
+        protected void DoOnExitRun()
+        {
+
         }
 
 
@@ -115,11 +136,16 @@ namespace AvatarModel
         }
 
 
-        protected void DoOnStartRunOnSlope()
+        protected void DoOnEnterRunOnSlope()
         {
-            Rigidbody.useGravity = false;
+            DisableYForces();
         }
 
+
+        protected void DoOnExitRunSlope()
+        {
+ 
+        }
 
         protected bool SemaphoreFly()
         {
@@ -127,33 +153,63 @@ namespace AvatarModel
         }
 
 
-        protected void DonOnStartFly()
+        protected void DonOnEnterFly()
         {
-            Rigidbody.useGravity = false;
+            EnableYForces();
+        }
+
+        protected void DoOnExitFly()
+        {
+
         }
 
 
         protected bool SemaphoreJump()
         {
-            return MutableStats.JumpCharges > 0 && ShouldMove.ShouldJump;
+            return MutableStats.JumpCharges > 0 && (ShouldJump || InJump);
         }
 
 
-        protected void DonOnStartJump()
+        protected void DonOnEnterJump()
         {
-            Rigidbody.useGravity = true;
+            EnableYForces();
             _lockedDirection = _moveDirection;
+            InJump = true;
             StartCoroutine(JumpDuration());
+        }
+
+
+        protected void DoOnExitJump()
+        {
         }
 
 
         public IEnumerator JumpDuration()
         {
-            _stateMachine._currentMoveState.SetMaxLayer();
+            UsedJumpCharges++;
+            MutableStats.JumpCharges--;
+
             yield return new WaitForSeconds(MutableStats.JumpDuration);
-            _stateMachine._currentMoveState.SetMinLayer();
+            
+            UsedJumpCharges--;
+
+            StartCoroutine(RestoreJumpCharge());
+
+            if (!(UsedJumpCharges == ImmutableStats.JumpCharges))
+                InJump = false;
         }
 
+
+        public IEnumerator RestoreJumpCharge()
+        {
+            yield return new WaitForSeconds(MutableStats.JumpChargeResetTime);
+            MutableStats.JumpCharges++;
+        }
+
+
+        public void DisableYForces() { Rigidbody.useGravity = false; ConstantForce_.enabled = false;}
+
+        public void EnableYForces() { Rigidbody.useGravity = true; ConstantForce_.enabled = true; }
 
         private class StateMachine
         {
@@ -164,63 +220,81 @@ namespace AvatarModel
             public State<MovementType> _currentMoveState = null;
 
 
-            public MovementType CurrentMoveType { get { return CurrentMoveType; } protected set { CurrentMoveType = value; } }
+            public MovementType CurrentMoveType { get { return _currentMoveState.CurrentStateType; }}
+
+
+            public StateMachine(AvatarState avatar)
+            {
+                Avatar = avatar;
+                _moveStatesSet = new Dictionary<MovementType, State<MovementType>>();
+                InitializeStatesSets();
+            }
 
 
             private void InitializeStatesSets()
             {
-                InitializeMoveState();
+                InitializeMoveState(); 
             } 
 
 
             private void InitializeMoveState()
             {
-                _moveStatesSet.Add(MovementType.Run, 
-                                        new State<MovementType>(
-                                            State<MovementType>.StateLayers.Layer1, 
-                                            Avatar.SemaphoreRun, 
-                                            Avatar.DonOnStartRun, 
-                                            MovementType.Run));
-                _moveStatesSet.Add(MovementType.RunOnSlope, 
+                var state = new State<MovementType>(
+                                            State<MovementType>.StateLayers.Layer1,
+                                            Avatar.SemaphoreRun,
+                                            Avatar.DonOnEnterRun,
+                                            Avatar.DoOnExitRun,
+                                            MovementType.Run);
+                _moveStatesSet.Add(MovementType.Run, state
+                                        );
+                _moveStatesSet.Add(MovementType.RunOnSlope,
                                         new State<MovementType>(
                                             State<MovementType>.StateLayers.Layer2,
-                                            Avatar.SemaphoreRunOnSlope, 
-                                            Avatar.DoOnStartRunOnSlope,
+                                            Avatar.SemaphoreRunOnSlope,
+                                            Avatar.DoOnEnterRunOnSlope,
+                                            Avatar.DoOnExitRunSlope,
                                             MovementType.RunOnSlope));
-                _moveStatesSet.Add(MovementType.Fly, 
+                _moveStatesSet.Add(MovementType.Fly,
                                         new State<MovementType>(
                                             State<MovementType>.StateLayers.Layer3,
                                             Avatar.SemaphoreFly,
-                                            Avatar.DonOnStartFly,
+                                            Avatar.DonOnEnterFly,
+                                            Avatar.DoOnExitFly,
                                             MovementType.Fly));
                 _moveStatesSet.Add(MovementType.Jump,
                                         new State<MovementType>(
                                             State<MovementType>.StateLayers.Layer4,
                                             Avatar.SemaphoreJump,
-                                            Avatar.DonOnStartJump,
+                                            Avatar.DonOnEnterJump,
+                                            Avatar.DoOnExitJump,
                                             MovementType.Jump));
-            }
+                _moveStatesSet.Add(MovementType.Dash,
+                                        new State<MovementType>(
+                                            State<MovementType>.StateLayers.Layer4,
+                                            Avatar.SemaphoreJump,
+                                            Avatar.DonOnEnterJump,
+                                            Avatar.DoOnExitJump,
+                                            MovementType.Jump));
 
-
-            public StateMachine()
-            {
-                _moveStatesSet = new Dictionary<MovementType, State<MovementType>>();
-                InitializeStatesSets();
                 _currentMoveState = GetLowestLayerState(_moveStatesSet);
             }
 
 
-            public void CalculateCurrentState<EnumType>(Dictionary<EnumType, State<EnumType>> stateSet, State<EnumType> currentState, State<EnumType> nextState)
+            public void CalculateCurrentState<EnumType>(Dictionary<EnumType, State<EnumType>> stateSet, ref State<EnumType> currentState, ref State<EnumType> previousState)
             {
-                _previousMoveState = _currentMoveState;
+                previousState = currentState;
                 foreach (var pair in stateSet)
                 {
-                    if (pair.Value.Semaphore() && pair.Value.Layer > currentState.Layer)
+                    if (pair.Value.Semaphore() && (pair.Value.Layer >= currentState.Layer || !currentState.Semaphore()))
                     {
                         currentState = pair.Value;
                     }
                 }
-                currentState.DoOnStart();
+                if(!EqualityComparer<EnumType>.Default.Equals(currentState.CurrentStateType, previousState.CurrentStateType))
+                {
+                    previousState.DoOnExit();
+                    currentState.DoOnEnter();
+                }
             }
 
 
@@ -237,6 +311,12 @@ namespace AvatarModel
             }
 
 
+            public void ChangeState()
+            {
+                CalculateCurrentState(_moveStatesSet, ref _currentMoveState, ref _previousMoveState);
+            }
+
+
             public void BlockStateMachine()
             {
                 _currentMoveState.SetMaxLayer();
@@ -244,22 +324,24 @@ namespace AvatarModel
         }
 
 
-        private class State<EnumType>
+        protected class State<EnumType>
         {
             private StateLayers _layer;
             public StateLayers Layer { get { return _layer; } protected set { _layer = value; } }
             public EnumType CurrentStateType;
 
-            public State(StateLayers layer, SemaphoreDelegate semaphore, DoOnStartDelegate doOnStart, EnumType CurrentStateType)
+            public State(StateLayers layer, SemaphoreDelegate semaphore, DoOnEnterDelegate doOnStart, DoOnExitDelegate doOnExit, EnumType CurrentStateType)
             {
                 _layer = layer;
                 Semaphore = semaphore;
-                DoOnStart = doOnStart;
+                DoOnEnter = doOnStart;
+                DoOnExit = doOnExit;
                 this.CurrentStateType = CurrentStateType;
             }
 
             public SemaphoreDelegate Semaphore;
-            public DoOnStartDelegate DoOnStart;
+            public DoOnEnterDelegate DoOnEnter;
+            public DoOnExitDelegate DoOnExit;
 
 
             public void SetMaxLayer()
@@ -283,21 +365,9 @@ namespace AvatarModel
 
 
             public delegate bool SemaphoreDelegate();
-            public delegate void DoOnStartDelegate();
+            public delegate void DoOnEnterDelegate();
+            public delegate void DoOnExitDelegate();
         }
-    }
-
-
-    public class ShouldMove
-    {
-        public bool ShouldDash;
-        public bool ShouldJump;
-    }
-
-
-    public class ShouldAttack
-    {
-        public bool ShouldShoot;
     }
 
 

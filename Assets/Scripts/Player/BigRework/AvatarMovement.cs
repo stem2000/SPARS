@@ -58,6 +58,7 @@ namespace AvatarModel
         protected void DefineCurrentMove()
         {
             _currentMove = _moveSet[_currentMovetType];
+            Debug.Log($"{_currentMovetType}");
         }
 
 

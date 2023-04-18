@@ -18,6 +18,7 @@ namespace AvatarModel
         [Tooltip("Duration of jump in seconds")]
         [SerializeField] public float JumpDuration = 0.15f;
         [SerializeField] public int JumpCharges = 2;
+        [SerializeField] public float JumpChargeResetTime = 0.5f;
         [Tooltip("Time after breaking away from the ground when the avatar can still jump")]
         [SerializeField] public float CoyoteTime = 0.2f;
         [Space]

@@ -14,6 +14,7 @@ namespace AvatarModel
         private AvatarState _avatarState;
         private AvatarMovement _avatarMovement;
         private AvatarWorldListener _avatarWorldListener;
+        private State—hangesFlagsPackage _flagsPackage;
 
 
         #region BEATREACTOR_METHODS
@@ -50,26 +51,30 @@ namespace AvatarModel
 
         private void ChangeState()
         {
-
+            _avatarState.ChangeState(_flagsPackage);
         }
 
 
         private void HandlePlayerInput()
         {
-            _avatarState.MoveDirection = _playerInput.GetPlayerMovement();
-            _avatarState.Rotation = _playerInput.GetMouseDelta();
-            _avatarState.ShouldMove.ShouldDash = _playerInput.GetDashInput();
-            _avatarState.ShouldMove.ShouldJump = _playerInput.GetJumpInput();
-            _avatarState.ShouldAttack.ShouldShoot = _playerInput.GetShootInput();
+            _flagsPackage.MoveDirection = _playerInput.GetPlayerMovement();
+            _flagsPackage.Rotation = _playerInput.GetMouseDelta();
+            _flagsPackage.ShouldDash = _playerInput.GetDashInput();
+            _flagsPackage.ShouldJump = _playerInput.GetJumpInput();
+            _flagsPackage.ShouldShoot = _playerInput.GetShootInput();
         }
 
 
         private void HandleWorldInput()
         {
-            _avatarState.Grounded = _avatarWorldListener.IsAvatarGrounded();
-            _avatarState.OnSlope = _avatarWorldListener.IsAvatarOnSlope();
-            if(_avatarState.OnSlope)
-                _avatarState.Normal = _avatarWorldListener.GetNormal();
+            _flagsPackage.Grounded = _avatarWorldListener.IsAvatarGrounded();
+            _flagsPackage.OnSlope = _avatarWorldListener.IsAvatarOnSlope();
+            if (_avatarWorldListener.IsAvatarOnSlope())
+            {
+                _flagsPackage.OnSlope = true;
+                _flagsPackage.Normal = _avatarWorldListener.GetNormal();
+            }
+
         }
 
         private void ProcessPlayerInput()
@@ -86,12 +91,7 @@ namespace AvatarModel
 
         private void TestGeneralPlayerAccuracy()
         {
-            if(_avatarState.ShouldMove.ShouldDash)
-                _avatarState.ShouldMove.ShouldDash = CheckPlayerHitAccuracy(_avatarState.MutableStats.DashHitInterval);
-            if (_avatarState.ShouldMove.ShouldJump)
-                _avatarState.ShouldMove.ShouldJump = CheckPlayerHitAccuracy(_avatarState.MutableStats.JumpHitInterval);
-            if (_avatarState.ShouldAttack.ShouldShoot)
-                _avatarState.ShouldAttack.ShouldShoot = CheckPlayerHitAccuracy(_avatarState.MutableStats.ShootHitInterval);
+
         }
 
 
@@ -111,8 +111,9 @@ namespace AvatarModel
         {
             _avatarState = GetComponent<AvatarState>();
             _avatarMovement = GetComponent<AvatarMovement>();
-            _avatarWorldListener = new AvatarWorldListener();
+            _avatarWorldListener = GetComponent<AvatarWorldListener>();
             BeatController = new LocalBeatController();
+            _flagsPackage = new State—hangesFlagsPackage();
         }
 
 
@@ -135,5 +136,20 @@ namespace AvatarModel
             ChangeState();
             PerformActions();
         }
+    }
+
+
+    public class State—hangesFlagsPackage
+    {
+        public Vector3 MoveDirection = Vector3.zero;
+        public Vector3 Normal = Vector3.zero;
+        public Vector3 Rotation = Vector3.zero;
+
+        public bool Grounded;
+        public bool OnSlope;
+        public bool DashLocked;
+        public bool ShouldDash;
+        public bool ShouldJump;
+        public bool ShouldShoot;
     }
 }

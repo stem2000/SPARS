@@ -1403,7 +1403,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 14291839e92c43d4c892fb85d4412210, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.5
+  m_Volume: 0
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -1988,7 +1988,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 264047827397598525}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 9000000, guid: 94bf8eba137fb1b4f9dfd82172bc6d6d, type: 3}
   m_Controller: {fileID: 9100000, guid: f5cf12e7f4de2cf42b2c6989b43eb5b7, type: 2}
   m_CullingMode: 0
@@ -2008,7 +2008,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 264047827397598525}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a45de13a0747bb4c8ad38664e28808b, type: 3}
   m_Name: 
@@ -2127,10 +2127,10 @@ GameObject:
   - component: {fileID: 264047827890112493}
   - component: {fileID: 264047827890112495}
   - component: {fileID: 264047827890112469}
-  - component: {fileID: 264047827890112496}
-  - component: {fileID: 264047827890112497}
-  - component: {fileID: 264047827890112498}
   - component: {fileID: 264047827890112499}
+  - component: {fileID: 264047827890112498}
+  - component: {fileID: 264047827890112497}
+  - component: {fileID: 264047827890112496}
   m_Layer: 0
   m_Name: PhysicBody
   m_TagString: Untagged
@@ -2203,9 +2203,39 @@ MonoBehaviour:
   m_GameObject: {fileID: 264047827890112480}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e76a8a4e30547c04498e5861c1e803c7, type: 3}
+  m_Script: {fileID: 11500000, guid: 40f4207933d585c4b8e0778f40f280ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ImmutableStats:
+    RunSpeed: 10
+    JumpForce: 10
+    JumpDuration: 0.15
+    JumpCharges: 2
+    CoyoteTime: 0.2
+    DashForce: 10
+    AirDashSpeedFactor: 0.5
+    FlySpeedLimit: 9
+    MaxHp: 100
+    ShootHitInterval: 0.2
+    DashHitInterval: 0.2
+    JumpHitInterval: 0.2
+  MutableStats:
+    RunSpeed: 10
+    JumpForce: 10
+    JumpDuration: 0.15
+    JumpCharges: 2
+    CoyoteTime: 0.2
+    DashForce: 10
+    AirDashSpeedFactor: 0.5
+    FlySpeedLimit: 9
+    MaxHp: 100
+    ShootHitInterval: 0.2
+    DashHitInterval: 0.2
+    JumpHitInterval: 0.2
+  Rotation: {x: 0, y: 0}
+  Normal: {x: 0, y: 0, z: 0}
+  Grounded: 0
+  OnSlope: 0
 --- !u!114 &264047827890112498
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2227,26 +2257,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 264047827890112480}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40f4207933d585c4b8e0778f40f280ed, type: 3}
+  m_Script: {fileID: 11500000, guid: e76a8a4e30547c04498e5861c1e803c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ImmutableStats:
-    RunSpeed: 10
-    JumpForce: 10
-    JumpDuration: 0.15
-    JumpCharges: 2
-    CoyoteTime: 0.2
-    DashForce: 10
-    AirDashSpeedFactor: 0.5
-    FlySpeedLimit: 9
-    MaxHp: 100
-    ShootHitInterval: 0.2
-    DashHitInterval: 0.2
-    JumpHitInterval: 0.2
-  Rotation: {x: 0, y: 0}
-  Normal: {x: 0, y: 0, z: 0}
-  Grounded: 0
-  OnSlope: 0
 --- !u!4 &264047828197704193
 Transform:
   m_ObjectHideFlags: 0
