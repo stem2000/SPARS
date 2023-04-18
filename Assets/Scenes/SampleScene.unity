@@ -2211,19 +2211,7 @@ MonoBehaviour:
     JumpForce: 10
     JumpDuration: 0.15
     JumpCharges: 2
-    CoyoteTime: 0.2
-    DashForce: 10
-    AirDashSpeedFactor: 0.5
-    FlySpeedLimit: 9
-    MaxHp: 100
-    ShootHitInterval: 0.2
-    DashHitInterval: 0.2
-    JumpHitInterval: 0.2
-  MutableStats:
-    RunSpeed: 10
-    JumpForce: 10
-    JumpDuration: 0.15
-    JumpCharges: 2
+    JumpChargeResetTime: 2
     CoyoteTime: 0.2
     DashForce: 10
     AirDashSpeedFactor: 0.5
@@ -2233,9 +2221,6 @@ MonoBehaviour:
     DashHitInterval: 0.2
     JumpHitInterval: 0.2
   Rotation: {x: 0, y: 0}
-  Normal: {x: 0, y: 0, z: 0}
-  Grounded: 0
-  OnSlope: 0
 --- !u!114 &264047827890112498
 MonoBehaviour:
   m_ObjectHideFlags: 0

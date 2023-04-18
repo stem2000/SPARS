@@ -8,7 +8,7 @@ namespace AvatarModel
     {
         private Rigidbody _rigidbody;
         private MovementData _currentMoveData;
-        private MovementType _currentMovetType;
+        private MovementType _currentMoveType;
         private PerformMove _currentMove;
         private Dictionary<MovementType, PerformMove> _moveSet;
 
@@ -50,15 +50,15 @@ namespace AvatarModel
 
         public void ReceiveMovementData(MovementType type, MovementData data)
         {
-            _currentMovetType = type;
+            _currentMoveType = type;
             _currentMoveData = data;
         }
         
 
         protected void DefineCurrentMove()
         {
-            _currentMove = _moveSet[_currentMovetType];
-            Debug.Log($"{_currentMovetType}");
+            _currentMove = _moveSet[_currentMoveType];
+            Debug.Log(_currentMoveType);
         }
 
 
