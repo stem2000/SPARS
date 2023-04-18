@@ -68,7 +68,7 @@ namespace AvatarModel
         }
 
 
-        public void ChangeState(in State—hangesFlagsPackage package)
+        public void ChangeState(in StateChangesFlagsPackage package)
         {
             _moveDirection = ConvertDirectionInput(package.MoveDirection);
             _normal = package.Normal;

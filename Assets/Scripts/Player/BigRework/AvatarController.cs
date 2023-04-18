@@ -14,7 +14,7 @@ namespace AvatarModel
         private AvatarState _avatarState;
         private AvatarMovement _avatarMovement;
         private AvatarWorldListener _avatarWorldListener;
-        private State—hangesFlagsPackage _flagsPackage;
+        private StateChangesFlagsPackage _flagsPackage;
 
 
         #region BEATREACTOR_METHODS
@@ -113,7 +113,7 @@ namespace AvatarModel
             _avatarMovement = GetComponent<AvatarMovement>();
             _avatarWorldListener = GetComponent<AvatarWorldListener>();
             BeatController = new LocalBeatController();
-            _flagsPackage = new State—hangesFlagsPackage();
+            _flagsPackage = new StateChangesFlagsPackage();
         }
 
 
@@ -139,7 +139,7 @@ namespace AvatarModel
     }
 
 
-    public class State—hangesFlagsPackage
+    public class StateChangesFlagsPackage
     {
         public Vector3 MoveDirection = Vector3.zero;
         public Vector3 Normal = Vector3.zero;
