@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Unity.VisualScripting;
@@ -175,13 +176,15 @@ namespace AvatarModel
             {
                 foreach (var pair in stateSet)
                 {
-                    if (pair.Value.Semaphore() && (!currentState.InProcess
-                       || 
-                       (pair.Value.Layer > currentState.Layer)
-                       ||
-                       (pair.Value.CanInterrupt)))
+                    if (pair.Value.Semaphore() && ((pair.Value.Layer > currentState.Layer) || !pair.Value.InProcess))
                     {
                         currentState.DoOnExit();
+                        currentState = pair.Value;
+                        currentState.DoOnEnter();
+                    }
+                    else if(pair.Value.Semaphore() && pair.Value.CanInterrupt)
+                    {
+                        currentState.StopProcess();
                         currentState = pair.Value;
                         currentState.DoOnEnter();
                     }
@@ -214,25 +217,29 @@ namespace AvatarModel
             protected static AvatarState avatar;
             private StateLayers _layer;
             public StateLayers Layer { get { return _layer; } protected set { _layer = value; } }
-            public bool InProcess { get { return _inProcess;} }
             public bool CanInterrupt { get { return _canInterrupt; } }
+            public bool InProcess { get { return _inProcess; } }
             public EnumType StateType;
 
-            protected bool _inProcess;
             protected bool _canInterrupt;
+            protected bool _inProcess;
+
+            protected Coroutine MainProcess = null;
 
             public State(StateLayers layer, EnumType stateType, AvatarState _avatar)
             {
                 _layer = layer;
                 StateType = stateType;
-                _inProcess = false;
-                _canInterrupt = false;
+                _canInterrupt = _inProcess = false;
                 avatar = _avatar;
             }           
 
             public abstract bool Semaphore();
-            public abstract void DoOnEnter();
+            public virtual void DoOnEnter() { HandleProcess();}
             public virtual void DoOnExit() { }
+            protected virtual void HandleProcess() { MainProcess = avatar.StartCoroutine(Process()); }
+            protected virtual IEnumerator Process() { yield return null; }
+            public virtual void StopProcess(){ avatar.StopCoroutine(MainProcess); _inProcess = false;}
         }
 
 
@@ -295,6 +302,8 @@ namespace AvatarModel
         
         protected class JumpState<MovementType> : State<MovementType>
         {
+            Coroutine restoreCharges = null;
+            bool _chargesRestored = false;
             public JumpState(StateLayers layer, MovementType stateType, AvatarState _avatar) : base(layer, stateType, _avatar) 
             {
                 _canInterrupt = true;
@@ -304,45 +313,46 @@ namespace AvatarModel
             {
                 avatar.EnableYForces();
                 avatar.MutableStats.CoyoteTime = 0f;
-                _inProcess = true;
                 if(avatar._lockedDirection == Vector3.zero)
                     avatar._lockedDirection = avatar._moveDirection;
                 if(avatar.MutableStats.JumpCharges != 0f)
                     avatar.MutableStats.JumpCharges--;
-                avatar.ShouldJump = false;
-                Process();
             }
 
             public override void DoOnExit()
             {
                 avatar._lockedDirection = Vector3.zero;
+                
+                if (avatar.MutableStats.JumpCharges == 0)
+                {
+                    if(restoreCharges == null)
+                        restoreCharges = avatar.StartCoroutine(ResetCharges());
+                    else if (_chargesRestored)
+                    {
+                        restoreCharges = null;
+                        _chargesRestored = false;
+                    }
+                }
             }
 
             public override bool Semaphore()
             {
-                 return (avatar.MutableStats.JumpCharges > 0 && avatar.ShouldJump 
-                         || 
-                         avatar.ShouldJump && (avatar.Grounded || avatar.MutableStats.CoyoteTime > 0));
+                 return (avatar.ShouldJump && (avatar.MutableStats.JumpCharges > 0 || avatar.Grounded || avatar.MutableStats.CoyoteTime > 0));
             }
 
-            private void Process()
+            protected override IEnumerator Process()
             {
-                avatar.StartCoroutine(CloseProcess());
-            }
-
-            private IEnumerator CloseProcess()
-            {
+                _inProcess = true;
+                avatar.ShouldJump = false;
                 yield return new WaitForSeconds(avatar.MutableStats.JumpDuration);
-                if (avatar.MutableStats.JumpCharges == 0)
-                {
-                    avatar.StartCoroutine(ResetCharges());
-                }
                 _inProcess = false;
+                DoOnExit();
             }
 
             private IEnumerator ResetCharges()
             {
                 yield return new WaitForSeconds(avatar.MutableStats.JumpChargeResetTime);
+
                 avatar.RestoreJumpCharges();
             }
         }
@@ -354,11 +364,9 @@ namespace AvatarModel
 
             public override void DoOnEnter()
             {
-                _inProcess = true;
                 avatar.EnableYForces();
                 if (avatar._lockedDirection == Vector3.zero)
                     avatar._lockedDirection = avatar._moveDirection;
-                Process();
             }
 
             public override bool Semaphore()
@@ -366,16 +374,6 @@ namespace AvatarModel
                 return false;
             }
 
-            private void Process()
-            {
-                avatar.StartCoroutine(CloseProcess());
-            }
-
-            private IEnumerator CloseProcess()
-            {
-                yield return new WaitForSeconds(avatar.MutableStats.JumpDuration);
-                _inProcess = false;
-            }
 
             new public void DoOnExit()
             {
@@ -399,8 +397,7 @@ namespace AvatarModel
 
     public enum StateLayers
     {
-        Layer1, Layer2, Layer3, Layer4, Layer5, Layer6, 
-        InterruptionLayers, Layer8, Layer9, Layer10,
+        Layer1, Layer2, Layer3, Layer4, Layer5, Layer6, Layer7, Layer8, Layer9, Layer10,
 
         AutomaticTransitionForbidden = Int32.MaxValue
     }
