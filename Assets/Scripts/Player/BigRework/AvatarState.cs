@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
-
+using UnityEngine.EventSystems;
 
 namespace AvatarModel
 {
@@ -46,6 +48,9 @@ namespace AvatarModel
             _moveChanger = new StateChanger<MovementType>(this);
             _moveChanger.AddState(new RunState(this));
             _moveChanger.AddState(new FlyState(this));
+            _moveChanger.AddState(new OnSlopeState(this));
+            _moveChanger.AddState(new JumpState(this));
+            _moveChanger.AddState(new DashState(this));
         }
 
         public MovementData GetMovementData()
@@ -56,6 +61,7 @@ namespace AvatarModel
                 case MovementType.Fly: return GetFlyData();
                 case MovementType.RunOnSlope: return GetRunOnSlopeData();
                 case MovementType.Jump: return GetJumpData();
+                case MovementType.Dash: return GetDashData();
                 default: return GetRunData();
             }
         }
@@ -96,6 +102,11 @@ namespace AvatarModel
         private JumpData GetJumpData()
         {
             return new JumpData(_lockedDirection, MutableStats.JumpForce);
+        }
+
+        private DashData GetDashData()
+        {        
+            return new DashData(_lockedDirection, MutableStats.DashForce);
         }
         #endregion
 
@@ -154,8 +165,9 @@ namespace AvatarModel
 
         protected abstract class StateWithProcess<EnumType> : State<EnumType>
         {
-            private HashSet<EnumType> _interruptingStates;
-            private bool _inProcess;
+            protected HashSet<EnumType> _interruptingStates;
+            protected bool _inProcess;
+            protected CancellationTokenSource tokenSource;
             public StateWithProcess(AvatarState avatar) : base(avatar) {}
         }
 
@@ -199,6 +211,131 @@ namespace AvatarModel
                 return !avatar.Grounded;
             }
         }
+
+        protected class OnSlopeState : State<MovementType>
+        {
+            public OnSlopeState(AvatarState avatar) : base(avatar)
+            {
+                StateType = MovementType.RunOnSlope;
+            }
+
+            public override bool CanBeChangedBy(MovementType enumType)
+            {
+                if(enumType == MovementType.Run && avatar.OnSlope)
+                    return false;
+                return true;
+            }
+
+            public override void DoOnEnter() { }
+
+            public override void DoOnExit() { }
+
+            public override bool WantsToChange()
+            {
+                return avatar.Grounded && avatar.OnSlope;
+            }
+        }
+
+        protected class JumpState : StateWithProcess<MovementType>
+        {   
+            Task inJumpTask;
+
+            public JumpState(AvatarState avatar) : base(avatar) 
+            {
+                _interruptingStates = new HashSet<MovementType>()
+                {
+                    MovementType.Jump,
+                    MovementType.Dash
+                };
+                StateType = MovementType.Jump;
+            }
+
+            public override bool CanBeChangedBy(MovementType enumType)
+            {
+                if (!_inProcess || _interruptingStates.Contains(enumType))
+                    return true;
+                else return false;
+            }
+
+            public override void DoOnEnter() 
+            {
+                tokenSource = new CancellationTokenSource();
+                avatar.MutableStats.JumpCharges--;
+                avatar._lockedDirection = avatar._moveDirection;
+                inJumpTask = StartMainProcess(tokenSource.Token); 
+                DoOnExit();
+            }
+
+            public override void DoOnExit() 
+            {
+                if(inJumpTask != null && inJumpTask.IsCanceled)
+                    _inProcess = false;                    
+            }
+
+            public override bool WantsToChange()
+            {
+                return avatar.ShouldJump && avatar.MutableStats.JumpCharges > 0;
+            }
+
+            public async Task StartMainProcess(CancellationToken token) 
+            { 
+                _inProcess = true;
+
+                await Task.Delay(Mathf.FloorToInt(1000 * avatar.MutableStats.JumpDuration), token);
+                
+                _inProcess = false;
+            }
+        }
+
+        protected class DashState : StateWithProcess<MovementType>
+        {
+            Task inDashTask;
+
+            public DashState(AvatarState avatar) : base(avatar)
+            {
+                _interruptingStates = new HashSet<MovementType>
+                {
+                    MovementType.Jump,
+                    MovementType.Dash
+                };
+                StateType = MovementType.Dash;
+            }
+
+            public override bool CanBeChangedBy(MovementType enumType)
+            {
+                if (!_inProcess || _interruptingStates.Contains(enumType))
+                    return true;
+                else return false;
+            }
+
+            public override void DoOnEnter()
+            {
+                tokenSource = new CancellationTokenSource();
+                avatar._lockedDirection = avatar._moveDirection;
+                inDashTask = StartMainProcess(tokenSource.Token);
+                DoOnExit();
+            }
+
+            public override void DoOnExit()
+            {
+                if (inDashTask != null && inDashTask.IsCanceled)
+                    _inProcess = false;
+            }
+
+            public override bool WantsToChange()
+            {
+                return avatar.ShouldDash;
+            }
+
+            public async Task StartMainProcess(CancellationToken token)
+            {
+                _inProcess = true;
+
+                await Task.Delay(Mathf.FloorToInt(1000 * avatar.MutableStats.DashDuration), token);
+
+                _inProcess = false;
+            }
+        }
     }
 
 
@@ -210,10 +347,6 @@ namespace AvatarModel
     public enum MovementType
     {
         Run, Jump, Dash, Fly, RunOnSlope
-    }
-    public enum PriorityLevels
-    {
-        Level1, Level2, Level3
     }
 
     #region MOVEMENTDATA CLASSES
@@ -243,7 +376,17 @@ namespace AvatarModel
         }
     }
 
-    public class DashData : MovementData { }
+    public class DashData : MovementData 
+    {
+        public Vector3 direction;
+        public float force;
+
+        public DashData(Vector3 direction, float force)
+        {
+            this.direction = direction;
+            this.force = force;
+        }
+    }
 
     public class FlyData : MovementData
     {

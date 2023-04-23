@@ -2196,10 +2196,10 @@ MonoBehaviour:
     RunSpeed: 10
     JumpForce: 10
     JumpDuration: 0.15
-    JumpCharges: 1
+    JumpCharges: 2
     JumpChargeResetTime: 3
     CoyoteTime: 0.2
-    DashForce: 10
+    DashForce: 35
     AirDashSpeedFactor: 0.5
     DashLockTime: 0.5
     DashDuration: 0.25

@@ -13,6 +13,7 @@ namespace AvatarModel
         private Dictionary<MovementType, PerformMove> _moveSet;
 
 
+
         public AvatarMovement(Rigidbody rigidbody)
         {
             _rigidbody = rigidbody;
@@ -27,7 +28,8 @@ namespace AvatarModel
                 { MovementType.Run, Run },
                 { MovementType.Fly, Fly },
                 { MovementType.RunOnSlope, RunOnSlope },
-                { MovementType.Jump, Jump}
+                { MovementType.Jump, Jump},
+                { MovementType.Dash, Dash}
             };
         }
 
@@ -90,7 +92,6 @@ namespace AvatarModel
             _rigidbody.velocity = velocity;
         }
 
-
         private void Jump(MovementData data)
         {
             var jumpData = (JumpData)data;
@@ -100,6 +101,16 @@ namespace AvatarModel
 
             direction.y = 1f;
             direction = direction.normalized;
+
+            _rigidbody.velocity = direction * force;
+        }
+
+        private void Dash(MovementData data)
+        {
+            var dashData = (DashData)data;
+
+            var direction = _rigidbody.transform.TransformVector(dashData.direction);
+            var force = dashData.force;
 
             _rigidbody.velocity = direction * force;
         }
