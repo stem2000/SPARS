@@ -33,15 +33,6 @@ namespace AvatarModel
         [Header("Basic Stats")]
         [Space]
         [SerializeField] public int MaxHp = 100;
-        [Space]
-        [Header("HitIntervals")]
-        [Space]
-        [Tooltip("Part of sample time given to the player to make a shoot")]
-        [SerializeField] public float ShootHitInterval = 0.2f;
-        [Tooltip("Part of sample time given to the player to make a dash")]
-        [SerializeField] public float DashHitInterval = 0.2f;
-        [Tooltip("Part of sample time given to the player to make a jump")]
-        [SerializeField] public float JumpHitInterval = 0.2f;
 
 
         public AvatarStats Clone()

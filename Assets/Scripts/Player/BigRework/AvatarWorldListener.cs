@@ -5,14 +5,14 @@ using UnityEngine;
 public class AvatarWorldListener : MonoBehaviour
 {
     private bool _isOnGround = false;
-    private Rigidbody _rigidbody;
     private RaycastHit _slopeHit;
+    [HideInInspector] private MonoBehaviour physicBody;
 
-    protected void Start()
+    
+    public AvatarWorldListener()
     {
-        _rigidbody = GetComponent<Rigidbody>();
         _slopeHit = new RaycastHit();
-    }
+    }    
 
 
     public bool IsAvatarGrounded()

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace AvatarModel 
 {
-    public class AvatarMovement : MonoBehaviour
+    public class AvatarMovement
     {
         private Rigidbody _rigidbody;
         private MovementData _currentMoveData;
@@ -13,15 +13,9 @@ namespace AvatarModel
         private Dictionary<MovementType, PerformMove> _moveSet;
 
 
-        protected void Start()
-        {  
-            InitializeComponents();
-        }
-
-
-        private void InitializeComponents()
+        public AvatarMovement(Rigidbody rigidbody)
         {
-            _rigidbody = GetComponent<Rigidbody>();
+            _rigidbody = rigidbody;
             FillMoveSet();
         }
 
@@ -38,7 +32,7 @@ namespace AvatarModel
         }
 
 
-        protected void FixedUpdate()
+        public void Move()
         {
             if(_currentMoveData != null)
             {
@@ -64,16 +58,19 @@ namespace AvatarModel
 
         private void Run(MovementData data)
         {
-            _rigidbody.velocity = ((RunData)data).velocity;
+            var runData = (RunData)data;
+            _rigidbody.velocity = _rigidbody.transform.TransformVector(runData.direction) * runData.speed;
         }
 
 
         private void Fly(MovementData data)
         {
-            var direction = ((FlyData)data).Direction;
-            var speedLimit = ((FlyData)data).SpeedLimit;
+            var flyData = (FlyData)data;
 
-            var angle = Vector3.SignedAngle(direction, transform.forward, Vector3.up);
+            var direction = Vector3.ProjectOnPlane(_rigidbody.transform.forward, Vector3.up).normalized;
+            var speedLimit = flyData.speedLimit;
+
+            var angle = Vector3.SignedAngle(direction, _rigidbody.transform.forward, Vector3.up);
             var newVelocity = Quaternion.Euler(0f, angle, 0f) * _rigidbody.velocity;
 
             newVelocity = newVelocity.magnitude > speedLimit ? newVelocity.normalized * speedLimit : newVelocity;
@@ -83,19 +80,23 @@ namespace AvatarModel
 
         private void RunOnSlope(MovementData data)
         {
-            var speed = ((RunOnSlopeData)data).speed;
-            var direction = ((RunOnSlopeData)data).direction;
-            var normal = ((RunOnSlopeData)data).normal;
+            var runSData = (RunOnSlopeData)data;
 
+            var speed = runSData.speed;
+            var direction = _rigidbody.transform.TransformVector(runSData.direction);
+            var normal = runSData.normal;
             var velocity = Vector3.ProjectOnPlane(direction, normal).normalized * speed;
+
             _rigidbody.velocity = velocity;
         }
 
 
         private void Jump(MovementData data)
         {
-            var direction = ((JumpData)data).direction;
-            var force = ((JumpData)data).force;
+            var jumpData = (JumpData)data;
+
+            var direction = _rigidbody.transform.TransformVector(jumpData.direction);
+            var force = jumpData.force;
 
             direction.y = 1f;
             direction = direction.normalized;

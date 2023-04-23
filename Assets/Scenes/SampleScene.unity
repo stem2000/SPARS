@@ -1914,14 +1914,14 @@ Canvas:
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 264047828197704198}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 31
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -2127,12 +2127,10 @@ GameObject:
   - component: {fileID: 264047827890112493}
   - component: {fileID: 264047827890112495}
   - component: {fileID: 264047827890112469}
-  - component: {fileID: 264047827890112499}
   - component: {fileID: 264047827890112498}
-  - component: {fileID: 264047827890112497}
   - component: {fileID: 264047827890112496}
   m_Layer: 0
-  m_Name: PhysicBody
+  m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2194,24 +2192,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76edae2d6bfda77489ce3b8694b1e4bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &264047827890112497
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 264047827890112480}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40f4207933d585c4b8e0778f40f280ed, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ImmutableStats:
+  _avatarStats:
     RunSpeed: 10
     JumpForce: 10
     JumpDuration: 0.15
-    JumpCharges: 2
-    JumpChargeResetTime: 2
+    JumpCharges: 1
+    JumpChargeResetTime: 3
     CoyoteTime: 0.2
     DashForce: 10
     AirDashSpeedFactor: 0.5
@@ -2219,10 +2205,6 @@ MonoBehaviour:
     DashDuration: 0.25
     FlySpeedLimit: 9
     MaxHp: 100
-    ShootHitInterval: 0.2
-    DashHitInterval: 0.2
-    JumpHitInterval: 0.2
-  Rotation: {x: 0, y: 0}
 --- !u!114 &264047827890112498
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2233,18 +2215,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a17d76cb1ca49a94da9fc00105c2379c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &264047827890112499
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 264047827890112480}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e76a8a4e30547c04498e5861c1e803c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!4 &264047828197704193

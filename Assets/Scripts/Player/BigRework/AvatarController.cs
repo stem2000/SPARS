@@ -4,14 +4,12 @@ using UnityEngine;
 
 namespace AvatarModel
 {
-    [RequireComponent(typeof(AvatarMovement))]
-    [RequireComponent(typeof(AvatarWorldListener))]
-    [RequireComponent(typeof(AvatarState))]
     public class AvatarController : MonoBehaviour, BeatReactor
     {
-        private InputManager _playerInput;
-        [SerializeField] private LocalBeatController BeatController;
         private AvatarState _avatarState;
+        [SerializeField] private AvatarStats _avatarStats;
+        private LocalBeatController _myBeatController;
+        private InputManager _playerInput;
         private AvatarMovement _avatarMovement;
         private AvatarWorldListener _avatarWorldListener;
         private StateChangesFlagsPackage _flagsPackage;
@@ -20,16 +18,16 @@ namespace AvatarModel
         #region BEATREACTOR_METHODS
         public void MoveToNextSample()
         {
-            BeatController.CanActThisSample = true;
+            _myBeatController.CanActThisSample = true;
         }
 
         public void UpdateCurrentSampleState(float sampleState)
         {
-            BeatController.LastSampleState = sampleState;
+            _myBeatController.LastSampleState = sampleState;
         }
         #endregion
 
-
+        #region METHODS
         private void HandleInput()
         {
             HandlePlayerInput();
@@ -85,7 +83,8 @@ namespace AvatarModel
 
         private void PerformMovementActions()
         {
-            _avatarMovement.ReceiveMovementData(_avatarState.GetMoveStateType(), _avatarState.GetMovementData());
+            _avatarMovement.ReceiveMovementData(_avatarState.GetMoveState(), _avatarState.GetMovementData());
+            _avatarMovement.Move();
         }
 
 
@@ -97,26 +96,27 @@ namespace AvatarModel
 
         private bool CheckPlayerHitAccuracy(float hitSegment)
         {
-            if (BeatController.SampleActLimit - hitSegment < BeatController.LastSampleState && BeatController.CanActThisSample)
+            if (_myBeatController.SampleActLimit - hitSegment < _myBeatController.LastSampleState && _myBeatController.CanActThisSample)
             {
-                BeatController.CanActThisSample = false;
+                _myBeatController.CanActThisSample = false;
                 return true;
             }
-            BeatController.CanActThisSample = false;
+            _myBeatController.CanActThisSample = false;
             return false;
         }
 
 
         private void InitializeComponents()
         {
-            _avatarState = GetComponent<AvatarState>();
-            _avatarMovement = GetComponent<AvatarMovement>();
+            _avatarState = new AvatarState(_avatarStats);
+            _avatarMovement = new AvatarMovement(GetComponent<Rigidbody>());
             _avatarWorldListener = GetComponent<AvatarWorldListener>();
-            BeatController = new LocalBeatController();
+            _myBeatController = new LocalBeatController();
             _flagsPackage = new StateChangesFlagsPackage();
         }
+        #endregion
 
-
+        #region MONOBEHAVIOUR METHODS
         protected void Start()
         {
             InitializeComponents();
@@ -136,6 +136,7 @@ namespace AvatarModel
             ChangeState();
             PerformActions();
         }
+        #endregion
     }
 
 
@@ -147,7 +148,6 @@ namespace AvatarModel
 
         public bool Grounded;
         public bool OnSlope;
-        public bool DashLocked;
         public bool ShouldDash;
         public bool ShouldJump;
         public bool ShouldShoot;
