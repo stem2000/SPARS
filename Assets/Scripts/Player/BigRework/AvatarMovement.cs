@@ -48,6 +48,7 @@ namespace AvatarModel
         {
             _currentMoveType = type;
             _currentMoveData = data;
+            Move();
         }
         
 

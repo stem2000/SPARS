@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class AvatarWorldListener : MonoBehaviour
 {
@@ -14,12 +15,10 @@ public class AvatarWorldListener : MonoBehaviour
         _slopeHit = new RaycastHit();
     }    
 
-
     public bool IsAvatarGrounded()
     {
         return _isOnGround;
-    }
-    
+    }    
 
     public bool IsAvatarOnSlope()
     {
@@ -32,24 +31,20 @@ public class AvatarWorldListener : MonoBehaviour
         return false;
     }
 
-
     public Vector3 GetNormal()
     {
         return _slopeHit.normal;
     }
-
 
     private void OnTriggerEnter(Collider other)
     {
         _isOnGround = true;
     }
 
-
     private void OnTriggerStay(Collider other)
     {
         _isOnGround = true;
     }
-
 
     private void OnTriggerExit(Collider other)
     {

@@ -12,14 +12,11 @@ namespace AvatarModel
 {
     public class AvatarState
     {
-        protected AvatarStats ImmutableStats;
-
         public AvatarStats MutableStats;
 
         private StateChanger<MovementType> _moveChanger;
 
-        protected HandleLandInteraction TouchTheLand;
-        protected HandleLandInteraction LeaveTheLand;
+        private StateInfoPackage _infoPackage;
 
         private Vector3 _lockedDirection = Vector3.zero;
         private Vector3 _normal = Vector3.zero;
@@ -39,7 +36,8 @@ namespace AvatarModel
 
         public AvatarState(AvatarStats avatarStats)
         {
-            ImmutableStats = MutableStats = avatarStats;
+            MutableStats = avatarStats;
+            _infoPackage = new StateInfoPackage();
             CreateMoveChanger();
         }
 
@@ -53,9 +51,17 @@ namespace AvatarModel
             _moveChanger.AddState(new DashState(this));
         }
 
+        public StateInfoPackage GetStateInfo()
+        {
+            _infoPackage.Grounded = Grounded;
+            _infoPackage.StateWasChanged = _moveChanger.StateWasChanged;
+            _infoPackage.CurrentMoveState = _moveChanger.CurrentState;
+            return _infoPackage;
+        }
+
         public MovementData GetMovementData()
         {
-            switch (GetMoveState())
+            switch (_moveChanger.CurrentState)
             {
                 case MovementType.Run: return GetRunData();
                 case MovementType.Fly: return GetFlyData();
@@ -66,7 +72,7 @@ namespace AvatarModel
             }
         }
 
-        public void ChangeState(in StateChangesFlagsPackage package)
+        public void HandleInput(in StateUpdatePackage package)
         {
             _moveDirection = ConvertDirectionInput(package.MoveDirection);
             _normal = package.Normal;
@@ -110,14 +116,13 @@ namespace AvatarModel
         }
         #endregion
 
-        protected delegate void HandleLandInteraction(); 
-
         private class StateChanger<EnumType>
         {
             protected static AvatarState avatar;
             private Dictionary<EnumType, State<EnumType>> _statesSet;
             public EnumType CurrentState {get {return _currentState.StateType;} }
             private State<EnumType>  _currentState;
+            public bool StateWasChanged;
 
             public StateChanger(AvatarState Avatar)
             {
@@ -135,18 +140,22 @@ namespace AvatarModel
                 if (_currentState == null)
                         _currentState = _statesSet.FirstOrDefault().Value;
 
+                StateWasChanged = false;
+
                 foreach (var state in _statesSet.Values)
                 {
                     if(state.WantsToChange() && _currentState.CanBeChangedBy(state.StateType))
                     {
                         _currentState.DoOnExit();
                         _currentState = state;
+                        StateWasChanged = true;
                         _currentState.DoOnEnter();
                     }
                 }
             }       
         }
 
+        #region STATES CLASSES
         protected abstract class State<EnumType>
         {
             protected AvatarState avatar = null;
@@ -295,8 +304,7 @@ namespace AvatarModel
             {
                 _interruptingStates = new HashSet<MovementType>
                 {
-                    MovementType.Jump,
-                    MovementType.Dash
+                    MovementType.Jump
                 };
                 StateType = MovementType.Dash;
             }
@@ -336,6 +344,7 @@ namespace AvatarModel
                 _inProcess = false;
             }
         }
+        #endregion
     }
 
 

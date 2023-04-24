@@ -6,13 +6,14 @@ namespace AvatarModel
 {
     public class AvatarController : MonoBehaviour, BeatReactor
     {
-        private AvatarState _avatarState;
         [SerializeField] private AvatarStats _avatarStats;
-        private LocalBeatController _myBeatController;
-        private InputManager _playerInput;
+        private AvatarState _avatarState;
         private AvatarMovement _avatarMovement;
         private AvatarWorldListener _avatarWorldListener;
-        private StateChangesFlagsPackage _flagsPackage;
+        private AvatarStateManipulator _avatarStateManipulator;
+        private LocalBeatController _myBeatController;
+        private InputManager _playerInput;
+        private StateUpdatePackage _inputPackage;
 
 
         #region BEATREACTOR_METHODS
@@ -34,43 +35,39 @@ namespace AvatarModel
             HandleWorldInput();
         }
 
-
         private void ProcessInput()
         {
             ProcessPlayerInput();
         }
 
-
         private void PerformActions()
         {
-            PerformMovementActions();
+            UpdateMovement();
         }
-
 
         private void ChangeState()
         {
-            _avatarState.ChangeState(_flagsPackage);
+            _avatarState.HandleInput(_inputPackage);
+            _avatarStateManipulator.UpdateAvatarState(_avatarState.GetStateInfo());
         }
-
 
         private void HandlePlayerInput()
         {
-            _flagsPackage.MoveDirection = _playerInput.GetPlayerMovement();
-            _flagsPackage.Rotation = _playerInput.GetMouseDelta();
-            _flagsPackage.ShouldDash = _playerInput.GetDashInput();
-            _flagsPackage.ShouldJump = _playerInput.GetJumpInput();
-            _flagsPackage.ShouldShoot = _playerInput.GetShootInput();
+            _inputPackage.MoveDirection = _playerInput.GetPlayerMovement();
+            _inputPackage.Rotation = _playerInput.GetMouseDelta();
+            _inputPackage.ShouldDash = _playerInput.GetDashInput();
+            _inputPackage.ShouldJump = _playerInput.GetJumpInput();
+            _inputPackage.ShouldShoot = _playerInput.GetShootInput();
         }
-
 
         private void HandleWorldInput()
         {
-            _flagsPackage.Grounded = _avatarWorldListener.IsAvatarGrounded();
-            _flagsPackage.OnSlope = _avatarWorldListener.IsAvatarOnSlope();
+            _inputPackage.Grounded = _avatarWorldListener.IsAvatarGrounded();
+            _inputPackage.OnSlope = _avatarWorldListener.IsAvatarOnSlope();
             if (_avatarWorldListener.IsAvatarOnSlope())
             {
-                _flagsPackage.OnSlope = true;
-                _flagsPackage.Normal = _avatarWorldListener.GetNormal();
+                _inputPackage.OnSlope = true;
+                _inputPackage.Normal = _avatarWorldListener.GetNormal();
             }
 
         }
@@ -80,19 +77,15 @@ namespace AvatarModel
             TestGeneralPlayerAccuracy();
         }
 
-
-        private void PerformMovementActions()
+        private void UpdateMovement()
         {
             _avatarMovement.ReceiveMovementData(_avatarState.GetMoveState(), _avatarState.GetMovementData());
-            _avatarMovement.Move();
         }
-
 
         private void TestGeneralPlayerAccuracy()
         {
 
         }
-
 
         private bool CheckPlayerHitAccuracy(float hitSegment)
         {
@@ -105,14 +98,16 @@ namespace AvatarModel
             return false;
         }
 
-
         private void InitializeComponents()
         {
-            _avatarState = new AvatarState(_avatarStats);
+            var stats = _avatarStats.Clone();
+
+            _avatarState = new AvatarState(stats);
             _avatarMovement = new AvatarMovement(GetComponent<Rigidbody>());
             _avatarWorldListener = GetComponent<AvatarWorldListener>();
+            _avatarStateManipulator = new AvatarStateManipulator(GetComponent<Rigidbody>(), stats);
             _myBeatController = new LocalBeatController();
-            _flagsPackage = new StateChangesFlagsPackage();
+            _inputPackage = new StateUpdatePackage();
         }
         #endregion
 
@@ -122,12 +117,10 @@ namespace AvatarModel
             InitializeComponents();
         }
 
-
         protected void Awake()
         {
             _playerInput = InputManager.Instance;
         }
-
 
         protected void Update()
         {
@@ -140,7 +133,7 @@ namespace AvatarModel
     }
 
 
-    public class StateChangesFlagsPackage
+    public class StateUpdatePackage
     {
         public Vector3 MoveDirection = Vector3.zero;
         public Vector3 Normal = Vector3.zero;

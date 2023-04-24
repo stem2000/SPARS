@@ -2127,8 +2127,8 @@ GameObject:
   - component: {fileID: 264047827890112493}
   - component: {fileID: 264047827890112495}
   - component: {fileID: 264047827890112469}
-  - component: {fileID: 264047827890112498}
   - component: {fileID: 264047827890112496}
+  - component: {fileID: 264047827890112497}
   m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
@@ -2205,7 +2205,7 @@ MonoBehaviour:
     DashDuration: 0.25
     FlySpeedLimit: 9
     MaxHp: 100
---- !u!114 &264047827890112498
+--- !u!114 &264047827890112497
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
