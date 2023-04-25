@@ -53,7 +53,6 @@ namespace AvatarModel
             _currentMoveType = package.type;
             _currentMoveData = package.data;
             HandleMoveType(package.stateChanged);
-            Move();
         }
         
         protected void HandleMoveType(bool stateChanged) 

@@ -38,7 +38,7 @@ namespace AvatarModel
             ProcessPlayerInput();
         }
 
-        private void PerformActions()
+        private void UpdateComponents()
         {
             UpdateMovement();
         }
@@ -125,7 +125,12 @@ namespace AvatarModel
             HandleInput();
             ProcessInput();
             ChangeState();
-            PerformActions();
+            UpdateComponents();
+        }
+
+        protected void FixedUpdate()
+        {
+            _avatarMovement.Move();
         }
         #endregion
     }
