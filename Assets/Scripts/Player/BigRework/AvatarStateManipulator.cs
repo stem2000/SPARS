@@ -1,7 +1,3 @@
-using AvatarModel;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace AvatarModel
@@ -53,13 +49,5 @@ namespace AvatarModel
             }
         }
     }
-
-    public class StateInfoPackage
-    {
-        public MovementType CurrentMoveState;
-        public bool Grounded;
-        public bool StateWasChanged;
-    }
-
 
 }

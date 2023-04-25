@@ -1,17 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.Mesh;
 
 namespace AvatarModel 
 {
     public class AvatarMovement
     {
         private Rigidbody _rigidbody;
-        private MovementData _currentMoveData;
-        private MovementType _currentMoveType;
         private PerformMove _currentMove;
         private Dictionary<MovementType, PerformMove> _moveSet;
 
+        private MovementData _currentMoveData;
+        private MovementType _currentMoveType;
+
+        private Vector3 _forwardDirection;
+        private Vector3 _lockedDirection;
 
 
         public AvatarMovement(Rigidbody rigidbody)
@@ -44,18 +48,31 @@ namespace AvatarModel
         }
 
 
-        public void ReceiveMovementData(MovementType type, MovementData data)
+        public void ReceiveMovementData(MovementDataPackage package)
         {
-            _currentMoveType = type;
-            _currentMoveData = data;
+            _currentMoveType = package.type;
+            _currentMoveData = package.data;
+            HandleMoveType(package.stateChanged);
             Move();
         }
         
+        protected void HandleMoveType(bool stateChanged) 
+        {
+            if (_currentMoveType == MovementType.Fly && stateChanged)
+                _forwardDirection = Vector3.ProjectOnPlane(_rigidbody.transform.forward, Vector3.up).normalized;
+            if (_currentMoveType == MovementType.Dash && stateChanged)
+                _lockedDirection = _rigidbody.transform.TransformVector(((DashData)_currentMoveData).direction);
+            if (_currentMoveType == MovementType.Jump && stateChanged)
+            {
+                _lockedDirection = _rigidbody.transform.TransformVector(((JumpData)_currentMoveData).direction);
+                _lockedDirection.y = 1f;
+                _lockedDirection = _lockedDirection.normalized;
+            }
+        }
 
         protected void DefineCurrentMove()
         {
             _currentMove = _moveSet[_currentMoveType];
-            Debug.Log(_currentMoveType);
         }
 
 
@@ -70,14 +87,16 @@ namespace AvatarModel
         {
             var flyData = (FlyData)data;
 
-            var direction = Vector3.ProjectOnPlane(_rigidbody.transform.forward, Vector3.up).normalized;
+            var newDirection = Vector3.ProjectOnPlane(_rigidbody.transform.forward, Vector3.up).normalized;
             var speedLimit = flyData.speedLimit;
 
-            var angle = Vector3.SignedAngle(direction, _rigidbody.transform.forward, Vector3.up);
+            var angle = Vector3.SignedAngle(_forwardDirection, newDirection, Vector3.up);
             var newVelocity = Quaternion.Euler(0f, angle, 0f) * _rigidbody.velocity;
 
             newVelocity = newVelocity.magnitude > speedLimit ? newVelocity.normalized * speedLimit : newVelocity;
             _rigidbody.velocity = newVelocity;
+
+            _forwardDirection = newDirection;
         }
 
 
@@ -97,23 +116,18 @@ namespace AvatarModel
         {
             var jumpData = (JumpData)data;
 
-            var direction = _rigidbody.transform.TransformVector(jumpData.direction);
             var force = jumpData.force;
 
-            direction.y = 1f;
-            direction = direction.normalized;
-
-            _rigidbody.velocity = direction * force;
+            _rigidbody.velocity = _lockedDirection * force;
         }
 
         private void Dash(MovementData data)
         {
             var dashData = (DashData)data;
 
-            var direction = _rigidbody.transform.TransformVector(dashData.direction);
             var force = dashData.force;
 
-            _rigidbody.velocity = direction * force;
+            _rigidbody.velocity = _lockedDirection * force;
         }
 
 

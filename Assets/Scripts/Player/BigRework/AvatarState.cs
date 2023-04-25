@@ -1,12 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace AvatarModel
 {
@@ -18,7 +15,6 @@ namespace AvatarModel
 
         private StateInfoPackage _infoPackage;
 
-        private Vector3 _lockedDirection = Vector3.zero;
         private Vector3 _normal = Vector3.zero;
         private Vector3 _moveDirection = Vector3.zero;
 
@@ -28,7 +24,9 @@ namespace AvatarModel
         protected bool ShouldJump;
         protected bool ShouldShoot;
 
+        private MovementDataPackage _moveDataPack;
 
+        #region METHODS
         private Vector3 ConvertDirectionInput(Vector2 moveDirection)
         {
             return new Vector3(moveDirection.x, 0f, moveDirection.y);
@@ -37,8 +35,9 @@ namespace AvatarModel
         public AvatarState(AvatarStats avatarStats)
         {
             MutableStats = avatarStats;
-            _infoPackage = new StateInfoPackage();
             CreateMoveChanger();
+            _infoPackage = new StateInfoPackage();
+            _moveDataPack = new MovementDataPackage();
         }
 
         private void CreateMoveChanger()
@@ -59,17 +58,34 @@ namespace AvatarModel
             return _infoPackage;
         }
 
-        public MovementData GetMovementData()
+        public MovementDataPackage GetMovementData()
         {
+            _moveDataPack.stateChanged = _moveChanger.StateWasChanged;
+
             switch (_moveChanger.CurrentState)
             {
-                case MovementType.Run: return GetRunData();
-                case MovementType.Fly: return GetFlyData();
-                case MovementType.RunOnSlope: return GetRunOnSlopeData();
-                case MovementType.Jump: return GetJumpData();
-                case MovementType.Dash: return GetDashData();
-                default: return GetRunData();
+                case MovementType.Run:
+                    _moveDataPack.data = new RunData(_moveDirection, MutableStats.RunSpeed);
+                    _moveDataPack.type = MovementType.Run;
+                    break;
+                case MovementType.Fly:
+                    _moveDataPack.data = new FlyData(MutableStats.FlySpeedLimit);
+                    _moveDataPack.type = MovementType.Fly;
+                    break;
+                case MovementType.RunOnSlope:
+                    _moveDataPack.data = new RunOnSlopeData(_moveDirection, MutableStats.RunSpeed, _normal);
+                    _moveDataPack.type = MovementType.RunOnSlope;
+                    break;
+                case MovementType.Jump:
+                    _moveDataPack.data = new JumpData(_moveDirection, MutableStats.JumpForce);
+                    _moveDataPack.type = MovementType.Jump;
+                    break;
+                case MovementType.Dash:
+                    _moveDataPack.data = new DashData(_moveDirection, MutableStats.DashForce);
+                    _moveDataPack.type = MovementType.Dash;
+                    break;
             }
+            return _moveDataPack;
         }
 
         public void HandleInput(in StateUpdatePackage package)
@@ -83,44 +99,23 @@ namespace AvatarModel
             ShouldShoot = package.ShouldShoot;
             _moveChanger.ChangeState();
         }
-
-        public MovementType GetMoveState()
-        {
-            return _moveChanger.CurrentState;
-        }
-
-        #region GET MOVEMENTDATA METHODS
-        private RunData GetRunData()
-        {
-            return new RunData(_moveDirection, MutableStats.RunSpeed);
-        }
-
-        private FlyData GetFlyData()
-        {
-            return new FlyData(MutableStats.FlySpeedLimit);
-        }
-
-        private RunOnSlopeData GetRunOnSlopeData()
-        {
-            return new RunOnSlopeData(_moveDirection, MutableStats.RunSpeed, _normal);
-        }
-
-        private JumpData GetJumpData()
-        {
-            return new JumpData(_lockedDirection, MutableStats.JumpForce);
-        }
-
-        private DashData GetDashData()
-        {        
-            return new DashData(_lockedDirection, MutableStats.DashForce);
-        }
         #endregion
-
         private class StateChanger<EnumType>
         {
             protected static AvatarState avatar;
             private Dictionary<EnumType, State<EnumType>> _statesSet;
-            public EnumType CurrentState {get {return _currentState.StateType;} }
+            public EnumType CurrentState 
+            {
+                get 
+                {                 
+                    if(_currentState == null)
+                    {
+                        Type type = typeof(EnumType);
+                        return (EnumType)type.GetEnumValues().GetValue(0);
+                    }
+                    return _currentState.StateType;
+                } 
+            }
             private State<EnumType>  _currentState;
             public bool StateWasChanged;
 
@@ -152,7 +147,8 @@ namespace AvatarModel
                         _currentState.DoOnEnter();
                     }
                 }
-            }       
+            } 
+            
         }
 
         #region STATES CLASSES
@@ -208,6 +204,8 @@ namespace AvatarModel
 
             public override bool CanBeChangedBy(MovementType enumType) 
             { 
+                if(enumType == MovementType.Fly)
+                    return false;
                 return true; 
             }
 
@@ -235,7 +233,7 @@ namespace AvatarModel
                 return true;
             }
 
-            public override void DoOnEnter() { }
+            public override void DoOnEnter(){}
 
             public override void DoOnExit() { }
 
@@ -269,10 +267,7 @@ namespace AvatarModel
             public override void DoOnEnter() 
             {
                 tokenSource = new CancellationTokenSource();
-                avatar.MutableStats.JumpCharges--;
-                avatar._lockedDirection = avatar._moveDirection;
                 inJumpTask = StartMainProcess(tokenSource.Token); 
-                DoOnExit();
             }
 
             public override void DoOnExit() 
@@ -286,7 +281,7 @@ namespace AvatarModel
                 return avatar.ShouldJump && avatar.MutableStats.JumpCharges > 0;
             }
 
-            public async Task StartMainProcess(CancellationToken token) 
+            protected async Task StartMainProcess(CancellationToken token) 
             { 
                 _inProcess = true;
 
@@ -299,7 +294,7 @@ namespace AvatarModel
         protected class DashState : StateWithProcess<MovementType>
         {
             Task inDashTask;
-
+            private bool _dashInCD;
             public DashState(AvatarState avatar) : base(avatar)
             {
                 _interruptingStates = new HashSet<MovementType>
@@ -319,23 +314,23 @@ namespace AvatarModel
             public override void DoOnEnter()
             {
                 tokenSource = new CancellationTokenSource();
-                avatar._lockedDirection = avatar._moveDirection;
                 inDashTask = StartMainProcess(tokenSource.Token);
-                DoOnExit();
             }
 
             public override void DoOnExit()
             {
                 if (inDashTask != null && inDashTask.IsCanceled)
                     _inProcess = false;
+
+                StartDashCooldown();
             }
 
             public override bool WantsToChange()
             {
-                return avatar.ShouldDash;
+                return avatar.ShouldDash && !_dashInCD;
             }
 
-            public async Task StartMainProcess(CancellationToken token)
+            protected async Task StartMainProcess(CancellationToken token)
             {
                 _inProcess = true;
 
@@ -343,15 +338,18 @@ namespace AvatarModel
 
                 _inProcess = false;
             }
+
+            protected async void StartDashCooldown()
+            {
+                _dashInCD = true;
+
+                await Task.Delay(Mathf.FloorToInt(1000 * avatar.MutableStats.DashLockTime));
+
+                _dashInCD = false;
+            }
         }
         #endregion
     }
-
-
-    public delegate bool SemaphoreDelegate();
-    public delegate void DoOnEnterDelegate();
-    public delegate void DoOnExitDelegate();
-    public delegate void ProcessDelegate();
 
     public enum MovementType
     {
@@ -361,7 +359,7 @@ namespace AvatarModel
     #region MOVEMENTDATA CLASSES
     public abstract class MovementData { }
 
-    public class RunData: MovementData
+    public class RunData : MovementData
     {
         public Vector3 direction;
         public float speed;
@@ -373,8 +371,8 @@ namespace AvatarModel
         }
     }
 
-    public class JumpData : MovementData 
-    { 
+    public class JumpData : MovementData
+    {
         public Vector3 direction;
         public float force;
 
@@ -385,7 +383,7 @@ namespace AvatarModel
         }
     }
 
-    public class DashData : MovementData 
+    public class DashData : MovementData
     {
         public Vector3 direction;
         public float force;
@@ -407,7 +405,7 @@ namespace AvatarModel
         }
     }
 
-    public class RunOnSlopeData : MovementData 
+    public class RunOnSlopeData : MovementData
     {
         public Vector3 direction;
         public Vector3 normal;
@@ -419,6 +417,5 @@ namespace AvatarModel
             this.normal = normal;
         }
     }
-
     #endregion
 }

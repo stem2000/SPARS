@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AvatarModel
@@ -79,7 +77,7 @@ namespace AvatarModel
 
         private void UpdateMovement()
         {
-            _avatarMovement.ReceiveMovementData(_avatarState.GetMoveState(), _avatarState.GetMovementData());
+            _avatarMovement.ReceiveMovementData(_avatarState.GetMovementData());
         }
 
         private void TestGeneralPlayerAccuracy()
@@ -132,17 +130,4 @@ namespace AvatarModel
         #endregion
     }
 
-
-    public class StateUpdatePackage
-    {
-        public Vector3 MoveDirection = Vector3.zero;
-        public Vector3 Normal = Vector3.zero;
-        public Vector3 Rotation = Vector3.zero;
-
-        public bool Grounded;
-        public bool OnSlope;
-        public bool ShouldDash;
-        public bool ShouldJump;
-        public bool ShouldShoot;
-    }
 }
