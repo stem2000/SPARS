@@ -7,15 +7,15 @@ namespace AvatarModel
         private Rigidbody _rigidbody;
         private ConstantForce _constantForce;
         private AvatarStats _immutableStats;
-        private AvatarStats _avatarStats;
 
         private StateInfoPackage _packageFromState;
+        private StateStatsUpdatePackage _statsPackage;
 
         public AvatarStateManipulator(Rigidbody rigidbody, AvatarStats stats)
         {
             _rigidbody = rigidbody;
             _immutableStats = stats.Clone();
-            _avatarStats = stats;
+            _statsPackage = new StateStatsUpdatePackage(stats);
             _constantForce = _rigidbody.GetComponent<ConstantForce>();
         }
 
@@ -25,6 +25,11 @@ namespace AvatarModel
 
             HandleVerticalForces();
             UpdateStateStats();
+        }
+
+        public StateStatsUpdatePackage GetStatsPackage()
+        {
+            return _statsPackage;
         }
 
         private void HandleVerticalForces()
@@ -41,13 +46,19 @@ namespace AvatarModel
             }
         }
 
-        public void UpdateStateStats()
+        private void UpdateStateStats()
         {
-            if(!(_avatarStats.JumpCharges > 0) && _packageFromState.Grounded)
-            {
-                _avatarStats.JumpCharges = _immutableStats.JumpCharges;
-            }
+            UpdateJumpStats();
         }
+
+        private void UpdateJumpStats()
+        {
+            if (_packageFromState.CurrentMoveState == MovementType.Jump && _packageFromState.StateWasChanged)
+                _statsPackage.jumpStats.JumpCharges--;
+            if (_packageFromState.Grounded && _packageFromState.CurrentMoveState != MovementType.Jump)
+                _statsPackage.jumpStats.JumpCharges = _immutableStats.jumpStats.JumpCharges;
+            //Debug.Log($"{_packageFromState.Grounded} - {_packageFromState.CurrentMoveState} - {_statsPackage.jumpStats.JumpCharges}");
+        }      
     }
 
 }

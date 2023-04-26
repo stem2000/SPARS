@@ -47,6 +47,7 @@ namespace AvatarModel
         {
             _avatarState.HandleInput(_inputPackage);
             _avatarStateManipulator.UpdateAvatarState(_avatarState.GetStateInfo());
+            _avatarState.ReceiveUpdatedStateInfo(_avatarStateManipulator.GetStatsPackage());
         }
 
         private void HandlePlayerInput()
@@ -100,10 +101,11 @@ namespace AvatarModel
         {
             var stats = _avatarStats.Clone();
 
-            _avatarState = new AvatarState(stats);
+            _avatarStateManipulator = new AvatarStateManipulator(GetComponent<Rigidbody>(), stats);
+            _avatarState = new AvatarState(_avatarStateManipulator.GetStatsPackage());
             _avatarMovement = new AvatarMovement(GetComponent<Rigidbody>());
             _avatarWorldListener = GetComponent<AvatarWorldListener>();
-            _avatarStateManipulator = new AvatarStateManipulator(GetComponent<Rigidbody>(), stats);
+
             _myBeatController = new LocalBeatController();
             _inputPackage = new StateUpdatePackage();
         }

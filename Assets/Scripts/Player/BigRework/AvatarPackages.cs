@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AvatarModel
@@ -29,5 +27,19 @@ namespace AvatarModel
         public bool ShouldDash;
         public bool ShouldJump;
         public bool ShouldShoot;
+    }
+
+    public class StateStatsUpdatePackage
+    {
+        public JumpStats jumpStats;
+        public DashStats dashStats;
+        public float FlySpeedLimit = 9;
+        public float RunSpeed = 10;
+
+        public StateStatsUpdatePackage(in AvatarStats avatarStats)
+        {
+            jumpStats = avatarStats.jumpStats.Clone();
+            dashStats = avatarStats.dashStats.Clone();
+        }
     }
 }

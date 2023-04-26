@@ -44,6 +44,7 @@ namespace AvatarModel
             {
                 DefineCurrentMove();
                 _currentMove.Invoke(_currentMoveData);
+                //Debug.Log(_currentMoveType);
             }
         }
 

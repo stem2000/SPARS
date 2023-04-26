@@ -22,7 +22,7 @@ public class AvatarWorldListener : MonoBehaviour
         if (Physics.Raycast(transform.position, Vector3.down, out _slopeHit, transform.lossyScale.y * 0.5f))
         {
             var dot = Vector3.Dot(Vector3.up, _slopeHit.normal);
-            if (dot != 1)
+            if (Mathf.FloorToInt(dot) != 1)
                 return true;
         }
         return false;

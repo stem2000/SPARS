@@ -9,7 +9,7 @@ namespace AvatarModel
 {
     public class AvatarState
     {
-        public AvatarStats MutableStats;
+        public StateStatsUpdatePackage _statsPackage;
 
         private StateChanger<MovementType> _moveChanger;
 
@@ -32,9 +32,9 @@ namespace AvatarModel
             return new Vector3(moveDirection.x, 0f, moveDirection.y);
         } 
 
-        public AvatarState(AvatarStats avatarStats)
+        public AvatarState(StateStatsUpdatePackage statsPackage)
         {
-            MutableStats = avatarStats;
+            _statsPackage = statsPackage;
             CreateMoveChanger();
             _infoPackage = new StateInfoPackage();
             _moveDataPack = new MovementDataPackage();
@@ -58,6 +58,11 @@ namespace AvatarModel
             return _infoPackage;
         }
 
+        public void ReceiveUpdatedStateInfo(StateStatsUpdatePackage statsPackage)
+        {
+            _statsPackage = statsPackage;
+        }
+
         public MovementDataPackage GetMovementData()
         {
             _moveDataPack.stateChanged = _moveChanger.StateWasChanged;
@@ -65,23 +70,23 @@ namespace AvatarModel
             switch (_moveChanger.CurrentState)
             {
                 case MovementType.Run:
-                    _moveDataPack.data = new RunData(_moveDirection, MutableStats.RunSpeed);
+                    _moveDataPack.data = new RunData(_moveDirection, _statsPackage.RunSpeed);
                     _moveDataPack.type = MovementType.Run;
                     break;
                 case MovementType.Fly:
-                    _moveDataPack.data = new FlyData(MutableStats.FlySpeedLimit);
+                    _moveDataPack.data = new FlyData(_statsPackage.FlySpeedLimit);
                     _moveDataPack.type = MovementType.Fly;
                     break;
                 case MovementType.RunOnSlope:
-                    _moveDataPack.data = new RunOnSlopeData(_moveDirection, MutableStats.RunSpeed, _normal);
+                    _moveDataPack.data = new RunOnSlopeData(_moveDirection, _statsPackage.RunSpeed, _normal);
                     _moveDataPack.type = MovementType.RunOnSlope;
                     break;
                 case MovementType.Jump:
-                    _moveDataPack.data = new JumpData(_moveDirection, MutableStats.JumpForce);
+                    _moveDataPack.data = new JumpData(_moveDirection, _statsPackage.jumpStats.JumpForce);
                     _moveDataPack.type = MovementType.Jump;
                     break;
                 case MovementType.Dash:
-                    _moveDataPack.data = new DashData(_moveDirection, MutableStats.DashForce);
+                    _moveDataPack.data = new DashData(_moveDirection, _statsPackage.dashStats.DashForce);
                     _moveDataPack.type = MovementType.Dash;
                     break;
             }
@@ -278,14 +283,14 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return avatar.ShouldJump && avatar.MutableStats.JumpCharges > 0;
+                return avatar.ShouldJump && avatar._statsPackage.jumpStats.JumpCharges > 0;
             }
 
             protected async Task StartMainProcess(CancellationToken token) 
             { 
                 _inProcess = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * avatar.MutableStats.JumpDuration), token);
+                await Task.Delay(Mathf.FloorToInt(1000 * avatar._statsPackage.jumpStats.JumpDuration), token);
                 
                 _inProcess = false;
             }
@@ -334,7 +339,7 @@ namespace AvatarModel
             {
                 _inProcess = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * avatar.MutableStats.DashDuration), token);
+                await Task.Delay(Mathf.FloorToInt(1000 * avatar._statsPackage.dashStats.DashDuration), token);
 
                 _inProcess = false;
             }
@@ -343,7 +348,7 @@ namespace AvatarModel
             {
                 _dashInCD = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * avatar.MutableStats.DashLockTime));
+                await Task.Delay(Mathf.FloorToInt(1000 * avatar._statsPackage.dashStats.DashLockTime));
 
                 _dashInCD = false;
             }
