@@ -5,10 +5,19 @@ namespace AvatarModel
     public class AvatarController : MonoBehaviour, BeatReactor
     {
         [SerializeField] private AvatarStats _avatarStats;
+
+        [Space]
+        [Header("Avatar Rotation")]
+        [SerializeField] private AvatarRotation _avatarRotation;
+        [SerializeField] private Transform _avatarBody;
+        [SerializeField] private Transform _avatarMesh;
+        [SerializeField] private Transform _cameraHolder;
+
         private AvatarState _avatarState;
         private AvatarMovement _avatarMovement;
         private AvatarWorldListener _avatarWorldListener;
         private AvatarStateManipulator _avatarStateManipulator;
+
         private LocalBeatController _myBeatController;
         private InputManager _playerInput;
         private StateUpdatePackage _inputPackage;
@@ -57,6 +66,7 @@ namespace AvatarModel
             _inputPackage.ShouldDash = _playerInput.GetDashInput();
             _inputPackage.ShouldJump = _playerInput.GetJumpInput();
             _inputPackage.ShouldShoot = _playerInput.GetShootInput();
+            _avatarRotation.HandleMouseInput(_playerInput.GetMouseDelta());
         }
 
         private void HandleWorldInput()
@@ -105,6 +115,7 @@ namespace AvatarModel
             _avatarState = new AvatarState(_avatarStateManipulator.GetStatsPackage());
             _avatarMovement = new AvatarMovement(GetComponent<Rigidbody>());
             _avatarWorldListener = GetComponent<AvatarWorldListener>();
+            _avatarRotation = new AvatarRotation(_avatarBody, _avatarMesh, _cameraHolder, GetComponent<CapsuleCollider>());
 
             _myBeatController = new LocalBeatController();
             _inputPackage = new StateUpdatePackage();
@@ -115,11 +126,18 @@ namespace AvatarModel
         protected void Start()
         {
             InitializeComponents();
+            Cursor.lockState = CursorLockMode.Locked;
         }
 
         protected void Awake()
         {
             _playerInput = InputManager.Instance;
+        }
+
+        protected void FixedUpdate()
+        {
+            _avatarMovement.Move();
+            _avatarRotation.RotateAvatar();
         }
 
         protected void Update()
@@ -130,9 +148,9 @@ namespace AvatarModel
             UpdateComponents();
         }
 
-        protected void FixedUpdate()
+        protected void LateUpdate()
         {
-            _avatarMovement.Move();
+            _avatarRotation.RotateAndMoveCamera();
         }
         #endregion
     }

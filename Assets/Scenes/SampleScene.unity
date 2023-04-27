@@ -1485,7 +1485,7 @@ MonoBehaviour:
           m_CallState: 2
         - m_Target: {fileID: 975784435}
           m_TargetAssemblyTypeName: CrosshairController, Assembly-CSharp
-          m_MethodName: SetNewBeatState
+          m_MethodName: HitInBeat
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -1512,7 +1512,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 975784435}
           m_TargetAssemblyTypeName: CrosshairController, Assembly-CSharp
-          m_MethodName: UpdateBeatState
+          m_MethodName: UpdateCurrentSampleState
           m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -2015,7 +2015,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 264047827713701856}
-  - component: {fileID: 264047827713701859}
   m_Layer: 0
   m_Name: CameraHolder
   m_TagString: Untagged
@@ -2023,26 +2022,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &264047827713701859
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 264047827713701857}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 397cb0c6a0190fa4ea770d7cea5cc09b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Player: {fileID: 264047827890112492}
-  PlayerMesh: {fileID: 264047827397598524}
-  PlayerCollider: {fileID: 264047827890112469}
-  headHeight: 0.87
-  headWidth: 0.225
-  Sensitivity: 0.05
-  XRotationUpperLimit: 80
-  XRotationLowerLimit: -70
 --- !u!136 &264047827890112469
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2149,6 +2128,15 @@ MonoBehaviour:
       DashLockTime: 0.5
       DashDuration: 0.15
     MaxHp: 100
+  _avatarRotation:
+    headHeight: 0.87
+    headWidth: 0.225
+    Sensitivity: 0.05
+    XRotationUpperLimit: 80
+    XRotationLowerLimit: -70
+  _avatarBody: {fileID: 264047827890112492}
+  _avatarMesh: {fileID: 3791309970421498062}
+  _cameraHolder: {fileID: 264047827713701856}
 --- !u!114 &264047827890112497
 MonoBehaviour:
   m_ObjectHideFlags: 0
