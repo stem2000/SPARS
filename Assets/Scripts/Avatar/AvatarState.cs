@@ -13,7 +13,7 @@ namespace AvatarModel
 
         private StateChanger<MovementType> _moveChanger;
 
-        private StateInfoPackage _infoPackage;
+        private StateFromInfoPackage _infoPackage;
 
         private Vector3 _normal = Vector3.zero;
         private Vector3 _moveDirection = Vector3.zero;
@@ -36,7 +36,7 @@ namespace AvatarModel
         {
             _statsPackage = statsPackage;
             CreateMoveChanger();
-            _infoPackage = new StateInfoPackage();
+            _infoPackage = new StateFromInfoPackage();
             _moveDataPack = new MovementDataPackage();
         }
 
@@ -50,7 +50,7 @@ namespace AvatarModel
             _moveChanger.AddState(new DashState(this));
         }
 
-        public StateInfoPackage GetStateInfo()
+        public StateFromInfoPackage GetStateInfo()
         {
             _infoPackage.Grounded = Grounded;
             _infoPackage.StateWasChanged = _moveChanger.StateWasChanged;
@@ -359,6 +359,11 @@ namespace AvatarModel
     public enum MovementType
     {
         Run, Jump, Dash, Fly, RunOnSlope
+    }
+
+    public enum AttackType
+    {
+        Shoot, Hit
     }
 
     #region MOVEMENTDATA CLASSES

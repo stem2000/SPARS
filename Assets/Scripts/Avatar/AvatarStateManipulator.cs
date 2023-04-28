@@ -8,7 +8,7 @@ namespace AvatarModel
         private ConstantForce _constantForce;
         private AvatarStats _immutableStats;
 
-        private StateInfoPackage _packageFromState;
+        private StateFromInfoPackage _packageFromState;
         private StateStatsUpdatePackage _statsPackage;
 
         public AvatarStateManipulator(Rigidbody rigidbody, AvatarStats stats)
@@ -19,7 +19,7 @@ namespace AvatarModel
             _constantForce = _rigidbody.GetComponent<ConstantForce>();
         }
 
-        public void UpdateAvatarState(StateInfoPackage package)
+        public void UpdateAvatarState(StateFromInfoPackage package)
         {
             _packageFromState = package;
 
@@ -57,7 +57,6 @@ namespace AvatarModel
                 _statsPackage.jumpStats.JumpCharges--;
             if (_packageFromState.Grounded && _packageFromState.CurrentMoveState != MovementType.Jump)
                 _statsPackage.jumpStats.JumpCharges = _immutableStats.jumpStats.JumpCharges;
-            //Debug.Log($"{_packageFromState.Grounded} - {_packageFromState.CurrentMoveState} - {_statsPackage.jumpStats.JumpCharges}");
         }      
     }
 

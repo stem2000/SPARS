@@ -9,9 +9,6 @@ namespace AvatarModel
         [Space]
         [Header("Avatar Rotation")]
         [SerializeField] private AvatarRotation _avatarRotation;
-        [SerializeField] private Transform _avatarBody;
-        [SerializeField] private Transform _avatarMesh;
-        [SerializeField] private Transform _cameraHolder;
 
         private AvatarState _avatarState;
         private AvatarMovement _avatarMovement;
@@ -115,7 +112,6 @@ namespace AvatarModel
             _avatarState = new AvatarState(_avatarStateManipulator.GetStatsPackage());
             _avatarMovement = new AvatarMovement(GetComponent<Rigidbody>());
             _avatarWorldListener = GetComponent<AvatarWorldListener>();
-            _avatarRotation = new AvatarRotation(_avatarBody, _avatarMesh, _cameraHolder, GetComponent<CapsuleCollider>());
 
             _myBeatController = new LocalBeatController();
             _inputPackage = new StateUpdatePackage();

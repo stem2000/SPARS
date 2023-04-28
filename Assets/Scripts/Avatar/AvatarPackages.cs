@@ -9,7 +9,7 @@ namespace AvatarModel
         public bool stateChanged;
     }
 
-    public class StateInfoPackage
+    public class StateFromInfoPackage
     {
         public MovementType CurrentMoveState;
         public bool Grounded;
