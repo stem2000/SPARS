@@ -13,11 +13,11 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     [SerializeField] private RectTransform _rightSpawnPosition;
        
 
-    [SerializeField] private Color _afterHitColorS;
-    [SerializeField] private Color _defaultColorS;
+    [SerializeField] private Color _afterHitColorStatic;
+    [SerializeField] private Color _defaultColorStatic;
 
-    [SerializeField] private Color _startPosColorD;
-    [SerializeField] private Color _endPosColorD;
+    [SerializeField] private Color _startPosColorDynamic;
+    [SerializeField] private Color _endPosColorDynamic;
 
     [SerializeField] private float _rescaleSize = 0.7f;
     private Vector3 _defaultScale;
@@ -35,9 +35,9 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     private Vector3 _extremePointDistance;
 
     #region CROSSHAIR_CONTROLLER_METHODS
-    public void SetNewBeatState()
+    public void MoveToNextSample()
     {
-        UpdateBeatState(0);
+        UpdateCurrentSampleState(0);
 
         if(!_hitInBeatFixed)
             ResetDynamicScopes(_currentScopes);
@@ -48,7 +48,7 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     }
 
 
-    public void UpdateBeatState(float sampleShift)
+    public void UpdateCurrentSampleState(float sampleShift)
     {
         if (!_hitInBeatFixed)
         {
@@ -70,13 +70,13 @@ public class CrosshairController : MonoBehaviour, BeatReactor
         _leftScopes[scopesNumber].rectTransform.position = _leftSpawnPosition.position;
         _rightScopes[scopesNumber].rectTransform.position = _rightSpawnPosition.position;
 
-        _rightScopes[scopesNumber].color = _leftScopes[scopesNumber].color = _startPosColorD;
+        _rightScopes[scopesNumber].color = _leftScopes[scopesNumber].color = _startPosColorDynamic;
     }
 
 
     private void ResetStaticScopes()
     {
-        _staticLeftScope.color = _staticRightScope.color = _defaultColorS;
+        _staticLeftScope.color = _staticRightScope.color = _defaultColorStatic;
         _staticLeftScope.transform.localScale = _staticRightScope.transform.localScale = _defaultScale;
     }
     
@@ -92,20 +92,20 @@ public class CrosshairController : MonoBehaviour, BeatReactor
 
     private void ColorShift(float sampleShift)
     {
-        var colorUpdate = Color.Lerp(_startPosColorD, _endPosColorD, sampleShift);
+        var colorUpdate = Color.Lerp(_startPosColorDynamic, _endPosColorDynamic, sampleShift);
 
         _leftScopes[_currentScopes].color = colorUpdate;
         _rightScopes[_currentScopes].color = colorUpdate;
     }
 
 
-    public void HitInBeat()
+    public void ReactToPlayerHit()
     {
         var scaleUpdate = new Vector3(_rescaleSize, _rescaleSize, 1);
 
         _staticLeftScope.transform.localScale = _staticRightScope.transform.localScale = scaleUpdate;
-        _staticLeftScope.color = _afterHitColorS;
-        _staticRightScope.color = _afterHitColorS;
+        _staticLeftScope.color = _afterHitColorStatic;
+        _staticRightScope.color = _afterHitColorStatic;
 
         _hitInBeatFixed = true;
         _staticScopesChanged = true;
@@ -114,8 +114,8 @@ public class CrosshairController : MonoBehaviour, BeatReactor
 
     private void InitializeComponents()
     {
-        _startPosColorD.a = 0f;
-        _endPosColorD.a = 1f;
+        _startPosColorDynamic.a = 0f;
+        _endPosColorDynamic.a = 1f;
 
         _leftScopes = new Image[_scopesCount];
         _rightScopes = new Image[_scopesCount];
@@ -142,7 +142,7 @@ public class CrosshairController : MonoBehaviour, BeatReactor
             _leftScopes[i] = (Instantiate(_leftScopePrefab, transform));
             _rightScopes[i] = (Instantiate(_rightScopePrefab, transform));
 
-            _rightScopes[i].color = _leftScopes[i].color = _startPosColorD;
+            _rightScopes[i].color = _leftScopes[i].color = _startPosColorDynamic;
 
             _rightScopes[i].rectTransform.position = _rightSpawnPosition.position;
             _leftScopes[i].rectTransform.position = _leftSpawnPosition.position;
