@@ -2,35 +2,28 @@ using UnityEngine;
 
 namespace AvatarModel
 {
+    [RequireComponent(typeof(AvatarWorldListener))]
     public class AvatarController : MonoBehaviour, BeatReactor
     {
+        [Space]
+        [Header("Avatar Stats")]
         [SerializeField] private AvatarStats _avatarStats;
 
         [Space]
         [Header("Avatar Rotation")]
         [SerializeField] private AvatarRotation _avatarRotation;
 
+        [Space]
+        [Header("Beat Events")]
+        [SerializeField] private AvatarBeatController _avatarBeatController;
+
         private AvatarState _avatarState;
         private AvatarMovement _avatarMovement;
         private AvatarWorldListener _avatarWorldListener;
         private AvatarStateManipulator _avatarStateManipulator;
 
-        private LocalBeatController _myBeatController;
         private InputManager _playerInput;
         private StateUpdatePackage _inputPackage;
-
-
-        #region BEATREACTOR_METHODS
-        public void MoveToNextSample()
-        {
-            _myBeatController.CanActThisSample = true;
-        }
-
-        public void UpdateCurrentSampleState(float sampleState)
-        {
-            _myBeatController.LastSampleState = sampleState;
-        }
-        #endregion
 
         #region METHODS
         private void HandleInput()
@@ -52,7 +45,8 @@ namespace AvatarModel
         private void ChangeState()
         {
             _avatarState.HandleInput(_inputPackage);
-            _avatarStateManipulator.UpdateAvatarState(_avatarState.GetStateInfo());
+            _avatarStateManipulator.GetAndHandleStateInfo(_avatarState.GetStateInfo());
+            _avatarBeatController.GetAndHandleStateInfo(_avatarState.GetStateInfo());
             _avatarState.ReceiveUpdatedStateInfo(_avatarStateManipulator.GetStatsPackage());
         }
 
@@ -63,7 +57,7 @@ namespace AvatarModel
             _inputPackage.ShouldDash = _playerInput.GetDashInput();
             _inputPackage.ShouldJump = _playerInput.GetJumpInput();
             _inputPackage.ShouldShoot = _playerInput.GetShootInput();
-            _avatarRotation.HandleMouseInput(_playerInput.GetMouseDelta());
+            _avatarRotation.HandleRotationInput(_playerInput.GetMouseDelta());
         }
 
         private void HandleWorldInput()
@@ -80,28 +74,12 @@ namespace AvatarModel
 
         private void ProcessPlayerInput()
         {
-            TestGeneralPlayerAccuracy();
+
         }
 
         private void UpdateMovement()
         {
             _avatarMovement.ReceiveMovementData(_avatarState.GetMovementData());
-        }
-
-        private void TestGeneralPlayerAccuracy()
-        {
-
-        }
-
-        private bool CheckPlayerHitAccuracy(float hitSegment)
-        {
-            if (_myBeatController.SampleActLimit - hitSegment < _myBeatController.LastSampleState && _myBeatController.CanActThisSample)
-            {
-                _myBeatController.CanActThisSample = false;
-                return true;
-            }
-            _myBeatController.CanActThisSample = false;
-            return false;
         }
 
         private void InitializeComponents()
@@ -112,8 +90,8 @@ namespace AvatarModel
             _avatarState = new AvatarState(_avatarStateManipulator.GetStatsPackage());
             _avatarMovement = new AvatarMovement(GetComponent<Rigidbody>());
             _avatarWorldListener = GetComponent<AvatarWorldListener>();
+            _avatarBeatController.InitializeComponents();
 
-            _myBeatController = new LocalBeatController();
             _inputPackage = new StateUpdatePackage();
         }
         #endregion
@@ -147,6 +125,16 @@ namespace AvatarModel
         protected void LateUpdate()
         {
             _avatarRotation.RotateAndMoveCamera();
+        }
+
+        public void MoveToNextSample()
+        {
+            _avatarBeatController.MoveToNextSample();
+        }
+
+        public void UpdateCurrentSampleState(float sampleState)
+        {
+            _avatarBeatController.UpdateCurrentSampleState(sampleState);
         }
         #endregion
     }

@@ -19,7 +19,7 @@ namespace AvatarModel
             _constantForce = _rigidbody.GetComponent<ConstantForce>();
         }
 
-        public void UpdateAvatarState(StateFromInfoPackage package)
+        public void GetAndHandleStateInfo(in StateFromInfoPackage package)
         {
             _packageFromState = package;
 
@@ -34,12 +34,12 @@ namespace AvatarModel
 
         private void HandleVerticalForces()
         {
-            if(_packageFromState.CurrentMoveState == MovementType.RunOnSlope && _packageFromState.StateWasChanged)
+            if(_packageFromState.CurrentMoveType == MovementType.RunOnSlope && _packageFromState.MoveStateWasChanged)
             {
                 _rigidbody.useGravity = false;
                 _constantForce.enabled = false;
             }
-            else if(_packageFromState.CurrentMoveState != MovementType.RunOnSlope && _constantForce.enabled == false)
+            else if(_packageFromState.CurrentMoveType != MovementType.RunOnSlope && _constantForce.enabled == false)
             {
                 _rigidbody.useGravity = true;
                 _constantForce.enabled = true;
@@ -53,9 +53,9 @@ namespace AvatarModel
 
         private void UpdateJumpStats()
         {
-            if (_packageFromState.CurrentMoveState == MovementType.Jump && _packageFromState.StateWasChanged)
+            if (_packageFromState.CurrentMoveType == MovementType.Jump && _packageFromState.MoveStateWasChanged)
                 _statsPackage.jumpStats.JumpCharges--;
-            if (_packageFromState.Grounded && _packageFromState.CurrentMoveState != MovementType.Jump)
+            if (_packageFromState.Grounded && _packageFromState.CurrentMoveType != MovementType.Jump)
                 _statsPackage.jumpStats.JumpCharges = _immutableStats.jumpStats.JumpCharges;
         }      
     }

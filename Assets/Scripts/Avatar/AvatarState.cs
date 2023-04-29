@@ -12,6 +12,7 @@ namespace AvatarModel
         public StateStatsUpdatePackage _statsPackage;
 
         private StateChanger<MovementType> _moveChanger;
+        private StateChanger<AttackType> _attackChanger;
 
         private StateFromInfoPackage _infoPackage;
 
@@ -23,6 +24,7 @@ namespace AvatarModel
         protected bool ShouldDash;
         protected bool ShouldJump;
         protected bool ShouldShoot;
+        protected bool ShouldPunch;
 
         private MovementDataPackage _moveDataPack;
 
@@ -36,6 +38,7 @@ namespace AvatarModel
         {
             _statsPackage = statsPackage;
             CreateMoveChanger();
+            CreateAttackChanger();
             _infoPackage = new StateFromInfoPackage();
             _moveDataPack = new MovementDataPackage();
         }
@@ -50,11 +53,20 @@ namespace AvatarModel
             _moveChanger.AddState(new DashState(this));
         }
 
+        private void CreateAttackChanger()
+        {
+            _attackChanger = new StateChanger<AttackType>(this);
+            _attackChanger.AddState(new ShootState(this));
+            _attackChanger.AddState(new IdleState(this));
+        }
+
         public StateFromInfoPackage GetStateInfo()
         {
             _infoPackage.Grounded = Grounded;
-            _infoPackage.StateWasChanged = _moveChanger.StateWasChanged;
-            _infoPackage.CurrentMoveState = _moveChanger.CurrentState;
+            _infoPackage.MoveStateWasChanged = _moveChanger.StateWasChanged;
+            _infoPackage.AttackStateWasChanged = _attackChanger.StateWasChanged;
+            _infoPackage.CurrentMoveType = _moveChanger.CurrentState;
+            _infoPackage.CurrentAttackType = _attackChanger.CurrentState;
             return _infoPackage;
         }
 
@@ -103,6 +115,7 @@ namespace AvatarModel
             ShouldJump = package.ShouldJump;
             ShouldShoot = package.ShouldShoot;
             _moveChanger.ChangeState();
+            _attackChanger.ChangeState();
         }
         #endregion
         private class StateChanger<EnumType>
@@ -353,6 +366,52 @@ namespace AvatarModel
                 _dashInCD = false;
             }
         }
+
+        protected class ShootState : State<AttackType>
+        {
+            public ShootState(AvatarState avatar) : base(avatar) 
+            { 
+                StateType = AttackType.Shoot;
+            }
+
+            public override bool CanBeChangedBy(AttackType enumType)
+            {
+                return true;
+            }
+
+            public override void DoOnEnter(){}
+
+            public override void DoOnExit(){}
+
+            public override bool WantsToChange()
+            {
+                return avatar.ShouldShoot;
+            }
+        }
+
+        protected class IdleState : State<AttackType>
+        {
+            public IdleState(AvatarState avatar) : base(avatar) 
+            {
+                StateType = AttackType.Idle;
+            }
+
+            public override bool CanBeChangedBy(AttackType enumType)
+            {
+                if(enumType == AttackType.Idle) 
+                    return false;
+                return true;
+            }
+
+            public override void DoOnEnter(){}
+
+            public override void DoOnExit(){}
+
+            public override bool WantsToChange()
+            {
+                return !avatar.ShouldShoot;
+            }
+        }
         #endregion
     }
 
@@ -363,7 +422,7 @@ namespace AvatarModel
 
     public enum AttackType
     {
-        Shoot, Hit
+        Idle, Shoot, Punch
     }
 
     #region MOVEMENTDATA CLASSES

@@ -38,7 +38,7 @@ public class AvatarRotation
     }
 
 
-    public void HandleMouseInput(Vector2 mouseInput)
+    public void HandleRotationInput(Vector2 mouseInput)
     {
         Vector2 mouseDelta = mouseInput;
         xRotation += mouseDelta.x * Sensitivity;

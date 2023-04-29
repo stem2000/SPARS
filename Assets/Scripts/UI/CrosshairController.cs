@@ -30,7 +30,6 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     private const int _scopesCount = 3;    
     private int _currentScopes = 0;
     private bool _hitInBeatFixed = false;
-    private bool _staticScopesChanged = false;
 
     private Vector3 _extremePointDistance;
 
@@ -39,10 +38,8 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     {
         UpdateCurrentSampleState(0);
 
-        if(!_hitInBeatFixed)
-            ResetDynamicScopes(_currentScopes);
-        else 
-            _hitInBeatFixed = false;
+        ResetDynamicScopes(_currentScopes);
+        _hitInBeatFixed = false;
 
         _currentScopes = _currentScopes < _scopesCount - 1 ? _currentScopes + 1 : 0;
     }
@@ -50,18 +47,8 @@ public class CrosshairController : MonoBehaviour, BeatReactor
 
     public void UpdateCurrentSampleState(float sampleShift)
     {
-        if (!_hitInBeatFixed)
-        {
-            ShiftPosition(sampleShift);
-            ColorShift(sampleShift);
-        }
-        else ResetDynamicScopes(_currentScopes);
-
-        if (_staticScopesChanged && !_hitInBeatFixed && sampleShift > 0.2f)
-        {
-            ResetStaticScopes();
-            _staticScopesChanged = false;
-        }
+        ShiftPosition(sampleShift);
+        ColorShift(sampleShift);
     }
 
 
@@ -69,17 +56,9 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     {
         _leftScopes[scopesNumber].rectTransform.position = _leftSpawnPosition.position;
         _rightScopes[scopesNumber].rectTransform.position = _rightSpawnPosition.position;
-
+        _rightScopes[scopesNumber].transform.localScale = _leftScopes[scopesNumber].transform.localScale = _defaultScale;
         _rightScopes[scopesNumber].color = _leftScopes[scopesNumber].color = _startPosColorDynamic;
-    }
-
-
-    private void ResetStaticScopes()
-    {
-        _staticLeftScope.color = _staticRightScope.color = _defaultColorStatic;
-        _staticLeftScope.transform.localScale = _staticRightScope.transform.localScale = _defaultScale;
-    }
-    
+    }    
 
     private void ShiftPosition(float sampleShift)
     {
@@ -103,12 +82,11 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     {
         var scaleUpdate = new Vector3(_rescaleSize, _rescaleSize, 1);
 
-        _staticLeftScope.transform.localScale = _staticRightScope.transform.localScale = scaleUpdate;
-        _staticLeftScope.color = _afterHitColorStatic;
-        _staticRightScope.color = _afterHitColorStatic;
+        _leftScopes[_currentScopes].transform.localScale = _rightScopes[_currentScopes].transform.localScale = scaleUpdate;
+        _leftScopes[_currentScopes].color = _afterHitColorStatic;
+        _rightScopes[_currentScopes].color = _afterHitColorStatic;
 
         _hitInBeatFixed = true;
-        _staticScopesChanged = true;
     }
 
 

@@ -11,9 +11,11 @@ namespace AvatarModel
 
     public class StateFromInfoPackage
     {
-        public MovementType CurrentMoveState;
+        public MovementType CurrentMoveType;
+        public AttackType CurrentAttackType;
         public bool Grounded;
-        public bool StateWasChanged;
+        public bool MoveStateWasChanged;
+        public bool AttackStateWasChanged;
     }
 
     public class StateUpdatePackage

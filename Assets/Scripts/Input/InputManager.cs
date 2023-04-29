@@ -13,7 +13,7 @@ public class InputManager : MonoBehaviour
     private PlayerControls _playerControls;
     #endregion
 
-    #region PROPERITES
+    #region PROPERTIES
     public static InputManager Instance
     {
         get { 
