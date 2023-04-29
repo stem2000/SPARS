@@ -1462,9 +1462,9 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-        - m_Target: {fileID: 264047827890112480}
-          m_TargetAssemblyTypeName: RhythmShooter.Controllers.PlayerController, Assembly-CSharp
-          m_MethodName: 
+        - m_Target: {fileID: 264047827890112496}
+          m_TargetAssemblyTypeName: AvatarModel.AvatarController, Assembly-CSharp
+          m_MethodName: MoveToNextSample
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -1489,9 +1489,9 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-        - m_Target: {fileID: 264047827890112480}
-          m_TargetAssemblyTypeName: RhythmShooter.Controllers.PlayerController, Assembly-CSharp
-          m_MethodName: 
+        - m_Target: {fileID: 264047827890112496}
+          m_TargetAssemblyTypeName: AvatarModel.AvatarController, Assembly-CSharp
+          m_MethodName: UpdateCurrentSampleState
           m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -1881,7 +1881,6 @@ GameObject:
   m_Component:
   - component: {fileID: 264047827397598524}
   - component: {fileID: 264047827397598526}
-  - component: {fileID: 264047827397598527}
   m_Layer: 0
   m_Name: Mesh
   m_TagString: Untagged
@@ -1897,7 +1896,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 264047827397598525}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 94bf8eba137fb1b4f9dfd82172bc6d6d, type: 3}
   m_Controller: {fileID: 9100000, guid: f5cf12e7f4de2cf42b2c6989b43eb5b7, type: 2}
   m_CullingMode: 0
@@ -1910,19 +1909,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &264047827397598527
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 264047827397598525}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a45de13a0747bb4c8ad38664e28808b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SmoothAnimationSpeed: 50
 --- !u!1 &264047827601106860
 GameObject:
   m_ObjectHideFlags: 0
@@ -2151,6 +2137,7 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+  _avatarAnimator: {fileID: 264047827397598526}
 --- !u!114 &264047827890112497
 MonoBehaviour:
   m_ObjectHideFlags: 0

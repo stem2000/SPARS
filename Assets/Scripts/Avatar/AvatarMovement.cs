@@ -33,7 +33,8 @@ namespace AvatarModel
                 { MovementType.Fly, Fly },
                 { MovementType.RunOnSlope, RunOnSlope },
                 { MovementType.Jump, Jump},
-                { MovementType.Dash, Dash}
+                { MovementType.Dash, Dash},
+                { MovementType.Idle, Idle}
             };
         }
 
@@ -128,6 +129,11 @@ namespace AvatarModel
             var force = dashData.force;
 
             _rigidbody.velocity = _lockedDirection * force;
+        }
+
+        private void Idle(MovementData data) 
+        { 
+            _rigidbody.velocity = Vector3.zero;
         }
 
 

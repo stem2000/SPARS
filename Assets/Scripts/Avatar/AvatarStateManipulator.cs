@@ -34,12 +34,13 @@ namespace AvatarModel
 
         private void HandleVerticalForces()
         {
-            if(_packageFromState.CurrentMoveType == MovementType.RunOnSlope && _packageFromState.MoveStateWasChanged)
+            if((_packageFromState.CurrentMoveType == MovementType.RunOnSlope || _packageFromState.CurrentMoveType == MovementType.Idle)
+                && _packageFromState.MoveStateWasChanged)
             {
                 _rigidbody.useGravity = false;
                 _constantForce.enabled = false;
             }
-            else if(_packageFromState.CurrentMoveType != MovementType.RunOnSlope && _constantForce.enabled == false)
+            else if(_constantForce.enabled == false)
             {
                 _rigidbody.useGravity = true;
                 _constantForce.enabled = true;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace AvatarModel
@@ -51,13 +52,14 @@ namespace AvatarModel
             _moveChanger.AddState(new OnSlopeState(this));
             _moveChanger.AddState(new JumpState(this));
             _moveChanger.AddState(new DashState(this));
+            _moveChanger.AddState(new IdleState(this));
         }
 
         private void CreateAttackChanger()
         {
             _attackChanger = new StateChanger<AttackType>(this);
             _attackChanger.AddState(new ShootState(this));
-            _attackChanger.AddState(new IdleState(this));
+            _attackChanger.AddState(new CalmState(this));
         }
 
         public StateFromInfoPackage GetStateInfo()
@@ -67,6 +69,7 @@ namespace AvatarModel
             _infoPackage.AttackStateWasChanged = _attackChanger.StateWasChanged;
             _infoPackage.CurrentMoveType = _moveChanger.CurrentState;
             _infoPackage.CurrentAttackType = _attackChanger.CurrentState;
+            _infoPackage.MoveDirection = _moveDirection;
             return _infoPackage;
         }
 
@@ -100,6 +103,10 @@ namespace AvatarModel
                 case MovementType.Dash:
                     _moveDataPack.data = new DashData(_moveDirection, _statsPackage.dashStats.DashForce);
                     _moveDataPack.type = MovementType.Dash;
+                    break;
+                case MovementType.Idle:
+                    _moveDataPack.data = new IdleData();
+                    _moveDataPack.type = MovementType.Idle;
                     break;
             }
             return _moveDataPack;
@@ -172,12 +179,12 @@ namespace AvatarModel
         #region STATES CLASSES
         protected abstract class State<EnumType>
         {
-            protected AvatarState avatar = null;
+            protected AvatarState _avatar = null;
 
             public EnumType StateType;
             public State(AvatarState avatar)
             {
-                this.avatar = avatar;
+                this._avatar = avatar;
             }           
 
             public abstract bool CanBeChangedBy(EnumType enumType);
@@ -209,7 +216,7 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return avatar.Grounded;
+                return _avatar.Grounded;
             }
         }
 
@@ -222,7 +229,7 @@ namespace AvatarModel
 
             public override bool CanBeChangedBy(MovementType enumType) 
             { 
-                if(enumType == MovementType.Fly)
+                if(enumType == MovementType.Fly || enumType == MovementType.Idle)
                     return false;
                 return true; 
             }
@@ -233,7 +240,7 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return !avatar.Grounded;
+                return !_avatar.Grounded;
             }
         }
 
@@ -246,7 +253,7 @@ namespace AvatarModel
 
             public override bool CanBeChangedBy(MovementType enumType)
             {
-                if(enumType == MovementType.Run && avatar.OnSlope)
+                if(enumType == MovementType.Run && _avatar.OnSlope)
                     return false;
                 return true;
             }
@@ -257,7 +264,7 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return avatar.Grounded && avatar.OnSlope;
+                return _avatar.Grounded && _avatar.OnSlope;
             }
         }
 
@@ -296,14 +303,14 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return avatar.ShouldJump && avatar._statsPackage.jumpStats.JumpCharges > 0;
+                return _avatar.ShouldJump && _avatar._statsPackage.jumpStats.JumpCharges > 0;
             }
 
             protected async Task StartMainProcess(CancellationToken token) 
             { 
                 _inProcess = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * avatar._statsPackage.jumpStats.JumpDuration), token);
+                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._statsPackage.jumpStats.JumpDuration), token);
                 
                 _inProcess = false;
             }
@@ -345,14 +352,14 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return avatar.ShouldDash && !_dashInCD;
+                return _avatar.ShouldDash && !_dashInCD;
             }
 
             protected async Task StartMainProcess(CancellationToken token)
             {
                 _inProcess = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * avatar._statsPackage.dashStats.DashDuration), token);
+                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._statsPackage.dashStats.DashDuration), token);
 
                 _inProcess = false;
             }
@@ -361,9 +368,33 @@ namespace AvatarModel
             {
                 _dashInCD = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * avatar._statsPackage.dashStats.DashLockTime));
+                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._statsPackage.dashStats.DashLockTime));
 
                 _dashInCD = false;
+            }
+        }
+
+        protected class IdleState : State<MovementType>
+        {
+            public IdleState(AvatarState avatar) : base(avatar) 
+            {
+                StateType = MovementType.Idle;
+            }
+
+            public override bool CanBeChangedBy(MovementType enumType)
+            {
+                return true;
+            }
+
+            public override void DoOnEnter(){}
+
+            public override void DoOnExit(){}
+
+            public override bool WantsToChange()
+            {
+                if (_avatar._moveDirection == Vector3.zero)
+                    return true;
+                return false;
             }
         }
 
@@ -385,13 +416,13 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return avatar.ShouldShoot;
+                return _avatar.ShouldShoot;
             }
         }
 
-        protected class IdleState : State<AttackType>
+        protected class CalmState : State<AttackType>
         {
-            public IdleState(AvatarState avatar) : base(avatar) 
+            public CalmState(AvatarState avatar) : base(avatar) 
             {
                 StateType = AttackType.Idle;
             }
@@ -409,7 +440,7 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return !avatar.ShouldShoot;
+                return !_avatar.ShouldShoot;
             }
         }
         #endregion
@@ -417,7 +448,7 @@ namespace AvatarModel
 
     public enum MovementType
     {
-        Run, Jump, Dash, Fly, RunOnSlope
+        Run, Jump, Dash, Fly, RunOnSlope, Idle
     }
 
     public enum AttackType
@@ -486,5 +517,11 @@ namespace AvatarModel
             this.normal = normal;
         }
     }
+
+    public class IdleData : MovementData
+    {
+
+    }
+
     #endregion
 }

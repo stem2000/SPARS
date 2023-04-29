@@ -17,10 +17,13 @@ namespace AvatarModel
         [Header("Beat Events")]
         [SerializeField] private AvatarBeatController _avatarBeatController;
 
+        [SerializeField] private Animator _avatarAnimator;
+
         private AvatarState _avatarState;
         private AvatarMovement _avatarMovement;
         private AvatarWorldListener _avatarWorldListener;
         private AvatarStateManipulator _avatarStateManipulator;
+        private AvatarAnimationController _avatarAnimationController;
 
         private InputManager _playerInput;
         private StateUpdatePackage _inputPackage;
@@ -72,6 +75,11 @@ namespace AvatarModel
 
         }
 
+        private void Animate()
+        {
+            _avatarAnimationController.ChangeAnimationState(_avatarState.GetStateInfo());
+        }
+
         private void ProcessPlayerInput()
         {
 
@@ -91,6 +99,7 @@ namespace AvatarModel
             _avatarMovement = new AvatarMovement(GetComponent<Rigidbody>());
             _avatarWorldListener = GetComponent<AvatarWorldListener>();
             _avatarBeatController.InitializeComponents();
+            _avatarAnimationController = new AvatarAnimationController(_avatarAnimator);
 
             _inputPackage = new StateUpdatePackage();
         }
@@ -119,6 +128,7 @@ namespace AvatarModel
             HandleInput();
             ProcessInput();
             ChangeState();
+            Animate();
             UpdateComponents();
         }
 

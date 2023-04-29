@@ -16,6 +16,7 @@ namespace AvatarModel
         public bool Grounded;
         public bool MoveStateWasChanged;
         public bool AttackStateWasChanged;
+        public Vector3 MoveDirection;
     }
 
     public class StateUpdatePackage
