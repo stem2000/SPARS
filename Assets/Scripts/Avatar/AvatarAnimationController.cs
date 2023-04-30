@@ -61,7 +61,7 @@ public class AvatarAnimationController
     public void ChangeAnimationState(StateFromInfoPackage stateInfo)
     {
         _xBlendVelocity = stateInfo.MoveDirection.x;
-        _yBlendVelocity = stateInfo.MoveDirection.y;
+        _yBlendVelocity = stateInfo.MoveDirection.z;
 
         if (stateInfo.MoveStateWasChanged)
         {
