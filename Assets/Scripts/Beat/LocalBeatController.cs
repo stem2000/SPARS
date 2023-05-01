@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class LocalBeatController
 {
-    public bool CanActThisSample = true;
+    public bool CanMoveThisSample = true;
+    public bool CanAttackThisSample = true;
     public float LastSampleState = 0f;
     public float SampleActLimit = 1f;
 }

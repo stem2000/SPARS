@@ -60,6 +60,7 @@ namespace AvatarModel
             _inputPackage.ShouldDash = _playerInput.GetDashInput();
             _inputPackage.ShouldJump = _playerInput.GetJumpInput();
             _inputPackage.ShouldShoot = _playerInput.GetShootInput();
+            _inputPackage.ShouldPunch = _playerInput.GetPunchInput();
             _avatarRotation.HandleRotationInput(_playerInput.GetMouseDelta());
         }
 

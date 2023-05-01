@@ -28,28 +28,29 @@ public class InputManager : MonoBehaviour
         return _playerControls.Player.Move.ReadValue<Vector2>();
     }
 
-
     public Vector2 GetMouseDelta()
     {
         return _playerControls.Player.Look.ReadValue<Vector2>();
     }
-
 
     public bool GetJumpInput()
     {
         return _playerControls.Player.Jump.triggered;
     }
 
-
     public bool GetDashInput()
     {
         return _playerControls.Player.Dash.triggered;
     }
 
-
     public bool GetShootInput()
     {
         return _playerControls.Player.Shoot.triggered;
+    }
+
+    public bool GetPunchInput()
+    {
+        return _playerControls.Player.Punch.triggered;
     }
     #endregion
 

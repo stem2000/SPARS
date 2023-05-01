@@ -60,6 +60,7 @@ namespace AvatarModel
             _attackChanger = new StateChanger<AttackType>(this);
             _attackChanger.AddState(new ShootState(this));
             _attackChanger.AddState(new CalmState(this));
+            _attackChanger.AddState(new PunchState(this));
         }
 
         public StateFromInfoPackage GetStateInfo()
@@ -121,6 +122,7 @@ namespace AvatarModel
             ShouldDash = package.ShouldDash;
             ShouldJump = package.ShouldJump;
             ShouldShoot = package.ShouldShoot;
+            ShouldPunch = package.ShouldPunch;
             _moveChanger.ChangeState();
             _attackChanger.ChangeState();
         }
@@ -441,6 +443,28 @@ namespace AvatarModel
             public override bool WantsToChange()
             {
                 return !_avatar.ShouldShoot;
+            }
+        }
+
+        protected class PunchState : State<AttackType>
+        {
+            public PunchState(AvatarState avatar) : base(avatar)
+            {
+                StateType = AttackType.Punch;
+            }
+
+            public override bool CanBeChangedBy(AttackType enumType)
+            {
+                return true;
+            }
+
+            public override void DoOnEnter() { }
+
+            public override void DoOnExit() { }
+
+            public override bool WantsToChange()
+            {
+                return _avatar.ShouldPunch;
             }
         }
         #endregion

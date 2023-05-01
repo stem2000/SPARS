@@ -30,6 +30,7 @@ namespace AvatarModel
         public bool ShouldDash;
         public bool ShouldJump;
         public bool ShouldShoot;
+        public bool ShouldPunch;
     }
 
     public class StateStatsUpdatePackage

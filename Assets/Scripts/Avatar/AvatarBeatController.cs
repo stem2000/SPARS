@@ -8,7 +8,8 @@ public class AvatarBeatController : BeatReactor
 {
     [SerializeField] private UnityEvent ShootEvent;
     [SerializeField] private UnityEvent PunchEvent;
-    [SerializeField] private UnityEvent MoveEvent;
+    [SerializeField] private UnityEvent JumpEvent;
+    [SerializeField] private UnityEvent DashEvent;
 
     private LocalBeatController _myBeatController;
     private StateFromInfoPackage _packageFromState;
@@ -24,19 +25,14 @@ public class AvatarBeatController : BeatReactor
     {
         _packageFromState = stateInfo;
 
-        if(CheckMoveState())
-        {
+        if(CheckMoveState() || CheckAttackState())
             HandlePlayerHit();
-        }
-        else if(CheckAttackState())
-        {
-            HandlePlayerHit(); 
-        }
     }
 
     public void MoveToNextSample()
     {
-        _myBeatController.CanActThisSample = true;
+        _myBeatController.CanMoveThisSample = true;
+        _myBeatController.CanAttackThisSample = true;
     }
 
     public void UpdateCurrentSampleState(float sampleState)
@@ -44,27 +40,59 @@ public class AvatarBeatController : BeatReactor
         _myBeatController.LastSampleState = sampleState;
     }
 
-    public void HandlePlayerHit()
+    private void HandlePlayerHit()
     {
-        if (_myBeatController.CanActThisSample)
-        {
-            _myBeatController.CanActThisSample = false;
-            ShootEvent.Invoke();
-            //PunchEvent.Invoke();
-            //MoveEvent.Invoke();
-        }
+        if(!_myBeatController.CanAttackThisSample)
+            Debug.Log("Cant attack");
+
+        if (_myBeatController.CanMoveThisSample)
+            if (CheckMoveState())
+            {
+                InvokeMoveEvent();
+                _myBeatController.CanMoveThisSample = false;
+            }
+        if (_myBeatController.CanAttackThisSample)
+            if (CheckAttackState())
+            {
+                InvokeAttackEvent();
+                _myBeatController.CanAttackThisSample = false;
+            }
     }
 
-    public bool CheckMoveState()
+    private bool CheckMoveState()
     {
         return _packageFromState.MoveStateWasChanged && (_packageFromState.CurrentMoveType == MovementType.Jump ||
         _packageFromState.CurrentMoveType == MovementType.Dash);
     }
 
-    public bool CheckAttackState()
+    private bool CheckAttackState()
     {
-        Debug.Log($"Attack State Was Changed - {_packageFromState.AttackStateWasChanged}");
-        Debug.Log($"Attack State Current Type - {_packageFromState.CurrentAttackType}");
         return _packageFromState.AttackStateWasChanged && (_packageFromState.CurrentAttackType != AttackType.Idle);
+    }
+
+    private void InvokeAttackEvent()
+    {
+        switch(_packageFromState.CurrentAttackType)
+        {
+            case AttackType.Shoot:
+                ShootEvent.Invoke();
+                break;
+            case AttackType.Punch:
+                PunchEvent.Invoke();
+                break;
+        }
+    }
+
+    private void InvokeMoveEvent()
+    {
+        switch (_packageFromState.CurrentMoveType) 
+        {
+            case MovementType.Jump:
+                JumpEvent.Invoke();
+                break;
+            case MovementType.Dash:
+                DashEvent.Invoke();
+                break;
+        }
     }
 }
