@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace AvatarModel
 {
-    public class AvatarStateManipulator
+    public class AvatarStateChangingHelper
     {
         private Rigidbody _rigidbody;
         private ConstantForce _constantForce;
@@ -11,7 +11,7 @@ namespace AvatarModel
         private StateFromInfoPackage _packageFromState;
         private StateStatsUpdatePackage _statsPackage;
 
-        public AvatarStateManipulator(Rigidbody rigidbody, AvatarStats stats)
+        public AvatarStateChangingHelper(Rigidbody rigidbody, AvatarStats stats)
         {
             _rigidbody = rigidbody;
             _immutableStats = stats.Clone();
@@ -19,7 +19,7 @@ namespace AvatarModel
             _constantForce = _rigidbody.GetComponent<ConstantForce>();
         }
 
-        public void GetAndHandleStateInfo(in StateFromInfoPackage package)
+        public void ReactToStateChanging(in StateFromInfoPackage package)
         {
             _packageFromState = package;
 

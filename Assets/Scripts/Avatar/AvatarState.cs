@@ -74,7 +74,7 @@ namespace AvatarModel
             return _infoPackage;
         }
 
-        public void ReceiveUpdatedStateInfo(StateStatsUpdatePackage statsPackage)
+        public void UpdateStats(StateStatsUpdatePackage statsPackage)
         {
             _statsPackage = statsPackage;
         }
@@ -113,7 +113,7 @@ namespace AvatarModel
             return _moveDataPack;
         }
 
-        public void HandleInput(in StateUpdatePackage package)
+        public void ChangeState(in StateUpdatePackage package)
         {
             _moveDirection = ConvertDirectionInput(package.MoveDirection);
             _normal = package.Normal;

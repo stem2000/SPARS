@@ -13,7 +13,6 @@ public class AvatarBeatController : BeatReactor
 
     private LocalBeatController _myBeatController;
     private StateFromInfoPackage _packageFromState;
-   
 
     public void InitializeComponents()
     {
@@ -21,7 +20,7 @@ public class AvatarBeatController : BeatReactor
         _packageFromState = new StateFromInfoPackage();
     }
 
-    public void GetAndHandleStateInfo(in StateFromInfoPackage stateInfo)
+    public void ReactToStateChanging(in StateFromInfoPackage stateInfo)
     {
         _packageFromState = stateInfo;
 

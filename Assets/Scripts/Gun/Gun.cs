@@ -10,12 +10,17 @@ public class Gun : MonoBehaviour
 
     [SerializeField] private Collider _avatarCollider;
 
+    [SerializeField] private int _bulletPoolSize = 20;
+
+     private Bullet[] _bulletsPool;
+
      private AudioSource _shootSound;
 
     void Start()
     {
         _flash.Stop();
         _shootSound = GetComponent<AudioSource>();
+        FillBulletsPool();
     }
 
     public void Shoot()
@@ -39,8 +44,26 @@ public class Gun : MonoBehaviour
         _shootSound.Play();
     }
 
+    private void FillBulletsPool()
+    {
+        _bulletsPool = new Bullet[_bulletPoolSize];
+        for(int i = 0; i < _bulletPoolSize; i++)
+        {
+            _bulletsPool[i] = Instantiate(_bullet, _bulletSpawn);
+            _bulletsPool[i].gameObject.SetActive(false);
+        }
+    }
+
     private void SpawnBullet()
     {
-        Instantiate(_bullet, _bulletSpawn).SetIgnoreCollision(_avatarCollider);
+        for(int i = 0; i < _bulletPoolSize; i++)
+        {
+            if (!_bulletsPool[i].gameObject.activeSelf)
+            {
+                _bulletsPool[i].transform.position = _bulletSpawn.position;
+                _bulletsPool[i].gameObject.SetActive(true);
+                break;
+            }
+        }
     }
 }

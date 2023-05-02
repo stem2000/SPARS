@@ -45,12 +45,11 @@ namespace AvatarModel
             {
                 DefineCurrentMove();
                 _currentMove.Invoke(_currentMoveData);
-                //Debug.Log(_currentMoveType);
             }
         }
 
 
-        public void ReceiveMovementData(MovementDataPackage package)
+        public void UpdateMovementData(MovementDataPackage package)
         {
             _currentMoveType = package.type;
             _currentMoveData = package.data;

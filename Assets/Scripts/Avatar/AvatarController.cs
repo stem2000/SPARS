@@ -22,7 +22,7 @@ namespace AvatarModel
         private AvatarState _avatarState;
         private AvatarMovement _avatarMovement;
         private AvatarWorldListener _avatarWorldListener;
-        private AvatarStateManipulator _avatarStateManipulator;
+        private AvatarStateChangingHelper _avatarStateChangingHelper;
         private AvatarAnimationController _avatarAnimationController;
 
         private InputManager _playerInput;
@@ -35,22 +35,19 @@ namespace AvatarModel
             HandleWorldInput();
         }
 
-        private void ProcessInput()
-        {
-            ProcessPlayerInput();
-        }
-
-        private void UpdateComponents()
-        {
-            UpdateMovement();
-        }
-
         private void ChangeState()
         {
-            _avatarState.HandleInput(_inputPackage);
-            _avatarStateManipulator.GetAndHandleStateInfo(_avatarState.GetStateInfo());
-            _avatarBeatController.GetAndHandleStateInfo(_avatarState.GetStateInfo());
-            _avatarState.ReceiveUpdatedStateInfo(_avatarStateManipulator.GetStatsPackage());
+            _avatarState.ChangeState(_inputPackage);
+            ReactToStateChanging();
+            _avatarState.UpdateStats(_avatarStateChangingHelper.GetStatsPackage());
+            _avatarMovement.UpdateMovementData(_avatarState.GetMovementData());
+        }
+
+        private void ReactToStateChanging()
+        {
+            var stateInfo = _avatarState.GetStateInfo();
+            _avatarStateChangingHelper.ReactToStateChanging(stateInfo);
+            _avatarBeatController.ReactToStateChanging(stateInfo);
         }
 
         private void HandlePlayerInput()
@@ -61,6 +58,7 @@ namespace AvatarModel
             _inputPackage.ShouldJump = _playerInput.GetJumpInput();
             _inputPackage.ShouldShoot = _playerInput.GetShootInput();
             _inputPackage.ShouldPunch = _playerInput.GetPunchInput();
+
             _avatarRotation.HandleRotationInput(_playerInput.GetMouseDelta());
         }
 
@@ -68,12 +66,8 @@ namespace AvatarModel
         {
             _inputPackage.Grounded = _avatarWorldListener.IsAvatarGrounded();
             _inputPackage.OnSlope = _avatarWorldListener.IsAvatarOnSlope();
-            if (_avatarWorldListener.IsAvatarOnSlope())
-            {
-                _inputPackage.OnSlope = true;
+            if (_inputPackage.OnSlope)
                 _inputPackage.Normal = _avatarWorldListener.GetNormal();
-            }
-
         }
 
         private void Animate()
@@ -81,22 +75,12 @@ namespace AvatarModel
             _avatarAnimationController.ChangeAnimationState(_avatarState.GetStateInfo());
         }
 
-        private void ProcessPlayerInput()
-        {
-
-        }
-
-        private void UpdateMovement()
-        {
-            _avatarMovement.ReceiveMovementData(_avatarState.GetMovementData());
-        }
-
         private void InitializeComponents()
         {
             var stats = _avatarStats.Clone();
 
-            _avatarStateManipulator = new AvatarStateManipulator(GetComponent<Rigidbody>(), stats);
-            _avatarState = new AvatarState(_avatarStateManipulator.GetStatsPackage());
+            _avatarStateChangingHelper = new AvatarStateChangingHelper(GetComponent<Rigidbody>(), stats);
+            _avatarState = new AvatarState(_avatarStateChangingHelper.GetStatsPackage());
             _avatarMovement = new AvatarMovement(GetComponent<Rigidbody>());
             _avatarWorldListener = GetComponent<AvatarWorldListener>();
             _avatarBeatController.InitializeComponents();
@@ -127,10 +111,8 @@ namespace AvatarModel
         protected void Update()
         {
             HandleInput();
-            ProcessInput();
             ChangeState();
             Animate();
-            UpdateComponents();
         }
 
         protected void LateUpdate()

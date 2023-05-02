@@ -2154,6 +2154,10 @@ PrefabInstance:
       value: ReworkedPlayer
       objectReference: {fileID: 0}
     - target: {fileID: 7749579802566588466, guid: d37ed06239bbe8c43915321cbc61eb93, type: 3}
+      propertyPath: _avatarBeatController._allowedAttackGap
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 7749579802566588466, guid: d37ed06239bbe8c43915321cbc61eb93, type: 3}
       propertyPath: _avatarBeatController.DashEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 975784435}

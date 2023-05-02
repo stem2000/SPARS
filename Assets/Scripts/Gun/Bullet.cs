@@ -6,35 +6,30 @@ public class Bullet : MonoBehaviour
 {
     [SerializeField] private float _bulletSpeed = 60f;
     [SerializeField] private ParticleSystem _destroyEffect;
-    Collider _avatarCollider;
-
+    [SerializeField] private float _timeBeforeAutoDestroy = 3f;
     private Rigidbody _rigidbody;
-
 
     private void DoOnDestroy()
     {
         var effect = Instantiate(_destroyEffect);
         effect.transform.position = transform.position;
-        Physics.IgnoreCollision(GetComponent<Collider>(), _avatarCollider, false);
-        Destroy(this);
+        gameObject.SetActive(false);
     }
 
     private IEnumerator DestroyThisBullet()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(_timeBeforeAutoDestroy);
         DoOnDestroy();
     }
 
     protected void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        StartCoroutine(DestroyThisBullet());
     }
 
-    public void SetIgnoreCollision(Collider collider)
+    protected void OnEnable()
     {
-        _avatarCollider = collider;
-        Physics.IgnoreCollision(GetComponent<Collider>(), collider, true);
+        StartCoroutine(DestroyThisBullet());
     }
 
     protected void FixedUpdate()
@@ -44,12 +39,6 @@ public class Bullet : MonoBehaviour
 
     protected void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "Avatar")
-        {
-            return;
-        }
-
         DoOnDestroy();
-        Destroy(gameObject);
     }
 }
