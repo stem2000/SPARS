@@ -17,16 +17,17 @@ namespace AvatarModel
         [Header("Beat Events")]
         [SerializeField] private AvatarBeatController _avatarBeatController;
 
-        [SerializeField] private Animator _avatarAnimator;
+        [Space]
+        [Header("Animations")]
+        [SerializeField] private AvatarAnimationController _avatarAnimationController;
 
         private AvatarState _avatarState;
         private AvatarMovement _avatarMovement;
         private AvatarWorldListener _avatarWorldListener;
-        private AvatarStateChangingHelper _avatarStateChangingHelper;
-        private AvatarAnimationController _avatarAnimationController;
+        private AvatarStateChangingReactor _avatarStateChangingReactor;
 
         private InputManager _playerInput;
-        private StateUpdatePackage _inputPackage;
+        private DataForStateChanger _inputPackage;
 
         #region METHODS
         private void HandleInput()
@@ -39,14 +40,14 @@ namespace AvatarModel
         {
             _avatarState.ChangeState(_inputPackage);
             ReactToStateChanging();
-            _avatarState.UpdateStats(_avatarStateChangingHelper.GetStatsPackage());
+            _avatarState.UpdateStats(_avatarStateChangingReactor.GetStatsPackage());
             _avatarMovement.UpdateMovementData(_avatarState.GetMovementData());
         }
 
         private void ReactToStateChanging()
         {
             var stateInfo = _avatarState.GetStateInfo();
-            _avatarStateChangingHelper.ReactToStateChanging(stateInfo);
+            _avatarStateChangingReactor.ReactToStateChanging(stateInfo);
             _avatarBeatController.ReactToStateChanging(stateInfo);
         }
 
@@ -79,14 +80,14 @@ namespace AvatarModel
         {
             var stats = _avatarStats.Clone();
 
-            _avatarStateChangingHelper = new AvatarStateChangingHelper(GetComponent<Rigidbody>(), stats);
-            _avatarState = new AvatarState(_avatarStateChangingHelper.GetStatsPackage());
+            _avatarStateChangingReactor = new AvatarStateChangingReactor(GetComponent<Rigidbody>(), stats);
+            _avatarState = new AvatarState(_avatarStateChangingReactor.GetStatsPackage());
             _avatarMovement = new AvatarMovement(GetComponent<Rigidbody>());
             _avatarWorldListener = GetComponent<AvatarWorldListener>();
             _avatarBeatController.InitializeComponents();
-            _avatarAnimationController = new AvatarAnimationController(_avatarAnimator);
+            _avatarAnimationController.SetAnimatorVariablesHashes();
 
-            _inputPackage = new StateUpdatePackage();
+            _inputPackage = new DataForStateChanger();
         }
         #endregion
 

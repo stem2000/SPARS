@@ -1,8 +1,10 @@
 using AvatarModel;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class AvatarAnimationController
 {
     private int _isRunningHash;
@@ -15,15 +17,9 @@ public class AvatarAnimationController
     private float _xBlendVelocity;
     private float _yBlendVelocity;
 
-    private Animator _animator;
+    [SerializeField] private Animator _animator;
 
     private MovementType _lastMove;
-
-    public AvatarAnimationController(Animator animator)
-    {
-        _animator = animator;
-        SetAnimatorVariablesHashes();
-    }
 
     private void MoveAnimationSwitch(MovementType type, bool value)
     {
@@ -48,7 +44,7 @@ public class AvatarAnimationController
         }
     }
 
-    protected void SetAnimatorVariablesHashes()
+    public void SetAnimatorVariablesHashes()
     {
         _isRunningHash = Animator.StringToHash("isRunning");
         _isJumpingHash = Animator.StringToHash("isJumping");
@@ -58,7 +54,7 @@ public class AvatarAnimationController
         _yBlendVelocityHash = Animator.StringToHash("yVelocity");
     }
 
-    public void ChangeAnimationState(StateFromInfoPackage stateInfo)
+    public void ChangeAnimationState(StateChangingData stateInfo)
     {
         _xBlendVelocity = stateInfo.MoveDirection.x;
         _yBlendVelocity = stateInfo.MoveDirection.z;
@@ -74,6 +70,5 @@ public class AvatarAnimationController
 
         }
     }
-
 
 }

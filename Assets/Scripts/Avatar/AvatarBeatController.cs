@@ -12,15 +12,15 @@ public class AvatarBeatController : BeatReactor
     [SerializeField] private UnityEvent DashEvent;
 
     private LocalBeatController _myBeatController;
-    private StateFromInfoPackage _packageFromState;
+    private StateChangingData _packageFromState;
 
     public void InitializeComponents()
     {
         _myBeatController = new LocalBeatController();
-        _packageFromState = new StateFromInfoPackage();
+        _packageFromState = new StateChangingData();
     }
 
-    public void ReactToStateChanging(in StateFromInfoPackage stateInfo)
+    public void ReactToStateChanging(in StateChangingData stateInfo)
     {
         _packageFromState = stateInfo;
 

@@ -10,12 +10,12 @@ namespace AvatarModel
 {
     public class AvatarState
     {
-        public StateStatsUpdatePackage _statsPackage;
+        public StatsActualizationPackage _statsPackage;
 
         private StateChanger<MovementType> _moveChanger;
         private StateChanger<AttackType> _attackChanger;
 
-        private StateFromInfoPackage _infoPackage;
+        private StateChangingData _infoPackage;
 
         private Vector3 _normal = Vector3.zero;
         private Vector3 _moveDirection = Vector3.zero;
@@ -35,12 +35,12 @@ namespace AvatarModel
             return new Vector3(moveDirection.x, 0f, moveDirection.y);
         } 
 
-        public AvatarState(StateStatsUpdatePackage statsPackage)
+        public AvatarState(StatsActualizationPackage statsPackage)
         {
             _statsPackage = statsPackage;
             CreateMoveChanger();
             CreateAttackChanger();
-            _infoPackage = new StateFromInfoPackage();
+            _infoPackage = new StateChangingData();
             _moveDataPack = new MovementDataPackage();
         }
 
@@ -63,7 +63,7 @@ namespace AvatarModel
             _attackChanger.AddState(new PunchState(this));
         }
 
-        public StateFromInfoPackage GetStateInfo()
+        public StateChangingData GetStateInfo()
         {
             _infoPackage.Grounded = Grounded;
             _infoPackage.MoveStateWasChanged = _moveChanger.StateWasChanged;
@@ -74,7 +74,7 @@ namespace AvatarModel
             return _infoPackage;
         }
 
-        public void UpdateStats(StateStatsUpdatePackage statsPackage)
+        public void UpdateStats(StatsActualizationPackage statsPackage)
         {
             _statsPackage = statsPackage;
         }
@@ -113,7 +113,7 @@ namespace AvatarModel
             return _moveDataPack;
         }
 
-        public void ChangeState(in StateUpdatePackage package)
+        public void ChangeState(in DataForStateChanger package)
         {
             _moveDirection = ConvertDirectionInput(package.MoveDirection);
             _normal = package.Normal;

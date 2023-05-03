@@ -9,7 +9,7 @@ namespace AvatarModel
         public bool stateChanged;
     }
 
-    public class StateFromInfoPackage
+    public class StateChangingData
     {
         public MovementType CurrentMoveType;
         public AttackType CurrentAttackType;
@@ -19,7 +19,7 @@ namespace AvatarModel
         public Vector3 MoveDirection;
     }
 
-    public class StateUpdatePackage
+    public class DataForStateChanger
     {
         public Vector3 MoveDirection = Vector3.zero;
         public Vector3 Normal = Vector3.zero;
@@ -33,14 +33,14 @@ namespace AvatarModel
         public bool ShouldPunch;
     }
 
-    public class StateStatsUpdatePackage
+    public class StatsActualizationPackage
     {
         public JumpStats jumpStats;
         public DashStats dashStats;
         public float FlySpeedLimit = 9;
         public float RunSpeed = 10;
 
-        public StateStatsUpdatePackage(in AvatarStats avatarStats)
+        public StatsActualizationPackage(in AvatarStats avatarStats)
         {
             jumpStats = avatarStats.jumpStats.Clone();
             dashStats = avatarStats.dashStats.Clone();
