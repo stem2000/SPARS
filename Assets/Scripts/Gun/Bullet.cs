@@ -7,6 +7,7 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float _bulletSpeed = 60f;
     [SerializeField] private ParticleSystem _destroyEffect;
     [SerializeField] private float _timeBeforeAutoDestroy = 3f;
+    private Vector3 _shootDirection;
     private Rigidbody _rigidbody;
 
     private void DoOnDestroy()
@@ -30,11 +31,12 @@ public class Bullet : MonoBehaviour
     protected void OnEnable()
     {
         StartCoroutine(DestroyThisBullet());
+        _shootDirection = SceneObjectServiceProvider.GetScreenCenterDiretion().normalized;
     }
 
     protected void FixedUpdate()
     {
-        _rigidbody.velocity = SceneObjectServiceProvider.GetScreenCenterDiretion().normalized * _bulletSpeed;
+        _rigidbody.velocity = _shootDirection * _bulletSpeed;
     }
 
     protected void OnCollisionEnter(Collision collision)

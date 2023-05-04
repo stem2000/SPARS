@@ -2001,6 +2001,14 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 6592285779166852665, guid: 85a3c0eb119c69d4eaafa961b4d15563, type: 3}
+      propertyPath: _bulletPoolSize
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 6592285779662549042, guid: 85a3c0eb119c69d4eaafa961b4d15563, type: 3}
+      propertyPath: m_Name
+      value: BulletSpawnPoint
+      objectReference: {fileID: 0}
     - target: {fileID: 6592285780801054655, guid: 85a3c0eb119c69d4eaafa961b4d15563, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.006
@@ -2131,7 +2139,6 @@ MonoBehaviour:
   _flash: {fileID: 198602996386745940}
   _bulletSpawn: {fileID: 185183607}
   _bullet: {fileID: 6621299690089790721, guid: cb3df73a75afd2a4ca247e7e37c78286, type: 3}
-  _avatarCollider: {fileID: 264047827890112469}
   _bulletPoolSize: 20
 --- !u!82 &1667544114
 AudioSource:

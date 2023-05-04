@@ -5,7 +5,7 @@ public class SceneObjectServiceProvider : MonoBehaviour
     [SerializeField] private Camera _mainCamera;
     private static Camera _staticCameraLink;
 
-    protected void Start()
+    protected void Awake()
     {
         _staticCameraLink = _mainCamera;
     }

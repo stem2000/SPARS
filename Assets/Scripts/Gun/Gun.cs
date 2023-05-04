@@ -7,9 +7,6 @@ public class Gun : MonoBehaviour
     [SerializeField] private ParticleSystem _flash;
     [SerializeField] private Transform _bulletSpawn;
     [SerializeField] private Bullet _bullet;
-
-    [SerializeField] private Collider _avatarCollider;
-
     [SerializeField] private int _bulletPoolSize = 20;
 
      private Bullet[] _bulletsPool;
@@ -49,7 +46,8 @@ public class Gun : MonoBehaviour
         _bulletsPool = new Bullet[_bulletPoolSize];
         for(int i = 0; i < _bulletPoolSize; i++)
         {
-            _bulletsPool[i] = Instantiate(_bullet, _bulletSpawn);
+            _bulletsPool[i] = Instantiate(_bullet);
+            _bulletsPool[i].transform.position = _bulletSpawn.position;
             _bulletsPool[i].gameObject.SetActive(false);
         }
     }
