@@ -24,10 +24,9 @@ namespace AvatarModel
         private AvatarState _avatarState;
         private AvatarMovement _avatarMovement;
         private AvatarWorldListener _avatarWorldListener;
-        private AvatarStateChangingReactor _avatarStateChangingReactor;
+        private StateChangingReactor _avatarStateChangingReactor;
 
         private InputManager _playerInput;
-        private DataForStateChanger _inputPackage;
 
         #region METHODS
         private void HandleInput()
@@ -38,37 +37,34 @@ namespace AvatarModel
 
         private void ChangeState()
         {
-            _avatarState.ChangeState(_inputPackage);
-            ReactToStateChanging();
+            _avatarState.ChangeState();
+
+            var stateInfo = _avatarState.GetStateInfo();
+            _avatarStateChangingReactor.ReactToStateChanging(stateInfo);
+            _avatarBeatController.ReactToStateChanging(stateInfo);
+
             _avatarState.UpdateStats(_avatarStateChangingReactor.GetStatsPackage());
             _avatarMovement.UpdateMovementData(_avatarState.GetMovementData());
         }
 
-        private void ReactToStateChanging()
-        {
-            var stateInfo = _avatarState.GetStateInfo();
-            _avatarStateChangingReactor.ReactToStateChanging(stateInfo);
-            _avatarBeatController.ReactToStateChanging(stateInfo);
-        }
-
         private void HandlePlayerInput()
         {
-            _inputPackage.MoveDirection = _playerInput.GetPlayerMovement();
-            _inputPackage.Rotation = _playerInput.GetMouseDelta();
-            _inputPackage.ShouldDash = _playerInput.GetDashInput();
-            _inputPackage.ShouldJump = _playerInput.GetJumpInput();
-            _inputPackage.ShouldShoot = _playerInput.GetShootInput();
-            _inputPackage.ShouldPunch = _playerInput.GetPunchInput();
+            var moveDirection = _playerInput.GetPlayerMovement();
+            _avatarState.MoveDirection = new Vector3(moveDirection.x, 0f, moveDirection.y);
+            _avatarState.ShouldDash = _playerInput.GetDashInput();
+            _avatarState.ShouldJump = _playerInput.GetJumpInput();
+            _avatarState.ShouldShoot = _playerInput.GetShootInput();
+            _avatarState.ShouldPunch = _playerInput.GetPunchInput();
 
             _avatarRotation.HandleRotationInput(_playerInput.GetMouseDelta());
         }
 
         private void HandleWorldInput()
         {
-            _inputPackage.Grounded = _avatarWorldListener.IsAvatarGrounded();
-            _inputPackage.OnSlope = _avatarWorldListener.IsAvatarOnSlope();
-            if (_inputPackage.OnSlope)
-                _inputPackage.Normal = _avatarWorldListener.GetNormal();
+            _avatarState.Grounded = _avatarWorldListener.IsAvatarGrounded();
+            _avatarState.OnSlope = _avatarWorldListener.IsAvatarOnSlope();
+            if (_avatarState.OnSlope)
+                _avatarState.Normal = _avatarWorldListener.GetNormal();
         }
 
         private void Animate()
@@ -78,16 +74,12 @@ namespace AvatarModel
 
         private void InitializeComponents()
         {
-            var stats = _avatarStats.Clone();
-
-            _avatarStateChangingReactor = new AvatarStateChangingReactor(GetComponent<Rigidbody>(), stats);
+            _avatarStateChangingReactor = new StateChangingReactor(GetComponent<Rigidbody>(), _avatarStats.Clone());
             _avatarState = new AvatarState(_avatarStateChangingReactor.GetStatsPackage());
             _avatarMovement = new AvatarMovement(GetComponent<Rigidbody>());
             _avatarWorldListener = GetComponent<AvatarWorldListener>();
             _avatarBeatController.InitializeComponents();
             _avatarAnimationController.SetAnimatorVariablesHashes();
-
-            _inputPackage = new DataForStateChanger();
         }
         #endregion
 

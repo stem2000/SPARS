@@ -29,7 +29,6 @@ public class CrosshairController : MonoBehaviour, BeatReactor
 
     private const int _scopesCount = 3;    
     private int _currentScopes = 0;
-    private bool _hitInBeatFixed = false;
 
     private Vector3 _extremePointDistance;
 
@@ -39,7 +38,6 @@ public class CrosshairController : MonoBehaviour, BeatReactor
         UpdateCurrentSampleState(0);
 
         ResetDynamicScopes(_currentScopes);
-        _hitInBeatFixed = false;
 
         _currentScopes = _currentScopes < _scopesCount - 1 ? _currentScopes + 1 : 0;
     }
@@ -85,8 +83,6 @@ public class CrosshairController : MonoBehaviour, BeatReactor
         _leftScopes[_currentScopes].transform.localScale = _rightScopes[_currentScopes].transform.localScale = scaleUpdate;
         _leftScopes[_currentScopes].color = _afterHitColorStatic;
         _rightScopes[_currentScopes].color = _afterHitColorStatic;
-
-        _hitInBeatFixed = true;
     }
 
 

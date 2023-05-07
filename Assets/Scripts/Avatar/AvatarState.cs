@@ -10,32 +10,27 @@ namespace AvatarModel
 {
     public class AvatarState
     {
-        public StatsActualizationPackage _statsPackage;
+        public StatsPackage _statsPackage;
 
         private StateChanger<MovementType> _moveChanger;
         private StateChanger<AttackType> _attackChanger;
 
         private StateChangingData _infoPackage;
 
-        private Vector3 _normal = Vector3.zero;
-        private Vector3 _moveDirection = Vector3.zero;
+        public Vector3 Normal = Vector3.zero;
+        public Vector3 MoveDirection = Vector3.zero;
 
-        protected bool Grounded;
-        protected bool OnSlope;
-        protected bool ShouldDash;
-        protected bool ShouldJump;
-        protected bool ShouldShoot;
-        protected bool ShouldPunch;
+        public bool Grounded;
+        public bool OnSlope;
+        public bool ShouldDash;
+        public bool ShouldJump;
+        public bool ShouldShoot;
+        public bool ShouldPunch;
 
         private MovementDataPackage _moveDataPack;
 
         #region METHODS
-        private Vector3 ConvertDirectionInput(Vector2 moveDirection)
-        {
-            return new Vector3(moveDirection.x, 0f, moveDirection.y);
-        } 
-
-        public AvatarState(StatsActualizationPackage statsPackage)
+        public AvatarState(StatsPackage statsPackage)
         {
             _statsPackage = statsPackage;
             CreateMoveChanger();
@@ -70,11 +65,11 @@ namespace AvatarModel
             _infoPackage.AttackStateWasChanged = _attackChanger.StateWasChanged;
             _infoPackage.CurrentMoveType = _moveChanger.CurrentState;
             _infoPackage.CurrentAttackType = _attackChanger.CurrentState;
-            _infoPackage.MoveDirection = _moveDirection;
+            _infoPackage.MoveDirection = MoveDirection;
             return _infoPackage;
         }
 
-        public void UpdateStats(StatsActualizationPackage statsPackage)
+        public void UpdateStats(StatsPackage statsPackage)
         {
             _statsPackage = statsPackage;
         }
@@ -86,7 +81,7 @@ namespace AvatarModel
             switch (_moveChanger.CurrentState)
             {
                 case MovementType.Run:
-                    _moveDataPack.data = new RunData(_moveDirection, _statsPackage.RunSpeed);
+                    _moveDataPack.data = new RunData(MoveDirection, _statsPackage.RunSpeed);
                     _moveDataPack.type = MovementType.Run;
                     break;
                 case MovementType.Fly:
@@ -94,15 +89,15 @@ namespace AvatarModel
                     _moveDataPack.type = MovementType.Fly;
                     break;
                 case MovementType.RunOnSlope:
-                    _moveDataPack.data = new RunOnSlopeData(_moveDirection, _statsPackage.RunSpeed, _normal);
+                    _moveDataPack.data = new RunOnSlopeData(MoveDirection, _statsPackage.RunSpeed, Normal);
                     _moveDataPack.type = MovementType.RunOnSlope;
                     break;
                 case MovementType.Jump:
-                    _moveDataPack.data = new JumpData(_moveDirection, _statsPackage.jumpStats.JumpForce);
+                    _moveDataPack.data = new JumpData(MoveDirection, _statsPackage.jumpStats.JumpForce);
                     _moveDataPack.type = MovementType.Jump;
                     break;
                 case MovementType.Dash:
-                    _moveDataPack.data = new DashData(_moveDirection, _statsPackage.dashStats.DashForce);
+                    _moveDataPack.data = new DashData(MoveDirection, _statsPackage.dashStats.DashForce);
                     _moveDataPack.type = MovementType.Dash;
                     break;
                 case MovementType.Idle:
@@ -113,16 +108,8 @@ namespace AvatarModel
             return _moveDataPack;
         }
 
-        public void ChangeState(in DataForStateChanger package)
+        public void ChangeState()
         {
-            _moveDirection = ConvertDirectionInput(package.MoveDirection);
-            _normal = package.Normal;
-            Grounded = package.Grounded;
-            OnSlope = package.OnSlope;
-            ShouldDash = package.ShouldDash;
-            ShouldJump = package.ShouldJump;
-            ShouldShoot = package.ShouldShoot;
-            ShouldPunch = package.ShouldPunch;
             _moveChanger.ChangeState();
             _attackChanger.ChangeState();
         }
@@ -394,7 +381,7 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                if (_avatar._moveDirection == Vector3.zero)
+                if (_avatar.MoveDirection == Vector3.zero)
                     return true;
                 return false;
             }

@@ -2,20 +2,20 @@ using UnityEngine;
 
 namespace AvatarModel
 {
-    public class AvatarStateChangingReactor
+    public class StateChangingReactor
     {
         private Rigidbody _rigidbody;
         private ConstantForce _constantForce;
         private AvatarStats _immutableStats;
 
         private StateChangingData _packageFromState;
-        private StatsActualizationPackage _statsPackage;
+        private StatsPackage _statsPackage;
 
-        public AvatarStateChangingReactor(Rigidbody rigidbody, AvatarStats stats)
+        public StateChangingReactor(Rigidbody rigidbody, AvatarStats stats)
         {
             _rigidbody = rigidbody;
             _immutableStats = stats.Clone();
-            _statsPackage = new StatsActualizationPackage(stats);
+            _statsPackage = new StatsPackage(stats);
             _constantForce = _rigidbody.GetComponent<ConstantForce>();
         }
 
@@ -27,7 +27,7 @@ namespace AvatarModel
             UpdateStateStats();
         }
 
-        public StatsActualizationPackage GetStatsPackage()
+        public StatsPackage GetStatsPackage()
         {
             return _statsPackage;
         }

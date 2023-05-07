@@ -17,7 +17,13 @@ public class AvatarAnimationController
     private float _xBlendVelocity;
     private float _yBlendVelocity;
 
-    [SerializeField] private Animator _animator;
+    private int _handsRunHash;
+    private int _handsFlyHash;
+    private int _handsJumpHash;
+    private int _handsIdleHash;
+
+    [SerializeField] private Animator _avatarAnimator;
+    [SerializeField] private Animator _handsAnimator;
 
     private MovementType _lastMove;
 
@@ -25,21 +31,18 @@ public class AvatarAnimationController
     {
         switch (type) {
             case MovementType.Jump:
-                _animator.SetBool(_isJumpingHash, value);
-                _animator.SetBool(_isFallingHash, !value);
+                SwitchJumpAnimations(value);
                 break;
             case MovementType.Run:
             case MovementType.RunOnSlope:
             case MovementType.Dash:
-                _animator.SetBool(_isRunningHash, value);
-                _animator.SetFloat(_xBlendVelocityHash, _xBlendVelocity);
-                _animator.SetFloat(_yBlendVelocityHash, _yBlendVelocity);
+                SwitchRunAnimations(value);
                 break;
             case MovementType.Fly:
-                _animator.SetBool(_isFallingHash, value);
+                SwitchFlyAnimations(value);
                 break;
             case MovementType.Idle:
-                _animator.SetBool(_isIdleHash, value);
+                SwitchIdleAnimations(value);
                 break;
         }
     }
@@ -52,7 +55,12 @@ public class AvatarAnimationController
         _isIdleHash = Animator.StringToHash("isIdle");
         _xBlendVelocityHash = Animator.StringToHash("xVelocity");
         _yBlendVelocityHash = Animator.StringToHash("yVelocity");
-    }
+
+        _handsRunHash = Animator.StringToHash("HandsRun");
+        _handsFlyHash = Animator.StringToHash("HandsFly");
+        _handsJumpHash = Animator.StringToHash("HandsJump");
+        _handsIdleHash = Animator.StringToHash("HandsIdle");
+}
 
     public void ChangeAnimationState(StateChangingData stateInfo)
     {
@@ -71,4 +79,30 @@ public class AvatarAnimationController
         }
     }
 
+    private void SwitchJumpAnimations(bool value)
+    {
+        Debug.Log("Switch Jump");
+        _avatarAnimator.SetBool(_isJumpingHash, value);
+        _handsAnimator.SetBool(_handsJumpHash, value);
+    }
+
+    private void SwitchFlyAnimations(bool value)
+    {
+        _avatarAnimator.SetBool(_isFallingHash, value);
+        _handsAnimator.SetBool(_handsFlyHash, value);
+    }
+
+    private void SwitchIdleAnimations(bool value)
+    {
+        _avatarAnimator.SetBool(_isIdleHash, value);
+        _handsAnimator.SetBool(_handsIdleHash, value);
+    }
+
+    private void SwitchRunAnimations(bool value)
+    {
+        _avatarAnimator.SetBool(_isRunningHash, value);
+        _avatarAnimator.SetFloat(_xBlendVelocityHash, _xBlendVelocity);
+        _avatarAnimator.SetFloat(_yBlendVelocityHash, _yBlendVelocity);
+        _handsAnimator.SetBool(_handsRunHash, value);
+    }
 }

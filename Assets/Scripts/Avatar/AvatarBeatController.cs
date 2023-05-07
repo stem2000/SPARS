@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
+
 [Serializable]
 public class AvatarBeatController : BeatReactor
 {
@@ -10,6 +11,7 @@ public class AvatarBeatController : BeatReactor
     [SerializeField] private UnityEvent PunchEvent;
     [SerializeField] private UnityEvent JumpEvent;
     [SerializeField] private UnityEvent DashEvent;
+    [SerializeField] private SendBeatActionEvent _sendBeatActionEvent;
 
     private LocalBeatController _myBeatController;
     private StateChangingData _packageFromState;
@@ -41,9 +43,6 @@ public class AvatarBeatController : BeatReactor
 
     private void HandlePlayerHit()
     {
-        if(!_myBeatController.CanAttackThisSample)
-            Debug.Log("Cant attack");
-
         if (_myBeatController.CanMoveThisSample)
             if (CheckMoveState())
             {
@@ -75,9 +74,11 @@ public class AvatarBeatController : BeatReactor
         {
             case AttackType.Shoot:
                 ShootEvent.Invoke();
+                _sendBeatActionEvent.Invoke(BeatAction.Shoot, _myBeatController.LastSampleState);
                 break;
             case AttackType.Punch:
                 PunchEvent.Invoke();
+                _sendBeatActionEvent.Invoke(BeatAction.Punch, _myBeatController.LastSampleState);
                 break;
         }
     }
@@ -88,10 +89,20 @@ public class AvatarBeatController : BeatReactor
         {
             case MovementType.Jump:
                 JumpEvent.Invoke();
+                _sendBeatActionEvent.Invoke(BeatAction.Jump, _myBeatController.LastSampleState);
                 break;
             case MovementType.Dash:
                 DashEvent.Invoke();
+                _sendBeatActionEvent.Invoke(BeatAction.Dash, _myBeatController.LastSampleState);
                 break;
         }
     }
 }
+
+public enum BeatAction
+{
+    Jump, Dash, Shoot, Punch, Miss
+}
+
+[Serializable]
+public class SendBeatActionEvent : UnityEvent<BeatAction, float> { }
