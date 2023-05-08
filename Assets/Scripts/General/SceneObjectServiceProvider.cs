@@ -1,4 +1,6 @@
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class SceneObjectServiceProvider : MonoBehaviour
 {
@@ -18,6 +20,16 @@ public class SceneObjectServiceProvider : MonoBehaviour
         var x = Screen.width / 2;
         var y = Screen.height / 2;
         return _staticCameraLink.ScreenPointToRay(new Vector3(x, y, 0)).direction; ;
+    }
+
+    public static void SubscribeToBeatStart(UnityAction action)
+    {
+        _beatManagerLink.SubscribeToBeatStart(action);
+    }
+
+    public static void SubscribeToBeatUpdate(UnityAction<float> action)
+    {
+        _beatManagerLink.SubscribeToBeatUpdate(action);
     }
 
 }

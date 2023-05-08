@@ -33,7 +33,6 @@ public class AvatarBeatController : BeatReactor
             HandlePlayerHit();
         else if(_packageFromState.WasAttemptToChangeState)
             _sendBeatActionEvent.Invoke(BeatAction.Miss, _myBeatController.LastSampleState);
-
     }
 
     public void MoveToNextSample()
@@ -45,6 +44,12 @@ public class AvatarBeatController : BeatReactor
     public void UpdateCurrentSampleState(float sampleState)
     {
         _myBeatController.LastSampleState = sampleState;
+    }
+
+    public void SubscibeToBeatEvents()
+    {
+        SceneObjectServiceProvider.SubscribeToBeatStart(MoveToNextSample);
+        SceneObjectServiceProvider.SubscribeToBeatUpdate(UpdateCurrentSampleState);
     }
 
     private void HandlePlayerHit()

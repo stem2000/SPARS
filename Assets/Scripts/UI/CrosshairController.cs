@@ -33,6 +33,7 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     private Vector3 _extremePointDistance;
 
     #region CROSSHAIR_CONTROLLER_METHODS
+
     public void MoveToNextSample()
     {
         UpdateCurrentSampleState(0);
@@ -42,13 +43,17 @@ public class CrosshairController : MonoBehaviour, BeatReactor
         _currentScopes = _currentScopes < _scopesCount - 1 ? _currentScopes + 1 : 0;
     }
 
-
     public void UpdateCurrentSampleState(float sampleShift)
     {
         ShiftPosition(sampleShift);
         ColorShift(sampleShift);
     }
 
+    public void SubscibeToBeatEvents()
+    {
+        SceneObjectServiceProvider.SubscribeToBeatStart(MoveToNextSample);
+        SceneObjectServiceProvider.SubscribeToBeatUpdate(UpdateCurrentSampleState);
+    }
 
     private void ResetDynamicScopes(int scopesNumber)
     {
@@ -128,6 +133,7 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     protected void Start()
     {
         InitializeComponents();
+        SubscibeToBeatEvents();
     }
     #endregion
 }

@@ -7,4 +7,5 @@ public interface BeatReactor
 {
     public void MoveToNextSample();
     public void UpdateCurrentSampleState(float sampleState);
+    public void SubscibeToBeatEvents();
 }

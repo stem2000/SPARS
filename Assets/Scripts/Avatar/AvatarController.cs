@@ -3,7 +3,7 @@ using UnityEngine;
 namespace AvatarModel
 {
     [RequireComponent(typeof(AvatarWorldListener))]
-    public class AvatarController : MonoBehaviour, BeatReactor
+    public class AvatarController : MonoBehaviour
     {
         [Space]
         [Header("Avatar Stats")]
@@ -79,9 +79,11 @@ namespace AvatarModel
             _avatarStateChangingReactor = new StateChangingReactor(GetComponent<Rigidbody>(), _avatarStats.Clone());
             _avatarState = new AvatarState(_avatarStateChangingReactor.GetStatsPackage());
             _avatarMovement = new AvatarMovement(GetComponent<Rigidbody>());
+
             _avatarWorldListener = GetComponent<AvatarWorldListener>();
             _avatarBeatController.InitializeComponents();
             _avatarAnimationController.SetAnimatorVariablesHashes();
+            _playerInput = InputManager.Instance;
         }
         #endregion
 
@@ -89,13 +91,10 @@ namespace AvatarModel
         protected void Start()
         {
             InitializeComponents();
+            SubscibeToBeatEvents();
             Cursor.lockState = CursorLockMode.Locked;
         }
 
-        protected void Awake()
-        {
-            _playerInput = InputManager.Instance;
-        }
 
         protected void FixedUpdate()
         {
@@ -114,17 +113,12 @@ namespace AvatarModel
         {
             _avatarRotation.RotateAndMoveCamera();
         }
-
-        public void MoveToNextSample()
-        {
-            _avatarBeatController.MoveToNextSample();
-        }
-
-        public void UpdateCurrentSampleState(float sampleState)
-        {
-            _avatarBeatController.UpdateCurrentSampleState(sampleState);
-        }
         #endregion
+
+        public void SubscibeToBeatEvents() 
+        {
+            _avatarBeatController.SubscibeToBeatEvents();
+        }
     }
 
 }

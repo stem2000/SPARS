@@ -1,13 +1,9 @@
-using AvatarModel;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class BeatStatus : MonoBehaviour, BeatReactor
 {
     [SerializeField] TextMeshProUGUI _text;
-    [SerializeField] float _textVisibilityTime = 0.6f;
     private int _actCount = 0;
 
 
@@ -65,6 +61,12 @@ public class BeatStatus : MonoBehaviour, BeatReactor
     public void UpdateCurrentSampleState(float sampleState)
     {
         return;
+    }
+
+    public void SubscibeToBeatEvents()
+    {
+        SceneObjectServiceProvider.SubscribeToBeatStart(MoveToNextSample);
+        SceneObjectServiceProvider.SubscribeToBeatUpdate(UpdateCurrentSampleState);
     }
 
     private enum ActQuality

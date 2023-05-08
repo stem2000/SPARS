@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,8 +11,20 @@ public class BeatManager : MonoBehaviour
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private Intervals[] _intervals;
     [SerializeField] private List<IntervalState> _intervalStates;
+    [SerializeField] private UnityEvent _setBeat;
+    [SerializeField] private UpdateBeatStateEvent _updateBeat;
 
-    [HideInInspector] public BeatManager Instance;
+    public void SubscribeToBeatStart(UnityAction action)
+    {
+        _setBeat.AddListener(action);
+    }
+
+    public void SubscribeToBeatUpdate(UnityAction<float> action)
+    {
+        _updateBeat.AddListener(action);
+    }
+
+    [HideInInspector] protected BeatManager Instance;
 
 
     private void Update()
@@ -19,13 +32,13 @@ public class BeatManager : MonoBehaviour
         foreach(Intervals interval in _intervals)
         {
             float sampledTime = (_audioSource.timeSamples) / (_audioSource.clip.frequency * interval.GetIntervalLenght(_bpm));
-            interval.CheckForNewInterval(sampledTime);
+            interval.CheckForNewInterval(sampledTime, _setBeat, _updateBeat);
         }
         CheckForIntervalStateChange();
     }
 
 
-    public void CheckForIntervalStateChange()
+    private void CheckForIntervalStateChange()
     {
         if(_intervalStates.Count == 0) 
             return;
@@ -57,8 +70,6 @@ public class BeatManager : MonoBehaviour
 public class Intervals
 {
     [SerializeField] public float Steps;
-    [SerializeField] private UnityEvent _setBeat;
-    [SerializeField] private UpdateBeatStateEvent _updateBeat;
     private float _intervalLenght;
 
     [HideInInspector] public int LastInterval;
@@ -70,7 +81,7 @@ public class Intervals
     }
 
 
-    public void CheckForNewInterval(float sampledTime)
+    public void CheckForNewInterval(float sampledTime, in UnityEvent _setBeat, in UpdateBeatStateEvent _updateBeat)
     {
         if (Mathf.FloorToInt(sampledTime) != LastInterval)
         {
@@ -83,7 +94,7 @@ public class Intervals
 }
 
 
-[System.Serializable]
+[Serializable]
 public class IntervalState
 {
     public int IntervalToChange;
@@ -92,5 +103,5 @@ public class IntervalState
 }
 
 
-[System.Serializable]
+[Serializable]
 public class UpdateBeatStateEvent : UnityEvent<float> { }
