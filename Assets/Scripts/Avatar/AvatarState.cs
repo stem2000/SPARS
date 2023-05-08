@@ -26,6 +26,8 @@ namespace AvatarModel
         public bool ShouldJump;
         public bool ShouldShoot;
         public bool ShouldPunch;
+        public bool CanMove;
+        public bool CanAttack;
 
         private MovementDataPackage _moveDataPack;
 
@@ -66,6 +68,7 @@ namespace AvatarModel
             _infoPackage.CurrentMoveType = _moveChanger.CurrentState;
             _infoPackage.CurrentAttackType = _attackChanger.CurrentState;
             _infoPackage.MoveDirection = MoveDirection;
+            _infoPackage.WasAttemptToChangeState = ShouldDash || ShouldJump || ShouldPunch || ShouldShoot;
             return _infoPackage;
         }
 
@@ -292,7 +295,7 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return _avatar.ShouldJump && _avatar._statsPackage.jumpStats.JumpCharges > 0;
+                return _avatar.ShouldJump && _avatar._statsPackage.jumpStats.JumpCharges > 0 && _avatar.CanMove;
             }
 
             protected async Task StartMainProcess(CancellationToken token) 
@@ -341,7 +344,7 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return _avatar.ShouldDash && !_dashInCD;
+                return _avatar.ShouldDash && !_dashInCD && _avatar.CanMove;
             }
 
             protected async Task StartMainProcess(CancellationToken token)
@@ -405,7 +408,7 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return _avatar.ShouldShoot;
+                return _avatar.ShouldShoot && _avatar.CanAttack;
             }
         }
 
@@ -451,7 +454,7 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return _avatar.ShouldPunch;
+                return _avatar.ShouldPunch && _avatar.CanAttack;
             }
         }
         #endregion

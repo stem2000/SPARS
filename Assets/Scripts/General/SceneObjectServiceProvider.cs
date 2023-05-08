@@ -3,11 +3,14 @@ using UnityEngine;
 public class SceneObjectServiceProvider : MonoBehaviour
 {
     [SerializeField] private Camera _mainCamera;
+    [SerializeField] private BeatManager _beatManager;
     private static Camera _staticCameraLink;
+    private static BeatManager _beatManagerLink;
 
     protected void Awake()
     {
         _staticCameraLink = _mainCamera;
+        _beatManagerLink = _beatManager;
     }
 
     public static Vector3 GetScreenCenterDiretion()

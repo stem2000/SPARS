@@ -17,6 +17,7 @@ namespace AvatarModel
         public bool MoveStateWasChanged;
         public bool AttackStateWasChanged;
         public Vector3 MoveDirection;
+        public bool WasAttemptToChangeState;
     }
 
     public class StatsPackage

@@ -16,6 +16,9 @@ public class AvatarBeatController : BeatReactor
     private LocalBeatController _myBeatController;
     private StateChangingData _packageFromState;
 
+    public bool CanAttack { get{ return _myBeatController.CanAttackThisSample;} }
+    public bool CanMove { get { return _myBeatController.CanMoveThisSample; } }
+
     public void InitializeComponents()
     {
         _myBeatController = new LocalBeatController();
@@ -28,6 +31,9 @@ public class AvatarBeatController : BeatReactor
 
         if(CheckMoveState() || CheckAttackState())
             HandlePlayerHit();
+        else if(_packageFromState.WasAttemptToChangeState)
+            _sendBeatActionEvent.Invoke(BeatAction.Miss, _myBeatController.LastSampleState);
+
     }
 
     public void MoveToNextSample()
@@ -43,18 +49,16 @@ public class AvatarBeatController : BeatReactor
 
     private void HandlePlayerHit()
     {
-        if (_myBeatController.CanMoveThisSample)
-            if (CheckMoveState())
-            {
-                InvokeMoveEvent();
-                _myBeatController.CanMoveThisSample = false;
-            }
-        if (_myBeatController.CanAttackThisSample)
-            if (CheckAttackState())
-            {
-                InvokeAttackEvent();
-                _myBeatController.CanAttackThisSample = false;
-            }
+        if (CheckMoveState())
+        {
+            InvokeMoveEvent();
+            _myBeatController.CanMoveThisSample = false;
+        }
+        if (CheckAttackState())
+        {
+            InvokeAttackEvent();
+            _myBeatController.CanAttackThisSample = false;
+        }
     }
 
     private bool CheckMoveState()

@@ -55,6 +55,8 @@ namespace AvatarModel
             _avatarState.ShouldJump = _playerInput.GetJumpInput();
             _avatarState.ShouldShoot = _playerInput.GetShootInput();
             _avatarState.ShouldPunch = _playerInput.GetPunchInput();
+            _avatarState.CanAttack = _avatarBeatController.CanAttack;
+            _avatarState.CanMove = _avatarBeatController.CanMove;
 
             _avatarRotation.HandleRotationInput(_playerInput.GetMouseDelta());
         }

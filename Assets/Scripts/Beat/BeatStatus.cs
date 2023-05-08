@@ -8,39 +8,41 @@ public class BeatStatus : MonoBehaviour, BeatReactor
 {
     [SerializeField] TextMeshProUGUI _text;
     [SerializeField] float _textVisibilityTime = 0.6f;
+    private int _actCount = 0;
 
 
     public void GetBeatAction(BeatAction actType, float sampleThird)
     {
         if(actType == BeatAction.Miss)
-            UpdateText(ActQuality.Miss, Color.red);
+            UpdateText(ActQuality.Miss);
         else
             AnalyseSampleThird(sampleThird);
     }
 
-    private void UpdateText(ActQuality actQual, Color color)
+    private void UpdateText(ActQuality actQual)
     {
-        switch(actQual)
+        _actCount++;
+        switch (actQual)
         {
             case ActQuality.ClearingAct:
                 _text.text = string.Empty;
-                _text.faceColor = color;
+                _text.faceColor = Color.white;
                 break;
             case ActQuality.Miss:
-                _text.text = ActQuality.Miss.ToString();
-                _text.faceColor = color;
+                _text.text = ActQuality.Miss.ToString() + " " + _actCount;
+                _text.faceColor = Color.red;
                 break;
             case ActQuality.Weak:
-                _text.text = ActQuality.Weak.ToString();
-                _text.faceColor = color;
+                _text.text = ActQuality.Weak.ToString() + " " + _actCount;
+                _text.faceColor = Color.yellow;
                 break;
             case ActQuality.Good:
-                _text.text = ActQuality.Good.ToString();
-                _text.faceColor = color;
+                _text.text = ActQuality.Good.ToString() + " " + _actCount;
+                _text.faceColor = Color.green;
                 break;
             case ActQuality.Great:
-                _text.text = ActQuality.Great.ToString();
-                _text.faceColor = color;
+                _text.text = ActQuality.Great.ToString() + " " + _actCount;
+                _text.faceColor = Color.blue;
                 break;
         }
     }
@@ -48,11 +50,11 @@ public class BeatStatus : MonoBehaviour, BeatReactor
     private void AnalyseSampleThird(float sampleThird)
     {
         if(sampleThird < 0.3f)
-            UpdateText(ActQuality.Weak, Color.yellow);
+            UpdateText(ActQuality.Weak);
         else if(sampleThird < 0.6f)
-            UpdateText(ActQuality.Good, Color.blue);
+            UpdateText(ActQuality.Good);
         else if(sampleThird < 1)
-            UpdateText(ActQuality.Great, Color.green);
+            UpdateText(ActQuality.Great);
     }
 
     public void MoveToNextSample()
