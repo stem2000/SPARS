@@ -49,10 +49,10 @@ public class CrosshairController : MonoBehaviour, BeatReactor
         ColorShift(sampleShift);
     }
 
-    public void SubscibeToBeatEvents()
+    public void SubscibeToUpdateSampleEvents()
     {
-        SceneObjectServiceProvider.SubscribeToBeatStart(MoveToNextSample);
-        SceneObjectServiceProvider.SubscribeToBeatUpdate(UpdateCurrentSampleState);
+        ObjectServiceProvider.SubscribeToBeatStart(MoveToNextSample);
+        ObjectServiceProvider.SubscribeToBeatUpdate(UpdateCurrentSampleState);
     }
 
     private void ResetDynamicScopes(int scopesNumber)
@@ -133,7 +133,7 @@ public class CrosshairController : MonoBehaviour, BeatReactor
     protected void Start()
     {
         InitializeComponents();
-        SubscibeToBeatEvents();
+        SubscibeToUpdateSampleEvents();
     }
     #endregion
 }

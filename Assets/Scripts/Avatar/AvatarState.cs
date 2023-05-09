@@ -10,12 +10,12 @@ namespace AvatarModel
 {
     public class AvatarState
     {
-        public StatsPackage _statsPackage;
+        public ActualStats _actualStats;
 
         private StateChanger<MovementType> _moveChanger;
         private StateChanger<AttackType> _attackChanger;
 
-        private StateChangingData _infoPackage;
+        private StateData _stateData;
 
         public Vector3 Normal = Vector3.zero;
         public Vector3 MoveDirection = Vector3.zero;
@@ -29,16 +29,13 @@ namespace AvatarModel
         public bool CanMove;
         public bool CanAttack;
 
-        private MovementDataPackage _moveDataPack;
-
         #region METHODS
-        public AvatarState(StatsPackage statsPackage)
+        public AvatarState(ActualStats actualStats)
         {
-            _statsPackage = statsPackage;
+            _actualStats = actualStats;
             CreateMoveChanger();
             CreateAttackChanger();
-            _infoPackage = new StateChangingData();
-            _moveDataPack = new MovementDataPackage();
+            _stateData = new StateData();
         }
 
         private void CreateMoveChanger()
@@ -60,55 +57,22 @@ namespace AvatarModel
             _attackChanger.AddState(new PunchState(this));
         }
 
-        public StateChangingData GetStateInfo()
+        public StateData GetStateInfo()
         {
-            _infoPackage.Grounded = Grounded;
-            _infoPackage.MoveStateWasChanged = _moveChanger.StateWasChanged;
-            _infoPackage.AttackStateWasChanged = _attackChanger.StateWasChanged;
-            _infoPackage.CurrentMoveType = _moveChanger.CurrentState;
-            _infoPackage.CurrentAttackType = _attackChanger.CurrentState;
-            _infoPackage.MoveDirection = MoveDirection;
-            _infoPackage.WasAttemptToChangeState = ShouldDash || ShouldJump || ShouldPunch || ShouldShoot;
-            return _infoPackage;
+            _stateData.Grounded = Grounded;
+            _stateData.MoveStateWasChanged = _moveChanger.StateWasChanged;
+            _stateData.AttackStateWasChanged = _attackChanger.StateWasChanged;
+            _stateData.CurrentMoveType = _moveChanger.CurrentState;
+            _stateData.CurrentAttackType = _attackChanger.CurrentState;
+            _stateData.MoveDirection = MoveDirection;
+            _stateData.Normal = Normal;
+            _stateData.WasAttemptToChangeState = ShouldDash || ShouldJump || ShouldPunch || ShouldShoot;
+            return _stateData;
         }
 
-        public void UpdateStats(StatsPackage statsPackage)
+        public void GetActualStats(ActualStats statsPackage)
         {
-            _statsPackage = statsPackage;
-        }
-
-        public MovementDataPackage GetMovementData()
-        {
-            _moveDataPack.stateChanged = _moveChanger.StateWasChanged;
-
-            switch (_moveChanger.CurrentState)
-            {
-                case MovementType.Run:
-                    _moveDataPack.data = new RunData(MoveDirection, _statsPackage.RunSpeed);
-                    _moveDataPack.type = MovementType.Run;
-                    break;
-                case MovementType.Fly:
-                    _moveDataPack.data = new FlyData(_statsPackage.FlySpeedLimit);
-                    _moveDataPack.type = MovementType.Fly;
-                    break;
-                case MovementType.RunOnSlope:
-                    _moveDataPack.data = new RunOnSlopeData(MoveDirection, _statsPackage.RunSpeed, Normal);
-                    _moveDataPack.type = MovementType.RunOnSlope;
-                    break;
-                case MovementType.Jump:
-                    _moveDataPack.data = new JumpData(MoveDirection, _statsPackage.jumpStats.JumpForce);
-                    _moveDataPack.type = MovementType.Jump;
-                    break;
-                case MovementType.Dash:
-                    _moveDataPack.data = new DashData(MoveDirection, _statsPackage.dashStats.DashForce);
-                    _moveDataPack.type = MovementType.Dash;
-                    break;
-                case MovementType.Idle:
-                    _moveDataPack.data = new IdleData();
-                    _moveDataPack.type = MovementType.Idle;
-                    break;
-            }
-            return _moveDataPack;
+            _actualStats = statsPackage;
         }
 
         public void ChangeState()
@@ -295,14 +259,14 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return _avatar.ShouldJump && _avatar._statsPackage.jumpStats.JumpCharges > 0 && _avatar.CanMove;
+                return _avatar.ShouldJump && _avatar._actualStats.jumpStats.JumpCharges > 0 && _avatar.CanMove;
             }
 
             protected async Task StartMainProcess(CancellationToken token) 
             { 
                 _inProcess = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._statsPackage.jumpStats.JumpDuration), token);
+                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._actualStats.jumpStats.JumpDuration), token);
                 
                 _inProcess = false;
             }
@@ -351,7 +315,7 @@ namespace AvatarModel
             {
                 _inProcess = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._statsPackage.dashStats.DashDuration), token);
+                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._actualStats.dashStats.DashDuration), token);
 
                 _inProcess = false;
             }
@@ -360,7 +324,7 @@ namespace AvatarModel
             {
                 _dashInCD = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._statsPackage.dashStats.DashLockTime));
+                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._actualStats.dashStats.DashLockTime));
 
                 _dashInCD = false;
             }
@@ -469,73 +433,4 @@ namespace AvatarModel
     {
         Idle, Shoot, Punch
     }
-
-    #region MOVEMENTDATA CLASSES
-    public abstract class MovementData { }
-
-    public class RunData : MovementData
-    {
-        public Vector3 direction;
-        public float speed;
-
-        public RunData(Vector3 direction, float speed)
-        {
-            this.direction = direction;
-            this.speed = speed;
-        }
-    }
-
-    public class JumpData : MovementData
-    {
-        public Vector3 direction;
-        public float force;
-
-        public JumpData(Vector3 direction, float force)
-        {
-            this.direction = direction;
-            this.force = force;
-        }
-    }
-
-    public class DashData : MovementData
-    {
-        public Vector3 direction;
-        public float force;
-
-        public DashData(Vector3 direction, float force)
-        {
-            this.direction = direction;
-            this.force = force;
-        }
-    }
-
-    public class FlyData : MovementData
-    {
-        public float speedLimit;
-
-        public FlyData(float speedLimit)
-        {
-            this.speedLimit = speedLimit;
-        }
-    }
-
-    public class RunOnSlopeData : MovementData
-    {
-        public Vector3 direction;
-        public Vector3 normal;
-        public float speed;
-        public RunOnSlopeData(Vector3 direction, float speed, Vector3 normal)
-        {
-            this.direction = direction;
-            this.speed = speed;
-            this.normal = normal;
-        }
-    }
-
-    public class IdleData : MovementData
-    {
-
-    }
-
-    #endregion
 }

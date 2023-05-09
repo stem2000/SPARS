@@ -9,7 +9,7 @@ namespace AvatarModel
         public bool stateChanged;
     }
 
-    public class StateChangingData
+    public class StateData
     {
         public MovementType CurrentMoveType;
         public AttackType CurrentAttackType;
@@ -17,20 +17,23 @@ namespace AvatarModel
         public bool MoveStateWasChanged;
         public bool AttackStateWasChanged;
         public Vector3 MoveDirection;
+        public Vector3 Normal;
         public bool WasAttemptToChangeState;
     }
 
-    public class StatsPackage
+    public class ActualStats
     {
         public JumpStats jumpStats;
         public DashStats dashStats;
-        public float FlySpeedLimit = 9;
-        public float RunSpeed = 10;
+        public float FlySpeedLimit;
+        public float RunSpeed;
 
-        public StatsPackage(in AvatarStats avatarStats)
+        public ActualStats(in AvatarStats avatarStats)
         {
             jumpStats = avatarStats.jumpStats.Clone();
             dashStats = avatarStats.dashStats.Clone();
+            FlySpeedLimit = avatarStats.FlySpeedLimit;
+            RunSpeed = avatarStats.RunSpeed;
         }
     }
 }

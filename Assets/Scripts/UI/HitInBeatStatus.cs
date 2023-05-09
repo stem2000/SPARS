@@ -1,7 +1,9 @@
+using System;
 using TMPro;
 using UnityEngine;
 
-public class BeatStatus : MonoBehaviour, BeatReactor
+[Serializable]
+public class HitInBeatStatus : BeatReactor
 {
     [SerializeField] TextMeshProUGUI _text;
     private int _actCount = 0;
@@ -63,10 +65,10 @@ public class BeatStatus : MonoBehaviour, BeatReactor
         return;
     }
 
-    public void SubscibeToBeatEvents()
+    public void SubscibeToUpdateSampleEvents()
     {
-        SceneObjectServiceProvider.SubscribeToBeatStart(MoveToNextSample);
-        SceneObjectServiceProvider.SubscribeToBeatUpdate(UpdateCurrentSampleState);
+        ObjectServiceProvider.SubscribeToBeatStart(MoveToNextSample);
+        ObjectServiceProvider.SubscribeToBeatUpdate(UpdateCurrentSampleState);
     }
 
     private enum ActQuality

@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AvatarModel
 {
@@ -24,7 +26,7 @@ namespace AvatarModel
         private AvatarState _avatarState;
         private AvatarMovement _avatarMovement;
         private AvatarWorldListener _avatarWorldListener;
-        private StateChangingReactor _avatarStateChangingReactor;
+        private StateChangingHandler _stateChangingHandler;
 
         private InputManager _playerInput;
 
@@ -37,14 +39,24 @@ namespace AvatarModel
 
         private void ChangeState()
         {
+            ActualStats actualStats;
+            StateData stateData;
+
             _avatarState.ChangeState();
 
-            var stateInfo = _avatarState.GetStateInfo();
-            _avatarStateChangingReactor.ReactToStateChanging(stateInfo);
-            _avatarBeatController.ReactToStateChanging(stateInfo);
+            stateData = _avatarState.GetStateInfo();
 
-            _avatarState.UpdateStats(_avatarStateChangingReactor.GetStatsPackage());
-            _avatarMovement.UpdateMovementData(_avatarState.GetMovementData());
+            _stateChangingHandler.GetStateData(stateData);
+            _avatarBeatController.GetStateData(stateData);
+
+            actualStats = _stateChangingHandler.GetStatsPackage();
+
+            _avatarState.GetActualStats(actualStats);
+            _avatarBeatController.GetActualStats(actualStats);
+
+
+            _avatarMovement.UpdateMovementData(_stateChangingHandler.GetMovementData());
+            _avatarBeatController.HandleBeatAction();
         }
 
         private void HandlePlayerInput()
@@ -76,14 +88,20 @@ namespace AvatarModel
 
         private void InitializeComponents()
         {
-            _avatarStateChangingReactor = new StateChangingReactor(GetComponent<Rigidbody>(), _avatarStats.Clone());
-            _avatarState = new AvatarState(_avatarStateChangingReactor.GetStatsPackage());
+            _stateChangingHandler = new StateChangingHandler(GetComponent<Rigidbody>(), _avatarStats.Clone());
+            _avatarState = new AvatarState(_stateChangingHandler.GetStatsPackage());
             _avatarMovement = new AvatarMovement(GetComponent<Rigidbody>());
 
             _avatarWorldListener = GetComponent<AvatarWorldListener>();
             _avatarBeatController.InitializeComponents();
             _avatarAnimationController.SetAnimatorVariablesHashes();
             _playerInput = InputManager.Instance;
+        }
+
+        private void SubscribeUItoEvents()
+        {
+            ObjectServiceProvider.SubscribeUitoBeatActEvent(_avatarBeatController._sendBeatActionEvent);
+            ObjectServiceProvider.SubscribeUiToDashEvent(_avatarBeatController.DashStartedEvent);
         }
         #endregion
 
@@ -92,6 +110,7 @@ namespace AvatarModel
         {
             InitializeComponents();
             SubscibeToBeatEvents();
+            SubscribeUItoEvents();
             Cursor.lockState = CursorLockMode.Locked;
         }
 
@@ -117,8 +136,7 @@ namespace AvatarModel
 
         public void SubscibeToBeatEvents() 
         {
-            _avatarBeatController.SubscibeToBeatEvents();
+            _avatarBeatController.SubscibeToUpdateSampleEvents();
         }
     }
-
 }

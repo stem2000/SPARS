@@ -62,7 +62,7 @@ public class AvatarAnimationController
         _handsIdleHash = Animator.StringToHash("HandsIdle");
 }
 
-    public void ChangeAnimationState(StateChangingData stateInfo)
+    public void ChangeAnimationState(StateData stateInfo)
     {
         _xBlendVelocity = stateInfo.MoveDirection.x;
         _yBlendVelocity = stateInfo.MoveDirection.z;
@@ -81,7 +81,6 @@ public class AvatarAnimationController
 
     private void SwitchJumpAnimations(bool value)
     {
-        Debug.Log("Switch Jump");
         _avatarAnimator.SetBool(_isJumpingHash, value);
         _handsAnimator.SetBool(_handsJumpHash, value);
     }
@@ -101,8 +100,8 @@ public class AvatarAnimationController
     private void SwitchRunAnimations(bool value)
     {
         _avatarAnimator.SetBool(_isRunningHash, value);
+        _handsAnimator.SetBool(_handsRunHash, value);
         _avatarAnimator.SetFloat(_xBlendVelocityHash, _xBlendVelocity);
         _avatarAnimator.SetFloat(_yBlendVelocityHash, _yBlendVelocity);
-        _handsAnimator.SetBool(_handsRunHash, value);
     }
 }
