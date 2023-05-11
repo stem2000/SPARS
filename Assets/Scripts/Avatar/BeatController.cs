@@ -1,4 +1,4 @@
-using AvatarModel;
+using Avatar;
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -6,7 +6,7 @@ using UnityEngine.Events;
 
 
 [Serializable]
-public class AvatarBeatController : BeatReactor
+public class BeatController : BeatReactor
 {
     public UnityEvent ShootEvent;
     public UnityEvent PunchEvent;
@@ -16,34 +16,25 @@ public class AvatarBeatController : BeatReactor
     public UnityEvent<float> DashStartedEvent;
 
     private LocalBeatController _myBeatController;
-    private StateData _packageFromState;
-    private ActualStats _actualStats;
+    private StateAutomatRestricted _state;
+    private StatsProvider _stats;
 
     public bool CanAttack { get{ return _myBeatController.CanAttackThisSample;} }
     public bool CanMove { get { return _myBeatController.CanMoveThisSample; } }
 
-    public void InitializeComponents()
+    public void Initialize(StatsProvider stats, StateAutomatRestricted state)
     {
         _myBeatController = new LocalBeatController();
-        _packageFromState = new StateData();
-    }
-
-    public void GetStateData(in StateData stateInfo)
-    {
-        _packageFromState = stateInfo;
+        _state = state;
+        _stats = stats;
     }
 
     public void HandleBeatAction()
     {
         if (CheckMoveState() || CheckAttackState())
             HandlePlayerHit();
-        else if (_packageFromState.WasAttemptToChangeState)
+        else if (_state.WasAttemptToChangeState)
             _sendBeatActionEvent.Invoke(BeatAction.Miss, _myBeatController.LastSampleState);
-    }
-
-    public void GetActualStats(ActualStats actualStats)
-    {
-        _actualStats = actualStats;
     }
 
     public void MoveToNextSample()
@@ -79,18 +70,17 @@ public class AvatarBeatController : BeatReactor
 
     private bool CheckMoveState()
     {
-        return _packageFromState.MoveStateWasChanged && (_packageFromState.CurrentMoveType == MovementType.Jump ||
-        _packageFromState.CurrentMoveType == MovementType.Dash);
+        return _state.WasMoveStateChanged && (_state.CurrentMoveState == MovementType.Jump || _state.CurrentMoveState == MovementType.Dash);
     }
 
     private bool CheckAttackState()
     {
-        return _packageFromState.AttackStateWasChanged && (_packageFromState.CurrentAttackType != AttackType.Idle);
+        return _state.WasAttackStateChanged && (_state.CurrentAttackState != AttackType.Idle);
     }
 
     private void InvokeAttackEvent()
     {
-        switch(_packageFromState.CurrentAttackType)
+        switch(_state.CurrentAttackState)
         {
             case AttackType.Shoot:
                 ShootEvent.Invoke();
@@ -105,7 +95,7 @@ public class AvatarBeatController : BeatReactor
 
     private void InvokeMoveEvent()
     {
-        switch (_packageFromState.CurrentMoveType) 
+        switch (_state.CurrentMoveState) 
         {
             case MovementType.Jump:
                 JumpEvent.Invoke();
@@ -113,7 +103,7 @@ public class AvatarBeatController : BeatReactor
                 break;
             case MovementType.Dash:
                 DashEvent.Invoke();
-                DashStartedEvent.Invoke(_actualStats.dashStats.DashLockTime);
+                DashStartedEvent.Invoke(_stats.DashLockTime);
                 _sendBeatActionEvent.Invoke(BeatAction.Dash, _myBeatController.LastSampleState);
                 break;
         }

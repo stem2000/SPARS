@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public class AvatarWorldListener : MonoBehaviour
+public class WorldListener : MonoBehaviour
 {
     private bool _isOnGround = false;
     private RaycastHit _slopeHit;
     [HideInInspector] private MonoBehaviour physicBody;
 
     
-    public AvatarWorldListener()
+    public WorldListener()
     {
         _slopeHit = new RaycastHit();
     }    

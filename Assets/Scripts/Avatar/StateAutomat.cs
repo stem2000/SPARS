@@ -3,19 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
 
-namespace AvatarModel
+namespace Avatar
 {
-    public class AvatarState
+    public class StateAutomat
     {
-        public ActualStats _actualStats;
-
+        private StatsProvider _stats;
         private StateChanger<MovementType> _moveChanger;
         private StateChanger<AttackType> _attackChanger;
-
-        private StateData _stateData;
 
         public Vector3 Normal = Vector3.zero;
         public Vector3 MoveDirection = Vector3.zero;
@@ -30,12 +26,12 @@ namespace AvatarModel
         public bool CanAttack;
 
         #region METHODS
-        public AvatarState(ActualStats actualStats)
+        public StateAutomat(StatsProvider stats)
         {
-            _actualStats = actualStats;
+            _stats = stats;
+
             CreateMoveChanger();
             CreateAttackChanger();
-            _stateData = new StateData();
         }
 
         private void CreateMoveChanger()
@@ -56,34 +52,42 @@ namespace AvatarModel
             _attackChanger.AddState(new CalmState(this));
             _attackChanger.AddState(new PunchState(this));
         }
-
-        public StateData GetStateInfo()
-        {
-            _stateData.Grounded = Grounded;
-            _stateData.MoveStateWasChanged = _moveChanger.StateWasChanged;
-            _stateData.AttackStateWasChanged = _attackChanger.StateWasChanged;
-            _stateData.CurrentMoveType = _moveChanger.CurrentState;
-            _stateData.CurrentAttackType = _attackChanger.CurrentState;
-            _stateData.MoveDirection = MoveDirection;
-            _stateData.Normal = Normal;
-            _stateData.WasAttemptToChangeState = ShouldDash || ShouldJump || ShouldPunch || ShouldShoot;
-            return _stateData;
-        }
-
-        public void GetActualStats(ActualStats statsPackage)
-        {
-            _actualStats = statsPackage;
-        }
-
         public void ChangeState()
         {
             _moveChanger.ChangeState();
             _attackChanger.ChangeState();
         }
+
+        public MovementType GetMoveState()
+        {
+            return _moveChanger.CurrentState;
+        }
+
+        public AttackType GetAttackState()
+        {
+            return _attackChanger.CurrentState;
+        }
+
+        public bool HasMoveStateChanged()
+        {
+            return _moveChanger.StateWasChanged;
+        }
+
+        public bool HasAttackStateChanged()
+        {
+            return _attackChanger.StateWasChanged;
+        }
+
+        public bool WasAttemptToChangeState()
+        {
+            return ShouldDash || ShouldJump || ShouldPunch || ShouldShoot;
+        }
         #endregion
+
+        #region STATE CHANGER
         private class StateChanger<EnumType>
         {
-            protected static AvatarState avatar;
+            protected static StateAutomat avatar;
             private Dictionary<EnumType, State<EnumType>> _statesSet;
             public EnumType CurrentState 
             {
@@ -100,7 +104,7 @@ namespace AvatarModel
             private State<EnumType>  _currentState;
             public bool StateWasChanged;
 
-            public StateChanger(AvatarState Avatar)
+            public StateChanger(StateAutomat Avatar)
             {
                 avatar = Avatar;
                 _statesSet = new Dictionary<EnumType, State<EnumType>>();
@@ -124,6 +128,7 @@ namespace AvatarModel
                     {
                         _currentState.DoOnExit();
                         _currentState = state;
+                        //Debug.Log($"Current State - {_currentState.StateType}");
                         StateWasChanged = true;
                         _currentState.DoOnEnter();
                     }
@@ -131,14 +136,15 @@ namespace AvatarModel
             } 
             
         }
+        #endregion
 
         #region STATES CLASSES
         protected abstract class State<EnumType>
         {
-            protected AvatarState _avatar = null;
+            protected StateAutomat _avatar = null;
 
             public EnumType StateType;
-            public State(AvatarState avatar)
+            public State(StateAutomat avatar)
             {
                 this._avatar = avatar;
             }           
@@ -154,12 +160,12 @@ namespace AvatarModel
             protected HashSet<EnumType> _interruptingStates;
             protected bool _inProcess;
             protected CancellationTokenSource tokenSource;
-            public StateWithProcess(AvatarState avatar) : base(avatar) {}
+            public StateWithProcess(StateAutomat avatar) : base(avatar) {}
         }
 
         protected class RunState : State<MovementType>
         {
-            public RunState(AvatarState avatar) : base(avatar)
+            public RunState(StateAutomat avatar) : base(avatar)
             {
                 StateType = MovementType.Run;
             }
@@ -178,7 +184,7 @@ namespace AvatarModel
 
         protected class FlyState : State<MovementType>
         {
-            public FlyState(AvatarState avatar) : base(avatar)
+            public FlyState(StateAutomat avatar) : base(avatar)
             {
                 StateType = MovementType.Fly;
             }
@@ -202,7 +208,7 @@ namespace AvatarModel
 
         protected class OnSlopeState : State<MovementType>
         {
-            public OnSlopeState(AvatarState avatar) : base(avatar)
+            public OnSlopeState(StateAutomat avatar) : base(avatar)
             {
                 StateType = MovementType.RunOnSlope;
             }
@@ -228,7 +234,7 @@ namespace AvatarModel
         {   
             Task inJumpTask;
 
-            public JumpState(AvatarState avatar) : base(avatar) 
+            public JumpState(StateAutomat avatar) : base(avatar) 
             {
                 _interruptingStates = new HashSet<MovementType>()
                 {
@@ -259,14 +265,14 @@ namespace AvatarModel
 
             public override bool WantsToChange()
             {
-                return _avatar.ShouldJump && _avatar._actualStats.jumpStats.JumpCharges > 0 && _avatar.CanMove;
+                return _avatar.ShouldJump && _avatar._stats.JumpCharges > 0 && _avatar.CanMove;
             }
 
             protected async Task StartMainProcess(CancellationToken token) 
             { 
                 _inProcess = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._actualStats.jumpStats.JumpDuration), token);
+                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._stats.JumpDuration), token);
                 
                 _inProcess = false;
             }
@@ -276,7 +282,7 @@ namespace AvatarModel
         {
             Task inDashTask;
             private bool _dashInCD;
-            public DashState(AvatarState avatar) : base(avatar)
+            public DashState(StateAutomat avatar) : base(avatar)
             {
                 _interruptingStates = new HashSet<MovementType>
                 {
@@ -315,7 +321,7 @@ namespace AvatarModel
             {
                 _inProcess = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._actualStats.dashStats.DashDuration), token);
+                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._stats.DashDuration), token);
 
                 _inProcess = false;
             }
@@ -324,7 +330,7 @@ namespace AvatarModel
             {
                 _dashInCD = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._actualStats.dashStats.DashLockTime));
+                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._stats.DashLockTime));
 
                 _dashInCD = false;
             }
@@ -332,7 +338,7 @@ namespace AvatarModel
 
         protected class IdleState : State<MovementType>
         {
-            public IdleState(AvatarState avatar) : base(avatar) 
+            public IdleState(StateAutomat avatar) : base(avatar) 
             {
                 StateType = MovementType.Idle;
             }
@@ -356,7 +362,7 @@ namespace AvatarModel
 
         protected class ShootState : State<AttackType>
         {
-            public ShootState(AvatarState avatar) : base(avatar) 
+            public ShootState(StateAutomat avatar) : base(avatar) 
             { 
                 StateType = AttackType.Shoot;
             }
@@ -378,7 +384,7 @@ namespace AvatarModel
 
         protected class CalmState : State<AttackType>
         {
-            public CalmState(AvatarState avatar) : base(avatar) 
+            public CalmState(StateAutomat avatar) : base(avatar) 
             {
                 StateType = AttackType.Idle;
             }
@@ -402,7 +408,7 @@ namespace AvatarModel
 
         protected class PunchState : State<AttackType>
         {
-            public PunchState(AvatarState avatar) : base(avatar)
+            public PunchState(StateAutomat avatar) : base(avatar)
             {
                 StateType = AttackType.Punch;
             }
@@ -433,4 +439,31 @@ namespace AvatarModel
     {
         Idle, Shoot, Punch
     }
+
+    public class StateAutomatRestricted
+    {
+        private StateAutomat _avatarState;
+
+        public StateAutomatRestricted(StateAutomat avatarState)
+        {
+            _avatarState = avatarState;
+        }
+
+        public MovementType CurrentMoveState { get => _avatarState.GetMoveState(); }
+        public AttackType CurrentAttackState { get => _avatarState.GetAttackState(); }
+        public bool Grounded { get => _avatarState.Grounded; }
+        public bool OnSlope { get => _avatarState.OnSlope; }
+        public bool ShouldDash { get => _avatarState.ShouldDash; }
+        public bool ShouldShoot { get => _avatarState.ShouldShoot; }
+        public bool ShouldPunch { get => _avatarState.ShouldPunch; }
+        public bool ShouldJump { get => _avatarState.ShouldJump; }
+        public bool CanMove { get => _avatarState.CanMove; }
+        public bool CanAttack { get => _avatarState.CanAttack; }
+        public Vector3 MoveDirection { get => _avatarState.MoveDirection; }
+        public Vector3 Normal { get => _avatarState.Normal; }
+        public bool WasMoveStateChanged { get => _avatarState.HasMoveStateChanged(); }
+        public bool WasAttackStateChanged { get => _avatarState.HasAttackStateChanged(); }
+        public bool WasAttemptToChangeState { get => _avatarState.WasAttemptToChangeState(); }
+    }
+
 }

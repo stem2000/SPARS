@@ -2,32 +2,22 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace AvatarModel
+namespace Avatar
 {
-    [RequireComponent(typeof(AvatarWorldListener))]
+    [RequireComponent(typeof(WorldListener))]
     public class AvatarController : MonoBehaviour
     {
-        [Space]
-        [Header("Avatar Stats")]
-        [SerializeField] private AvatarStats _avatarStats;
+        [SerializeField] private RotationController _avatarRotation;
+        [SerializeField] private BeatController _beatController;
+        [SerializeField] private AnimationController _animationController;
+        [SerializeField] private StatsAnalyst _statsAnalyst;
 
-        [Space]
-        [Header("Avatar Rotation")]
-        [SerializeField] private AvatarRotation _avatarRotation;
-
-        [Space]
-        [Header("Beat Events")]
-        [SerializeField] private AvatarBeatController _avatarBeatController;
-
-        [Space]
-        [Header("Animations")]
-        [SerializeField] private AvatarAnimationController _avatarAnimationController;
-
-        private AvatarState _avatarState;
-        private AvatarMovement _avatarMovement;
-        private AvatarWorldListener _avatarWorldListener;
-        private StateChangingHandler _stateChangingHandler;
-
+        private StateAutomat _state;
+        private StateAutomatRestricted _stateRestricted;
+        private StateHandler _stateHandler;
+        private MovementController _avatarMovement;
+        private WorldListener _worldInput;
+        private StatsProvider _statsProvider;
         private InputManager _playerInput;
 
         #region METHODS
@@ -39,76 +29,67 @@ namespace AvatarModel
 
         private void ChangeState()
         {
-            ActualStats actualStats;
-            StateData stateData;
-
-            _avatarState.ChangeState();
-
-            stateData = _avatarState.GetStateInfo();
-
-            _stateChangingHandler.GetStateData(stateData);
-            _avatarBeatController.GetStateData(stateData);
-
-            actualStats = _stateChangingHandler.GetStatsPackage();
-
-            _avatarState.GetActualStats(actualStats);
-            _avatarBeatController.GetActualStats(actualStats);
-
-
-            _avatarMovement.UpdateMovementData(_stateChangingHandler.GetMovementData());
-            _avatarBeatController.HandleBeatAction();
+            _state.ChangeState();
+            _stateHandler.HandleState();
+            _beatController.HandleBeatAction();
         }
 
         private void HandlePlayerInput()
         {
             var moveDirection = _playerInput.GetPlayerMovement();
-            _avatarState.MoveDirection = new Vector3(moveDirection.x, 0f, moveDirection.y);
-            _avatarState.ShouldDash = _playerInput.GetDashInput();
-            _avatarState.ShouldJump = _playerInput.GetJumpInput();
-            _avatarState.ShouldShoot = _playerInput.GetShootInput();
-            _avatarState.ShouldPunch = _playerInput.GetPunchInput();
-            _avatarState.CanAttack = _avatarBeatController.CanAttack;
-            _avatarState.CanMove = _avatarBeatController.CanMove;
 
-            _avatarRotation.HandleRotationInput(_playerInput.GetMouseDelta());
+            _state.MoveDirection = new Vector3(moveDirection.x, 0f, moveDirection.y);
+            _state.ShouldDash = _playerInput.GetDashInput();
+            _state.ShouldJump = _playerInput.GetJumpInput();
+            _state.ShouldShoot = _playerInput.GetShootInput();
+            _state.ShouldPunch = _playerInput.GetPunchInput();
+            _state.CanAttack = _beatController.CanAttack;
+            _state.CanMove = _beatController.CanMove;
+
+            _avatarRotation.HandleInput(_playerInput.GetMouseDelta());
         }
 
         private void HandleWorldInput()
         {
-            _avatarState.Grounded = _avatarWorldListener.IsAvatarGrounded();
-            _avatarState.OnSlope = _avatarWorldListener.IsAvatarOnSlope();
-            if (_avatarState.OnSlope)
-                _avatarState.Normal = _avatarWorldListener.GetNormal();
+            _state.Grounded = _worldInput.IsAvatarGrounded();
+            _state.OnSlope = _worldInput.IsAvatarOnSlope();
+            if (_state.OnSlope)
+                _state.Normal = _worldInput.GetNormal();
         }
 
         private void Animate()
         {
-            _avatarAnimationController.ChangeAnimationState(_avatarState.GetStateInfo());
+            _animationController.ChangeAnimationState();
         }
 
-        private void InitializeComponents()
+        private void Initialize()
         {
-            _stateChangingHandler = new StateChangingHandler(GetComponent<Rigidbody>(), _avatarStats.Clone());
-            _avatarState = new AvatarState(_stateChangingHandler.GetStatsPackage());
-            _avatarMovement = new AvatarMovement(GetComponent<Rigidbody>());
+            _statsProvider = new StatsProvider(_statsAnalyst);
+            _state = new StateAutomat(_statsProvider);
+            _stateRestricted = new StateAutomatRestricted(_state);
+            _avatarMovement = new MovementController(GetComponent<Rigidbody>(), _stateRestricted, _statsProvider);
 
-            _avatarWorldListener = GetComponent<AvatarWorldListener>();
-            _avatarBeatController.InitializeComponents();
-            _avatarAnimationController.SetAnimatorVariablesHashes();
+            _stateHandler = new StateHandler(GetComponent<Rigidbody>(), _stateRestricted, _statsAnalyst);
+
+            _beatController.Initialize(_statsProvider, _stateRestricted);
+            _animationController.Initialize(_stateRestricted);
+            _statsAnalyst.Initialize();
+
             _playerInput = InputManager.Instance;
+            _worldInput = GetComponent<WorldListener>();
         }
 
         private void SubscribeUItoEvents()
         {
-            ObjectServiceProvider.SubscribeUitoBeatActEvent(_avatarBeatController._sendBeatActionEvent);
-            ObjectServiceProvider.SubscribeUiToDashEvent(_avatarBeatController.DashStartedEvent);
+            ObjectServiceProvider.SubscribeUitoBeatActEvent(_beatController._sendBeatActionEvent);
+            ObjectServiceProvider.SubscribeUiToDashEvent(_beatController.DashStartedEvent);
         }
         #endregion
 
         #region MONOBEHAVIOUR METHODS
         protected void Start()
         {
-            InitializeComponents();
+            Initialize();
             SubscibeToBeatEvents();
             SubscribeUItoEvents();
             Cursor.lockState = CursorLockMode.Locked;
@@ -136,7 +117,7 @@ namespace AvatarModel
 
         public void SubscibeToBeatEvents() 
         {
-            _avatarBeatController.SubscibeToUpdateSampleEvents();
+            _beatController.SubscibeToUpdateSampleEvents();
         }
     }
 }
