@@ -4,10 +4,9 @@ public class WorldListener : MonoBehaviour
 {
     private bool _isOnGround = false;
     private RaycastHit _slopeHit;
-    [HideInInspector] private MonoBehaviour physicBody;
 
     
-    public WorldListener()
+    protected void Start()
     {
         _slopeHit = new RaycastHit();
     }    

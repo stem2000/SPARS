@@ -11,11 +11,12 @@ namespace Avatar
         [SerializeField] private BeatController _beatController;
         [SerializeField] private AnimationController _animationController;
         [SerializeField] private StatsAnalyst _statsAnalyst;
+        [SerializeField] private AvatarDebugger _debugger;
 
         private StateAutomat _state;
         private StateAutomatRestricted _stateRestricted;
         private StateHandler _stateHandler;
-        private MovementController _avatarMovement;
+        private MovementController _moveController;
         private WorldListener _worldInput;
         private StatsProvider _statsProvider;
         private InputManager _playerInput;
@@ -31,6 +32,7 @@ namespace Avatar
         {
             _state.ChangeState();
             _stateHandler.HandleState();
+            _moveController.UpdateDirections();
             _beatController.HandleBeatAction();
         }
 
@@ -64,10 +66,12 @@ namespace Avatar
 
         private void Initialize()
         {
+            _worldInput = GetComponent<WorldListener>();
+
             _statsProvider = new StatsProvider(_statsAnalyst);
             _state = new StateAutomat(_statsProvider);
             _stateRestricted = new StateAutomatRestricted(_state);
-            _avatarMovement = new MovementController(GetComponent<Rigidbody>(), _stateRestricted, _statsProvider);
+            _moveController = new MovementController(GetComponent<Rigidbody>(), _stateRestricted, _statsProvider);
 
             _stateHandler = new StateHandler(GetComponent<Rigidbody>(), _stateRestricted, _statsAnalyst);
 
@@ -76,7 +80,12 @@ namespace Avatar
             _statsAnalyst.Initialize();
 
             _playerInput = InputManager.Instance;
-            _worldInput = GetComponent<WorldListener>();
+            
+        }
+
+        private void InitializeDebugger()
+        {
+            _debugger._state = _stateRestricted;
         }
 
         private void SubscribeUItoEvents()
@@ -92,13 +101,14 @@ namespace Avatar
             Initialize();
             SubscibeToBeatEvents();
             SubscribeUItoEvents();
+            InitializeDebugger();
             Cursor.lockState = CursorLockMode.Locked;
         }
 
 
         protected void FixedUpdate()
         {
-            _avatarMovement.Move();
+            _moveController.Move();
             _avatarRotation.RotateAvatar();
         }
 

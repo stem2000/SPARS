@@ -8,7 +8,6 @@ namespace Avatar
 {
     public class StateHandler
     {
-
         private Rigidbody _rigidbody;
         private ConstantForce _constantForce;
         private StateAutomatRestricted _state;
@@ -31,8 +30,7 @@ namespace Avatar
 
         private void HandleVerticalForces()
         {
-            if((_state.CurrentMoveState == MovementType.RunOnSlope || _state.CurrentMoveState == MovementType.Idle)
-                && _state.WasMoveStateChanged)
+            if((_state.CurrentMoveState == MovementType.RunOnSlope || _state.CurrentMoveState == MovementType.Idle))
             {
                 _rigidbody.useGravity = false;
                 _constantForce.enabled = false;

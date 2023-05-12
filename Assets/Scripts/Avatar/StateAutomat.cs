@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Avatar
 {
@@ -128,7 +129,7 @@ namespace Avatar
                     {
                         _currentState.DoOnExit();
                         _currentState = state;
-                        //Debug.Log($"Current State - {_currentState.StateType}");
+                        Debug.Log($"New State - {_currentState.StateType}");
                         StateWasChanged = true;
                         _currentState.DoOnEnter();
                     }
@@ -170,7 +171,12 @@ namespace Avatar
                 StateType = MovementType.Run;
             }
 
-            public override bool CanBeChangedBy(MovementType enumType){return true;}
+            public override bool CanBeChangedBy(MovementType enumType)
+            {
+                if(enumType == MovementType.Run)
+                    return false;
+                return true;
+            }
 
             public override void DoOnEnter(){}
 
@@ -178,7 +184,7 @@ namespace Avatar
 
             public override bool WantsToChange()
             {
-                return _avatar.Grounded;
+                return _avatar.Grounded && _avatar.MoveDirection.magnitude != 0 && !_avatar.OnSlope;
             }
         }
 
@@ -191,7 +197,9 @@ namespace Avatar
 
             public override bool CanBeChangedBy(MovementType enumType) 
             { 
-                if(enumType == MovementType.Fly || enumType == MovementType.Idle)
+                if(enumType == MovementType.Fly)
+                    return false;
+                if(enumType == MovementType.Idle && !_avatar.Grounded)
                     return false;
                 return true; 
             }
@@ -215,7 +223,7 @@ namespace Avatar
 
             public override bool CanBeChangedBy(MovementType enumType)
             {
-                if(enumType == MovementType.Run && _avatar.OnSlope)
+                if(enumType == MovementType.RunOnSlope)
                     return false;
                 return true;
             }
@@ -226,7 +234,7 @@ namespace Avatar
 
             public override bool WantsToChange()
             {
-                return _avatar.Grounded && _avatar.OnSlope;
+                return _avatar.Grounded && _avatar.OnSlope && _avatar.MoveDirection.magnitude != 0;
             }
         }
 
@@ -345,6 +353,8 @@ namespace Avatar
 
             public override bool CanBeChangedBy(MovementType enumType)
             {
+                if(enumType == MovementType.Idle)
+                    return false;
                 return true;
             }
 
@@ -354,7 +364,7 @@ namespace Avatar
 
             public override bool WantsToChange()
             {
-                if (_avatar.MoveDirection == Vector3.zero)
+                if (_avatar.MoveDirection.magnitude == 0)
                     return true;
                 return false;
             }

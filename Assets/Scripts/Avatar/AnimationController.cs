@@ -13,9 +13,6 @@ namespace Avatar
         private int _xBlendVelocityHash;
         private int _yBlendVelocityHash;
 
-        private float _xBlendVelocity;
-        private float _yBlendVelocity;
-
         private int _handsRunHash;
         private int _handsFlyHash;
         private int _handsJumpHash;
@@ -25,8 +22,6 @@ namespace Avatar
         [SerializeField] private Animator _handsAnimator;
 
         private StateAutomatRestricted _state;
-
-        private MovementType _lastMove;
 
         private void MoveAnimationSwitch(MovementType type, bool value)
         {
@@ -68,19 +63,7 @@ namespace Avatar
 
         public void ChangeAnimationState()
         {
-            _xBlendVelocity = _state.MoveDirection.x;
-            _yBlendVelocity = _state.MoveDirection.z;
-
-            if (_state.WasMoveStateChanged)
-            {
-                MoveAnimationSwitch(_lastMove, false);
-                MoveAnimationSwitch(_state.CurrentMoveState, true);
-                _lastMove = _state.CurrentMoveState;
-            }
-            else if (_state.WasAttackStateChanged)
-            {
-
-            }
+            //MoveAnimationSwitch(_state.CurrentMoveState, true);
         }
 
         private void SwitchJumpAnimations(bool value)
@@ -105,8 +88,8 @@ namespace Avatar
         {
             _avatarAnimator.SetBool(_isRunningHash, value);
             _handsAnimator.SetBool(_handsRunHash, value);
-            _avatarAnimator.SetFloat(_xBlendVelocityHash, _xBlendVelocity);
-            _avatarAnimator.SetFloat(_yBlendVelocityHash, _yBlendVelocity);
+            _avatarAnimator.SetFloat(_xBlendVelocityHash, _state.MoveDirection.x);
+            _avatarAnimator.SetFloat(_yBlendVelocityHash, _state.MoveDirection.z);
         }
     }
 
