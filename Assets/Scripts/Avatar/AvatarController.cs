@@ -34,6 +34,7 @@ namespace Avatar
             _stateHandler.HandleState();
             _moveController.UpdateDirections();
             _beatController.HandleBeatAction();
+            _animationController.SwitchAnimation();
         }
 
         private void HandlePlayerInput()
@@ -61,7 +62,7 @@ namespace Avatar
 
         private void Animate()
         {
-            _animationController.ChangeAnimationState();
+            _animationController.UpdateAnimation();
         }
 
         private void Initialize()

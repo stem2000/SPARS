@@ -75,7 +75,7 @@ public class BeatController : BeatReactor
 
     private bool CheckAttackState()
     {
-        return _state.WasAttackStateChanged && (_state.CurrentAttackState != AttackType.Idle);
+        return _state.WasAttackStateChanged && (_state.CurrentAttackState != AttackType.Calm);
     }
 
     private void InvokeAttackEvent()

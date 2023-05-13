@@ -69,6 +69,11 @@ namespace Avatar
             return _attackChanger.CurrentState;
         }
 
+        public MovementType GetPrevMoveState()
+        {
+            return _moveChanger.PreviousState;
+        }
+
         public bool HasMoveStateChanged()
         {
             return _moveChanger.StateWasChanged;
@@ -90,6 +95,8 @@ namespace Avatar
         {
             protected static StateAutomat avatar;
             private Dictionary<EnumType, State<EnumType>> _statesSet;
+            private State<EnumType> _currentState;
+
             public EnumType CurrentState 
             {
                 get 
@@ -102,8 +109,9 @@ namespace Avatar
                     return _currentState.StateType;
                 } 
             }
-            private State<EnumType>  _currentState;
+
             public bool StateWasChanged;
+            public EnumType PreviousState;
 
             public StateChanger(StateAutomat Avatar)
             {
@@ -128,10 +136,13 @@ namespace Avatar
                     if(state.WantsToChange() && _currentState.CanBeChangedBy(state.StateType))
                     {
                         _currentState.DoOnExit();
+                        PreviousState = _currentState.StateType;                        
+
                         _currentState = state;
-                        Debug.Log($"New State - {_currentState.StateType}");
-                        StateWasChanged = true;
                         _currentState.DoOnEnter();
+                        StateWasChanged = true;
+
+                        Debug.Log($"New State - {_currentState.StateType}");
                     }
                 }
             } 
@@ -396,12 +407,12 @@ namespace Avatar
         {
             public CalmState(StateAutomat avatar) : base(avatar) 
             {
-                StateType = AttackType.Idle;
+                StateType = AttackType.Calm;
             }
 
             public override bool CanBeChangedBy(AttackType enumType)
             {
-                if(enumType == AttackType.Idle) 
+                if(enumType == AttackType.Calm) 
                     return false;
                 return true;
             }
@@ -447,7 +458,7 @@ namespace Avatar
 
     public enum AttackType
     {
-        Idle, Shoot, Punch
+        Calm, Shoot, Punch
     }
 
     public class StateAutomatRestricted
@@ -474,6 +485,7 @@ namespace Avatar
         public bool WasMoveStateChanged { get => _avatarState.HasMoveStateChanged(); }
         public bool WasAttackStateChanged { get => _avatarState.HasAttackStateChanged(); }
         public bool WasAttemptToChangeState { get => _avatarState.WasAttemptToChangeState(); }
+        public MovementType PreviousMoveState { get => _avatarState.GetPrevMoveState(); }
     }
 
 }

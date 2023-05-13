@@ -61,9 +61,16 @@ namespace Avatar
             _handsIdleHash = Animator.StringToHash("HandsIdle");
         }
 
-        public void ChangeAnimationState()
+        public void SwitchAnimation()
         {
-            //MoveAnimationSwitch(_state.CurrentMoveState, true);
+            MoveAnimationSwitch(_state.PreviousMoveState, false);
+            MoveAnimationSwitch(_state.CurrentMoveState, true);
+        }
+
+        public void UpdateAnimation()
+        {
+            _avatarAnimator.SetFloat(_xBlendVelocityHash, _state.MoveDirection.x);
+            _avatarAnimator.SetFloat(_yBlendVelocityHash, _state.MoveDirection.z);
         }
 
         private void SwitchJumpAnimations(bool value)
@@ -88,9 +95,8 @@ namespace Avatar
         {
             _avatarAnimator.SetBool(_isRunningHash, value);
             _handsAnimator.SetBool(_handsRunHash, value);
-            _avatarAnimator.SetFloat(_xBlendVelocityHash, _state.MoveDirection.x);
-            _avatarAnimator.SetFloat(_yBlendVelocityHash, _state.MoveDirection.z);
         }
+
     }
 
 }

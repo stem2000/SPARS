@@ -8,8 +8,11 @@ using UnityEngine.Events;
 
 public class AvatarDebugger : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI _prev;
-    [SerializeField] private TextMeshProUGUI _curr;
+    public TextMeshProUGUI _prev;
+    public TextMeshProUGUI _curr;
+    public TextMeshProUGUI _fps;
+
+    public int TargetFrameRate;
 
     [HideInInspector] public StateAutomatRestricted _state;
 
@@ -19,11 +22,20 @@ public class AvatarDebugger : MonoBehaviour
         _curr.text = "CurrentState:" + _state.CurrentMoveState.ToString();
     }
 
+    public void UpdateFpsInfo()
+    {
+        _fps.text = "FPS:" + (1f/Time.deltaTime).ToString("F0");
+    }
+
+    public void Start()
+    {
+        Application.targetFrameRate = TargetFrameRate;
+    }
+
     public void Update()
     {
         if (_state.WasMoveStateChanged)
-        {
             UpdateStateInfo();
-        }
+        UpdateFpsInfo();
     }
 }
