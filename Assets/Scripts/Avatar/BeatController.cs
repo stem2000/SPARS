@@ -8,25 +8,22 @@ using UnityEngine.Events;
 [Serializable]
 public class BeatController : BeatReactor
 {
-    public UnityEvent ShootEvent;
-    public UnityEvent PunchEvent;
+    public UnityEvent OnShoot;
+    public UnityEvent OnPunch;
     public UnityEvent JumpEvent;
     public UnityEvent DashEvent;
-    public UnityEvent<BeatAction, float> _sendBeatActionEvent;
-    public UnityEvent<float> DashStartedEvent;
+    public UnityEvent<BeatAction, float> _OnBeatAction;
 
     private LocalBeatController _myBeatController;
     private StateAutomatRestricted _state;
-    private StatsProvider _stats;
 
     public bool CanAttack { get{ return _myBeatController.CanAttackThisSample;} }
     public bool CanMove { get { return _myBeatController.CanMoveThisSample; } }
 
-    public void Initialize(StatsProvider stats, StateAutomatRestricted state)
+    public void Initialize(StateAutomatRestricted state)
     {
         _myBeatController = new LocalBeatController();
         _state = state;
-        _stats = stats;
     }
 
     public void HandleBeatAction()
@@ -34,7 +31,7 @@ public class BeatController : BeatReactor
         if (CheckMoveState() || CheckAttackState())
             HandlePlayerHit();
         else if (_state.WasAttemptToChangeState)
-            _sendBeatActionEvent.Invoke(BeatAction.Miss, _myBeatController.LastSampleState);
+            _OnBeatAction.Invoke(BeatAction.Miss, _myBeatController.LastSampleState);
     }
 
     public void MoveToNextSample()
@@ -50,8 +47,8 @@ public class BeatController : BeatReactor
 
     public void SubscibeToUpdateSampleEvents()
     {
-        ObjectServiceProvider.SubscribeToBeatStart(MoveToNextSample);
-        ObjectServiceProvider.SubscribeToBeatUpdate(UpdateCurrentSampleState);
+        ServiceProvider.SubscribeToBeatStart(MoveToNextSample);
+        ServiceProvider.SubscribeToBeatUpdate(UpdateCurrentSampleState);
     }
 
     private void HandlePlayerHit()
@@ -83,12 +80,12 @@ public class BeatController : BeatReactor
         switch(_state.CurrentAttackState)
         {
             case AttackType.Shoot:
-                ShootEvent.Invoke();
-                _sendBeatActionEvent.Invoke(BeatAction.Shoot, _myBeatController.LastSampleState);
+                OnShoot.Invoke();
+                _OnBeatAction.Invoke(BeatAction.Shoot, _myBeatController.LastSampleState);
                 break;
             case AttackType.Punch:
-                PunchEvent.Invoke();
-                _sendBeatActionEvent.Invoke(BeatAction.Punch, _myBeatController.LastSampleState);
+                OnPunch.Invoke();
+                _OnBeatAction.Invoke(BeatAction.Punch, _myBeatController.LastSampleState);
                 break;
         }
     }
@@ -99,12 +96,11 @@ public class BeatController : BeatReactor
         {
             case MovementType.Jump:
                 JumpEvent.Invoke();
-                _sendBeatActionEvent.Invoke(BeatAction.Jump, _myBeatController.LastSampleState);
+                _OnBeatAction.Invoke(BeatAction.Jump, _myBeatController.LastSampleState);
                 break;
             case MovementType.Dash:
                 DashEvent.Invoke();
-                DashStartedEvent.Invoke(_stats.DashLockTime);
-                _sendBeatActionEvent.Invoke(BeatAction.Dash, _myBeatController.LastSampleState);
+                _OnBeatAction.Invoke(BeatAction.Dash, _myBeatController.LastSampleState);
                 break;
         }
     }

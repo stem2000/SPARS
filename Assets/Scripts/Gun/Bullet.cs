@@ -31,7 +31,7 @@ public class Bullet : MonoBehaviour
     protected void OnEnable()
     {
         StartCoroutine(DestroyThisBullet());
-        _shootDirection = ObjectServiceProvider.GetScreenCenterDiretion().normalized;
+        _shootDirection = ServiceProvider.GetScreenCenterDiretion().normalized;
     }
 
     protected void FixedUpdate()

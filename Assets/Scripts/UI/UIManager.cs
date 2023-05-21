@@ -32,7 +32,7 @@ public class UIManager : MonoBehaviour, BeatReactor
         @event.AddListener(_inBeatStatus.GetBeatAction);
     }
 
-    public void SubscribeToDashEvent(UnityEvent<float> @event)
+    public void SubscribeToDashEvent(UnityEvent @event)
     {
         @event.AddListener(_dashStatus.ResetDashStroke);
     }

@@ -51,8 +51,8 @@ public class CrosshairController : MonoBehaviour, BeatReactor
 
     public void SubscibeToUpdateSampleEvents()
     {
-        ObjectServiceProvider.SubscribeToBeatStart(MoveToNextSample);
-        ObjectServiceProvider.SubscribeToBeatUpdate(UpdateCurrentSampleState);
+        ServiceProvider.SubscribeToBeatStart(MoveToNextSample);
+        ServiceProvider.SubscribeToBeatUpdate(UpdateCurrentSampleState);
     }
 
     private void ResetDynamicScopes(int scopesNumber)

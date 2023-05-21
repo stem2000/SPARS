@@ -3,20 +3,20 @@ namespace Avatar
 {
     public class StatsProvider
     {
-        private StatsAnalyst _analyst;
+        private Stats _stats;
 
-        public StatsProvider(StatsAnalyst analyst)
+        public StatsProvider(Stats stats)
         {
-            _analyst = analyst;
+            _stats = stats;
         }
 
-        public float DashDuration { get => _analyst.GetDashDuration();  }
-        public float DashLockTime { get => _analyst.GetDashLockTime(); }
-        public float DashForce { get => _analyst.GetDashForce(); }
-        public float JumpForce { get => _analyst.GetJumpForce(); }
-        public float JumpCharges { get => _analyst.GetJumpCharges(); }
-        public float JumpDuration { get => _analyst.GetJumpDuration(); }
-        public float RunSpeed { get => _analyst.GetRunSpeed(); }
-        public float FlySpeedLimit { get => _analyst.GetFlySpeedLimit(); }
+        public float DashDuration { get => _stats.GetDashDuration();  }
+        public float DashLockTime { get => _stats.GetDashLockTime(); }
+        public float DashForce { get => _stats.GetDashForce(); }
+        public float JumpForce { get => _stats.GetJumpForce(); }
+        public float JumpCharges { get => _stats.GetJumpCharges(); }
+        public float JumpDuration { get => _stats.GetJumpDuration(); }
+        public float RunSpeed { get => _stats.GetRunSpeed(); }
+        public float FlySpeedLimit { get => _stats.GetFlySpeedLimit(); }
     }
 }

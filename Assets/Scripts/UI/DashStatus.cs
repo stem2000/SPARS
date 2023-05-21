@@ -13,10 +13,10 @@ public class DashStatus
         _dashStroke.fillClockwise = true;
     }
 
-    public void ResetDashStroke(float fillDuration)
+    public void ResetDashStroke()
     {
         _dashStroke.fillAmount = 0f;
-        ObjectServiceProvider.RunCoroutine(DrawStroke(fillDuration));
+        ServiceProvider.RunCoroutine(DrawStroke(ServiceProvider.AvatarStats.DashDuration));
     }
 
     private IEnumerator DrawStroke(float fillDuration)

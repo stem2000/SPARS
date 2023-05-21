@@ -7,10 +7,10 @@ namespace Avatar
     [RequireComponent(typeof(WorldListener))]
     public class AvatarController : MonoBehaviour
     {
-        [SerializeField] private RotationController _avatarRotation;
+        [SerializeField] private RotationController _rotationController;
         [SerializeField] private BeatController _beatController;
         [SerializeField] private AnimationController _animationController;
-        [SerializeField] private StatsAnalyst _statsAnalyst;
+        [SerializeField] private Stats _statsAnalyst;
         [SerializeField] private AvatarDebugger _debugger;
 
         private StateAutomat _state;
@@ -49,7 +49,7 @@ namespace Avatar
             _state.CanAttack = _beatController.CanAttack;
             _state.CanMove = _beatController.CanMove;
 
-            _avatarRotation.HandleInput(_playerInput.GetMouseDelta());
+            _rotationController.HandleInput(_playerInput.GetMouseDelta());
         }
 
         private void HandleWorldInput()
@@ -76,7 +76,7 @@ namespace Avatar
 
             _stateHandler = new StateHandler(GetComponent<Rigidbody>(), _stateRestricted, _statsAnalyst);
 
-            _beatController.Initialize(_statsProvider, _stateRestricted);
+            _beatController.Initialize(_stateRestricted);
             _animationController.Initialize(_stateRestricted);
             _statsAnalyst.Initialize();
 
@@ -89,10 +89,9 @@ namespace Avatar
             _debugger._state = _stateRestricted;
         }
 
-        private void SubscribeUItoEvents()
+        public StatsProvider GetStatsProvider()
         {
-            ObjectServiceProvider.SubscribeUitoBeatActEvent(_beatController._sendBeatActionEvent);
-            ObjectServiceProvider.SubscribeUiToDashEvent(_beatController.DashStartedEvent);
+            return _statsProvider;
         }
         #endregion
 
@@ -101,7 +100,6 @@ namespace Avatar
         {
             Initialize();
             SubscibeToBeatEvents();
-            SubscribeUItoEvents();
             InitializeDebugger();
             Cursor.lockState = CursorLockMode.Locked;
         }
@@ -110,7 +108,7 @@ namespace Avatar
         protected void FixedUpdate()
         {
             _moveController.Move();
-            _avatarRotation.RotateAvatar();
+            _rotationController.RotateAvatar();
         }
 
         protected void Update()
@@ -122,7 +120,7 @@ namespace Avatar
 
         protected void LateUpdate()
         {
-            _avatarRotation.RotateAndMoveCamera();
+            _rotationController.RotateAndMoveCamera();
         }
         #endregion
 

@@ -67,8 +67,8 @@ public class HitInBeatStatus : BeatReactor
 
     public void SubscibeToUpdateSampleEvents()
     {
-        ObjectServiceProvider.SubscribeToBeatStart(MoveToNextSample);
-        ObjectServiceProvider.SubscribeToBeatUpdate(UpdateCurrentSampleState);
+        ServiceProvider.SubscribeToBeatStart(MoveToNextSample);
+        ServiceProvider.SubscribeToBeatUpdate(UpdateCurrentSampleState);
     }
 
     private enum ActQuality
