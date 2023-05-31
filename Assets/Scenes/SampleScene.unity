@@ -13938,9 +13938,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rotationController:
-    _avatarBodyTransform: {fileID: 264047827890112492}
-    _avatarMeshTransform: {fileID: 264047827397598524}
-    _cameraHolderTransform: {fileID: 264047827713701856}
+    _avatarBody: {fileID: 264047827890112492}
+    _avatarMesh: {fileID: 264047827397598524}
+    _cameraHolder: {fileID: 264047827713701856}
     _bodyCollider: {fileID: 264047827890112469}
     headHeight: 0.87
     headWidth: 0.225
@@ -13948,28 +13948,16 @@ MonoBehaviour:
     XRotationUpperLimit: 80
     XRotationLowerLimit: -70
   _beatController:
-    OnShoot:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 726645719}
-          m_TargetAssemblyTypeName: 
-          m_MethodName: 
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-    OnPunch:
+    DoOnShoot:
       m_PersistentCalls:
         m_Calls: []
-    JumpEvent:
+    DoOnPunch:
       m_PersistentCalls:
         m_Calls: []
-    DashEvent:
+    DoOnJump:
+      m_PersistentCalls:
+        m_Calls: []
+    DoOnDash:
       m_PersistentCalls:
         m_Calls: []
     _OnBeatAction:
@@ -13979,9 +13967,9 @@ MonoBehaviour:
     _avatarAnimator: {fileID: 264047827397598526}
     _handsAnimator: {fileID: 407669444}
   _statsAnalyst:
-    _stats:
+    _statsSet:
       ImmutableStats:
-        _dashForce: 40
+        _dashForce: 50
         _airDashSpeedFactor: 0.5
         _dashLockTime: 0.5
         _dashDuration: 0.25

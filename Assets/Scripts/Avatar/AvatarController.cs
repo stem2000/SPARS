@@ -10,11 +10,11 @@ namespace Avatar
         [SerializeField] private RotationController _rotationController;
         [SerializeField] private BeatController _beatController;
         [SerializeField] private AnimationController _animationController;
-        [SerializeField] private Stats _statsAnalyst;
+        [SerializeField] private StatsCounter _statsAnalyst;
         [SerializeField] private AvatarDebugger _debugger;
 
         private StateAutomat _state;
-        private StateAutomatRestricted _stateRestricted;
+        private StateInfoProvider _stateRestricted;
         private StateHandler _stateHandler;
         private MovementController _moveController;
         private WorldListener _worldInput;
@@ -49,7 +49,7 @@ namespace Avatar
             _state.CanAttack = _beatController.CanAttack;
             _state.CanMove = _beatController.CanMove;
 
-            _rotationController.HandleInput(_playerInput.GetMouseDelta());
+            _rotationController.SetMouseDelta(_playerInput.GetMouseDelta());
         }
 
         private void HandleWorldInput()
@@ -71,7 +71,7 @@ namespace Avatar
 
             _statsProvider = new StatsProvider(_statsAnalyst);
             _state = new StateAutomat(_statsProvider);
-            _stateRestricted = new StateAutomatRestricted(_state);
+            _stateRestricted = new StateInfoProvider(_state);
             _moveController = new MovementController(GetComponent<Rigidbody>(), _stateRestricted, _statsProvider);
 
             _stateHandler = new StateHandler(GetComponent<Rigidbody>(), _stateRestricted, _statsAnalyst);

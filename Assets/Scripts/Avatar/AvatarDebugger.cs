@@ -14,7 +14,7 @@ public class AvatarDebugger : MonoBehaviour
 
     public int TargetFrameRate;
 
-    [HideInInspector] public StateAutomatRestricted _state;
+    [HideInInspector] public StateInfoProvider _state;
 
     public void UpdateStateInfo()
     {

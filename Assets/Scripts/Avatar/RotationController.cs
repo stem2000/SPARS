@@ -6,9 +6,9 @@ namespace Avatar
     [Serializable]
     public class RotationController
     {
-        [SerializeField] private Transform _avatarBodyTransform;
-        [SerializeField] private Transform _avatarMeshTransform;
-        [SerializeField] private Transform _cameraHolderTransform;
+        [SerializeField] private Transform _avatarBody;
+        [SerializeField] private Transform _avatarMesh;
+        [SerializeField] private Transform _cameraHolder;
         [SerializeField] private CapsuleCollider _bodyCollider;
 
         [Range(0, 1)]
@@ -38,7 +38,7 @@ namespace Avatar
         }
 
 
-        public void HandleInput(Vector2 mouseInput)
+        public void SetMouseDelta(Vector2 mouseInput)
         {
             Vector2 mouseDelta = mouseInput;
             xRotation += mouseDelta.x * Sensitivity;
@@ -49,37 +49,37 @@ namespace Avatar
 
         private void UpdateCameraRotation()
         {
-            _cameraHolderTransform.localRotation = Quaternion.Euler(yRotation, xRotation, 0f);
+            _cameraHolder.localRotation = Quaternion.Euler(yRotation, xRotation, 0f);
         }
 
 
         private void UpdateAvatarRotation()
         {
-            _avatarBodyTransform.localRotation = Quaternion.Euler(0.0f, xRotation, 0.0f);
+            _avatarBody.localRotation = Quaternion.Euler(0.0f, xRotation, 0.0f);
         }
 
         private void UpdateCameraPosition()
         {
-            Vector3 newPos = _avatarBodyTransform.position + GetScaledOffset();
-            _cameraHolderTransform.position = newPos;
+            Vector3 newPos = _avatarBody.position + GetScaledOffset();
+            _cameraHolder.position = newPos;
         }
 
 
         private void UpdateMeshPosition()
         {
-            _avatarMeshTransform.position = _avatarBodyTransform.position;
+            _avatarMesh.position = _avatarBody.position;
         }
 
 
         private void UpdateMeshRotation()
         {
-            _avatarMeshTransform.localRotation = Quaternion.Euler(0.0f, xRotation, 0.0f);
+            _avatarMesh.localRotation = Quaternion.Euler(0.0f, xRotation, 0.0f);
         }
 
 
         private Vector3 GetScaledOffset()
         {
-            var cameraForward = new Vector3(_cameraHolderTransform.forward.x, 0f, _cameraHolderTransform.forward.z).normalized;
+            var cameraForward = new Vector3(_cameraHolder.forward.x, 0f, _cameraHolder.forward.z).normalized;
             Vector3 offset = new Vector3(cameraForward.x * headWidth, Mathf.Lerp(0f, _bodyCollider.height, headHeight), cameraForward.z * headWidth);
             return offset;
         }

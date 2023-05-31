@@ -21,7 +21,7 @@ namespace Avatar
         [SerializeField] private Animator _avatarAnimator;
         [SerializeField] private Animator _handsAnimator;
 
-        private StateAutomatRestricted _state;
+        private StateInfoProvider _stateInfoProvider;
 
         private void MoveAnimationSwitch(MovementType type, bool value)
         {
@@ -44,9 +44,9 @@ namespace Avatar
             }
         }
 
-        public void Initialize(StateAutomatRestricted state)
+        public void Initialize(StateInfoProvider state)
         {
-            _state = state;
+            _stateInfoProvider = state;
 
             _isRunningHash = Animator.StringToHash("isRunning");
             _isJumpingHash = Animator.StringToHash("isJumping");
@@ -63,14 +63,14 @@ namespace Avatar
 
         public void SwitchAnimation()
         {
-            MoveAnimationSwitch(_state.PreviousMoveState, false);
-            MoveAnimationSwitch(_state.CurrentMoveState, true);
+            MoveAnimationSwitch(_stateInfoProvider.PreviousMoveState, false);
+            MoveAnimationSwitch(_stateInfoProvider.CurrentMoveState, true);
         }
 
         public void UpdateAnimation()
         {
-            _avatarAnimator.SetFloat(_xBlendVelocityHash, _state.MoveDirection.x);
-            _avatarAnimator.SetFloat(_yBlendVelocityHash, _state.MoveDirection.z);
+            _avatarAnimator.SetFloat(_xBlendVelocityHash, _stateInfoProvider.MoveDirection.x);
+            _avatarAnimator.SetFloat(_yBlendVelocityHash, _stateInfoProvider.MoveDirection.z);
         }
 
         private void SwitchJumpAnimations(bool value)

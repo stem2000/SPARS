@@ -5,8 +5,8 @@ namespace Avatar
 {
     public class MovementController
     {
-        private StateAutomatRestricted _state;
-        private StatsProvider _stats;
+        private StateInfoProvider _stateInfoProvider;
+        private StatsProvider _statsProvider;
 
         private Rigidbody _rigidbody;
 
@@ -18,29 +18,29 @@ namespace Avatar
         private Vector3 _lockedDirection;
 
 
-        public MovementController(Rigidbody rigidbody, StateAutomatRestricted state, StatsProvider stats)
+        public MovementController(Rigidbody rigidbody, StateInfoProvider stateInfoProvider, StatsProvider statsProvider)
         {
             _rigidbody = rigidbody;
-            _state = state;
-            _stats = stats;
+            _stateInfoProvider = stateInfoProvider;
+            _statsProvider = statsProvider;
             FillMoveSet();
         }
 
         public void Move()
         {
-            _currentMove = _moveSet[_state.CurrentMoveState];
+            _currentMove = _moveSet[_stateInfoProvider.CurrentMoveState];
             _currentMove.Invoke();
         }
 
         public void UpdateDirections()
         {
-            if (_state.CurrentMoveState == MovementType.Fly && _state.WasMoveStateChanged)
+            if (_stateInfoProvider.CurrentMoveState == MovementType.Fly && _stateInfoProvider.WasMoveStateChanged)
                 _forwardDirection = Vector3.ProjectOnPlane(_rigidbody.transform.forward, Vector3.up).normalized;
-            if (_state.CurrentMoveState == MovementType.Dash && _state.WasMoveStateChanged)
-                _lockedDirection = _rigidbody.transform.TransformVector(_state.MoveDirection);
-            if (_state.CurrentMoveState == MovementType.Jump && _state.WasMoveStateChanged)
+            if (_stateInfoProvider.CurrentMoveState == MovementType.Dash && _stateInfoProvider.WasMoveStateChanged)
+                _lockedDirection = _rigidbody.transform.TransformVector(_stateInfoProvider.MoveDirection);
+            if (_stateInfoProvider.CurrentMoveState == MovementType.Jump && _stateInfoProvider.WasMoveStateChanged)
             {
-                _lockedDirection = _rigidbody.transform.TransformVector(_state.MoveDirection);
+                _lockedDirection = _rigidbody.transform.TransformVector(_stateInfoProvider.MoveDirection);
                 _lockedDirection.y = 1f;
                 _lockedDirection = _lockedDirection.normalized;
             }
@@ -61,7 +61,7 @@ namespace Avatar
 
         private void Run()
         {
-            _rigidbody.velocity = _rigidbody.transform.TransformVector(_state.MoveDirection) * _stats.RunSpeed;
+            _rigidbody.velocity = _rigidbody.transform.TransformVector(_stateInfoProvider.MoveDirection) * _statsProvider.RunSpeed;
         }
 
         private void Fly()
@@ -70,7 +70,7 @@ namespace Avatar
             var angle = Vector3.SignedAngle(_forwardDirection, newDirection, Vector3.up);
             var newVelocity = Quaternion.Euler(0f, angle, 0f) * _rigidbody.velocity;
 
-            newVelocity = newVelocity.magnitude > _stats.FlySpeedLimit ? newVelocity.normalized * _stats.FlySpeedLimit : newVelocity;
+            newVelocity = newVelocity.magnitude > _statsProvider.FlySpeedLimit ? newVelocity.normalized * _statsProvider.FlySpeedLimit : newVelocity;
 
             _rigidbody.velocity = newVelocity;
             _forwardDirection = newDirection;
@@ -79,18 +79,18 @@ namespace Avatar
 
         private void RunOnSlope()
         {
-            var direction = _rigidbody.transform.TransformVector(_state.MoveDirection);
-            _rigidbody.velocity = Vector3.ProjectOnPlane(direction, _state.Normal).normalized * _stats.RunSpeed;
+            var direction = _rigidbody.transform.TransformVector(_stateInfoProvider.MoveDirection);
+            _rigidbody.velocity = Vector3.ProjectOnPlane(direction, _stateInfoProvider.Normal).normalized * _statsProvider.RunSpeed;
         }
 
         private void Jump()
         {
-            _rigidbody.velocity = _lockedDirection * _stats.JumpForce;
+            _rigidbody.velocity = _lockedDirection * _statsProvider.JumpForce;
         }
 
         private void Dash()
         {            
-            _rigidbody.velocity = _lockedDirection * _stats.DashForce;
+            _rigidbody.velocity = _lockedDirection * _statsProvider.DashForce;
         }
 
         private void Idle() 

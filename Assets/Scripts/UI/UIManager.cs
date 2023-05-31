@@ -9,7 +9,7 @@ public class UIManager : MonoBehaviour, BeatReactor
     [SerializeField] private HitInBeatStatus _inBeatStatus;
     [SerializeField] private DashStatus _dashStatus;
 
-    #region BEAR REACTOR METHODS
+    #region BEATREACTOR METHODS
     public void MoveToNextSample()
     {
         return;

@@ -10,11 +10,11 @@ namespace Avatar
     {
         private Rigidbody _rigidbody;
         private ConstantForce _constantForce;
-        private StateAutomatRestricted _state;
-        private Stats _analyst;
+        private StateInfoProvider _state;
+        private StatsCounter _analyst;
 
         #region METHODS
-        public StateHandler(Rigidbody rigidbody, StateAutomatRestricted state, Stats analyst)
+        public StateHandler(Rigidbody rigidbody, StateInfoProvider state, StatsCounter analyst)
         {
             _rigidbody = rigidbody;
             _state = state;

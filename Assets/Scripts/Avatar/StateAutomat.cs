@@ -10,7 +10,7 @@ namespace Avatar
 {
     public class StateAutomat
     {
-        private StatsProvider _stats;
+        private StatsProvider _statsProvider;
         private StateChanger<MovementType> _moveChanger;
         private StateChanger<AttackType> _attackChanger;
 
@@ -29,7 +29,7 @@ namespace Avatar
         #region METHODS
         public StateAutomat(StatsProvider stats)
         {
-            _stats = stats;
+            _statsProvider = stats;
 
             CreateMoveChanger();
             CreateAttackChanger();
@@ -141,8 +141,6 @@ namespace Avatar
                         _currentState = state;
                         _currentState.DoOnEnter();
                         StateWasChanged = true;
-
-                        Debug.Log($"New State - {_currentState.StateType}");
                     }
                 }
             } 
@@ -284,14 +282,14 @@ namespace Avatar
 
             public override bool WantsToChange()
             {
-                return _avatar.ShouldJump && _avatar._stats.JumpCharges > 0 && _avatar.CanMove;
+                return _avatar.ShouldJump && _avatar._statsProvider.JumpCharges > 0 && _avatar.CanMove;
             }
 
             protected async Task StartMainProcess(CancellationToken token) 
             { 
                 _inProcess = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._stats.JumpDuration), token);
+                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._statsProvider.JumpDuration), token);
                 
                 _inProcess = false;
             }
@@ -340,7 +338,7 @@ namespace Avatar
             {
                 _inProcess = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._stats.DashDuration), token);
+                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._statsProvider.DashDuration), token);
 
                 _inProcess = false;
             }
@@ -349,7 +347,7 @@ namespace Avatar
             {
                 _dashInCD = true;
 
-                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._stats.DashLockTime));
+                await Task.Delay(Mathf.FloorToInt(1000 * _avatar._statsProvider.DashLockTime));
 
                 _dashInCD = false;
             }
@@ -461,11 +459,11 @@ namespace Avatar
         Calm, Shoot, Punch
     }
 
-    public class StateAutomatRestricted
+    public class StateInfoProvider
     {
         private StateAutomat _avatarState;
 
-        public StateAutomatRestricted(StateAutomat avatarState)
+        public StateInfoProvider(StateAutomat avatarState)
         {
             _avatarState = avatarState;
         }
