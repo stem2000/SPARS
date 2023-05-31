@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -8,7 +9,7 @@ public class UIManager : MonoBehaviour, BeatReactor
     [SerializeField] private HitInBeatStatus _inBeatStatus;
     [SerializeField] private DashStatus _dashStatus;
 
-    #region BEAR REACTOR METHODS
+    #region BEATREACTOR METHODS
     public void MoveToNextSample()
     {
         return;
@@ -31,7 +32,7 @@ public class UIManager : MonoBehaviour, BeatReactor
         @event.AddListener(_inBeatStatus.GetBeatAction);
     }
 
-    public void SubscribeToDashEvent(UnityEvent<float> @event)
+    public void SubscribeToDashEvent(UnityEvent @event)
     {
         @event.AddListener(_dashStatus.ResetDashStroke);
     }
