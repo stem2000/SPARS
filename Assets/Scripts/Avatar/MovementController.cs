@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Avatar 
@@ -40,9 +41,8 @@ namespace Avatar
                 _lockedDirection = _rigidbody.transform.TransformVector(_stateInfoProvider.MoveDirection);
             if (_stateInfoProvider.CurrentMoveState == MovementType.Jump && _stateInfoProvider.WasMoveStateChanged)
             {
-                _lockedDirection = _rigidbody.transform.TransformVector(_stateInfoProvider.MoveDirection);
+                _lockedDirection = _rigidbody.transform.TransformVector(_stateInfoProvider.MoveDirection).normalized;
                 _lockedDirection.y = 1f;
-                _lockedDirection = _lockedDirection.normalized;
             }
         }
 
@@ -61,7 +61,9 @@ namespace Avatar
 
         private void Run()
         {
-            _rigidbody.velocity = _rigidbody.transform.TransformVector(_stateInfoProvider.MoveDirection) * _statsProvider.RunSpeed;
+            var velocity = _rigidbody.transform.TransformVector(_stateInfoProvider.MoveDirection) * _statsProvider.RunSpeed;
+            velocity.y = _rigidbody.velocity.y;
+            _rigidbody.velocity = velocity;
         }
 
         private void Fly()
